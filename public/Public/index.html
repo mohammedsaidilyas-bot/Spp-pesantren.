@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SPP Pesantren</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-emerald-50 min-h-screen p-4">
+  <div class="max-w-md mx-auto bg-white p-6 rounded-2xl shadow-lg mt-6">
+    <h2 class="text-xl font-bold text-center text-emerald-800 mb-4">Pembayaran SPP Pesantren</h2>
+    <div class="flex gap-2 mb-4">
+      <input type="text" id="nis" placeholder="Masukkan NIS Santri" class="w-full p-3 border rounded-xl outline-none">
+      <button onclick="cekTagihan()" class="bg-emerald-600 text-white px-5 rounded-xl font-bold">Cek</button>
+    </div>
+    <div id="info" class="hidden">
+      <div class="bg-gray-100 p-3 rounded-xl mb-3 text-sm">
+        <p>Nama: <b id="nama"></b></p>
+        <p>Kelas: <b id="kelas"></b></p>
+      </div>
+      <div id="list"></div>
+    </div>
+  </div>
+  <script>
+    async function cekTagihan() {
+      const nis = document.getElementById('nis').value;
+      const res = await fetch('/api/tagihan/' + nis);
+      const data = await res.json();
+      if(!data.success) return alert(data.message);
+      document.getElementById('info').classList.remove('hidden');
+      document.getElementById('nama').innerText = data.santri.nama;
+      document.getElementById('kelas').innerText = data.santri.kelas;
+      document.getElementById('list').innerHTML = data.tagihan.map(t => `
+        <div class="flex justify-between items-center p-3 border-b">
+          <div><p class="font-bold">${t.bulan}</p><p class="text-emerald-600 font-bold">Rp ${t.jumlah.toLocaleString()}</p></div>
+          <button onclick="bayar(${t.id}, '${t.nis}')" class="bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-bold">Bayar</button>
+        </div>
+      `).join('');
+    }
+    async function bayar(tagihanId, nis) {
+      const res = await fetch('/api/bayar', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ tagihanId, nis })
+      });
+      const data = await res.json();
+      if(data.success) window.location.href = data.paymentUrl;
+    }
+  </script>
+</body>
+</html>
