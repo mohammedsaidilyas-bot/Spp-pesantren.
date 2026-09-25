@@ -1,27 +1,68 @@
-{
-  "version": 2,
-  "builds": [
-    {
-      "src": "server.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "public/**",
-      "use": "@vercel/static"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/cek-nis/(.*)",
-      "dest": "/server.js"
-    },
-    {
-      "src": "/bayar",
-      "dest": "/server.js"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/public/$1"
-    }
-  ]
-}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pembayaran SPP Pesantren</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f6f9; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        .card { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
+        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { background: #28a745; color: white; border: none; padding: 10px; width: 100%; border-radius: 4px; cursor: pointer; font-size: 16px; }
+        button:hover { background: #218838; }
+        #result { margin-top: 15px; text-align: left; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>Cek & Pembayaran SPP</h2>
+        <p>Masukkan NIS Santri:</p>
+        <input type="text" id="nisInput" placeholder="Contoh: 12345">
+        <button onclick="cekNis()">Cek Data SPP</button>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        async function cekNis() {
+            const nis = document.getElementById('nisInput').value;
+            const resultDiv = document.getElementById('result');
+            if (!nis) {
+                alert('Silakan masukkan NIS terlebih dahulu!');
+                return;
+            }
+            try {
+                const response = await fetch(`/cek-nis/${nis}`);
+                const data = await response.json();
+                if (data.success) {
+                    resultDiv.innerHTML = `
+                        <p><strong>Nama:</strong> ${data.nama}</p>
+                        <p><strong>Kelas:</strong> ${data.kelas}</p>
+                        <p><strong>Bulan:</strong> ${data.bulan}</p>
+                        <p><strong>Nominal:</strong> ${data.nominal}</p>
+                        <button onclick="bayarSPP('${nis}')" style="background:#007bff;">Bayar Sekarang</button>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `<p style="color:red;">${data.message}</p>`;
+                }
+            } catch (err) {
+                resultDiv.innerHTML = `<p style="color:red;">Terjadi kesalahan sistem.</p>`;
+            }
+        }
+
+        async function bayarSPP(nis) {
+            const response = await fetch('/bayar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nis })
+            });
+            const data = await response.json();
+            if (data.success) {
+                alert('Mengarahkan ke halaman pembayaran Mayar.id...');
+                window.location.href = data.paymentUrl;
+            } else {
+                alert('Gagal memproses pembayaran.');
+            }
+        }
+    </script>
+</body>
+</html>
