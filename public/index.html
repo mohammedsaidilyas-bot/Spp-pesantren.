@@ -7,17 +7,21 @@
     <style>
         body { font-family: Arial, sans-serif; background-color: #f4f6f9; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
         .card { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
-        .logo { width: 90px; height: 90px; object-fit: contain; margin-bottom: 15px; border-radius: 50%; }
-        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        button { background: #28a745; color: white; border: none; padding: 10px; width: 100%; border-radius: 4px; cursor: pointer; font-size: 16px; }
+        .logo-container { margin-bottom: 20px; }
+        .logo { width: 100px; height: 100px; object-fit: contain; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        h2 { margin-top: 0; color: #333; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 14px; }
+        button { background: #28a745; color: white; border: none; padding: 12px; width: 100%; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: bold; }
         button:hover { background: #218838; }
         #result { margin-top: 15px; text-align: left; }
     </style>
 </head>
 <body>
     <div class="card">
-        <!-- Logo Pondok dari GitHub -->
-        <img src="IMG_20260925_232356.png" alt="Logo Pondok" class="logo">
+        <!-- Logo Pondok Utama -->
+        <div class="logo-container">
+            <img src="https://raw.githubusercontent.com/mohammedsaidilyas-bot/Spp-pesantren/main/IMG_20260925_232356.png" alt="Logo Pondok" class="logo">
+        </div>
         
         <h2>Cek & Pembayaran SPP</h2>
         <p>Masukkan NIS Santri:</p>
