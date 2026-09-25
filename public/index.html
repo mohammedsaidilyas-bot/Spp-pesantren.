@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pembayaran SPP Pesantren</title>
     <style>
-        body { font-family: Arial, sans-serif; background-color: #f4f6f9; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        body { font-family: Arial, sans-serif; background-color: #f4f6f9; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
         .card { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
+        .logo { width: 80px; height: 80px; object-fit: contain; margin-bottom: 15px; }
         input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
         button { background: #28a745; color: white; border: none; padding: 10px; width: 100%; border-radius: 4px; cursor: pointer; font-size: 16px; }
         button:hover { background: #218838; }
@@ -15,6 +16,9 @@
 </head>
 <body>
     <div class="card">
+        <!-- Logo Pondok Anda -->
+        <img src="https://lh3.googleusercontent.com/d/1AhxDWNnJXIdC1a8i9I_09EgeOQzpX4Bo" alt="Logo Pondok" class="logo">
+        
         <h2>Cek & Pembayaran SPP</h2>
         <p>Masukkan NIS Santri:</p>
         <input type="text" id="nisInput" placeholder="Contoh: 12345">
@@ -39,7 +43,7 @@
                         <p><strong>Kelas:</strong> ${data.kelas}</p>
                         <p><strong>Bulan:</strong> ${data.bulan}</p>
                         <p><strong>Nominal:</strong> ${data.nominal}</p>
-                        <button onclick="bayarSPP('${nis}')" style="background:#007bff;">Bayar Sekarang</button>
+                        <button onclick="bayarSPP('${nis}')" style="background:#007bff; margin-top:10px;">Bayar Sekarang</button>
                     `;
                 } else {
                     resultDiv.innerHTML = `<p style="color:red;">${data.message}</p>`;
