@@ -24,49 +24,66 @@
         body {
             background-color: var(--bg-color);
             color: var(--text-color);
-            padding: 15px;
+            padding: 0;
             display: flex;
             justify-content: center;
-            align-items: center;
             min-height: 100vh;
         }
-        .container {
+        .wrapper {
             width: 100%;
             max-width: 480px;
             background: var(--card-bg);
-            border-radius: 16px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-            overflow: hidden;
-            padding: 24px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
-        .header {
+        /* Header Blok Hijau Penuh */
+        .header-hero {
+            background-color: var(--primary-color);
+            color: white;
             text-align: center;
-            margin-bottom: 24px;
+            padding: 30px 20px;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
         }
         .logo-pesantren {
-            width: 75px;
-            height: 75px;
-            object-fit: contain;
-            margin-bottom: 12px;
+            width: 70px;
+            height: 70px;
+            object-fit: cover;
             border-radius: 50%;
-            background-color: #f0fdf4;
-            padding: 5px;
-            border: 2px solid var(--accent-color);
+            background-color: white;
+            border: 3px solid white;
+            margin: 0 auto 12px auto;
+            display: block;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         }
-        .header h1 {
-            font-size: 1.25rem;
-            color: var(--primary-color);
-            margin-bottom: 6px;
+        .header-hero h1 {
+            font-size: 1.2rem;
             font-weight: 700;
+            margin-bottom: 4px;
         }
-        .header p {
+        .header-hero p {
             font-size: 0.85rem;
-            color: var(--text-light);
+            opacity: 0.9;
+        }
+        .content-body {
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .label-input {
+            font-size: 0.85rem;
+            color: var(--text-color);
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: block;
         }
         .search-box {
             display: flex;
             gap: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
         }
         .search-box input {
             flex: 1;
@@ -75,16 +92,17 @@
             border-radius: 10px;
             font-size: 1rem;
             outline: none;
-            transition: border-color 0.2s;
+            background: #fafafa;
         }
         .search-box input:focus {
             border-color: var(--primary-color);
+            background: white;
         }
         .search-box button {
             background-color: var(--primary-color);
             color: white;
             border: none;
-            padding: 0 20px;
+            padding: 0 22px;
             border-radius: 10px;
             font-weight: 600;
             cursor: pointer;
@@ -96,78 +114,92 @@
         .loading {
             text-align: center;
             color: var(--text-light);
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             margin-bottom: 15px;
         }
         .error-msg {
             background-color: #fee2e2;
             color: #991b1b;
-            padding: 12px;
+            padding: 10px;
             border-radius: 8px;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             display: none;
         }
         .santri-card {
-            background: #f9fafb;
+            background: white;
             border: 1px solid #e5e7eb;
             border-radius: 12px;
             padding: 16px;
             margin-bottom: 20px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
             display: none;
         }
-        .santri-info p {
+        .santri-info {
             font-size: 0.9rem;
-            margin-bottom: 6px;
-        }
-        .santri-info span {
-            font-weight: 600;
+            line-height: 1.6;
+            margin-bottom: 16px;
             color: var(--text-color);
         }
-        .form-group {
-            margin-bottom: 16px;
+        .santri-info strong {
+            color: var(--primary-dark);
         }
-        .form-group label {
-            display: block;
+        .section-title {
             font-size: 0.85rem;
             font-weight: 600;
-            margin-bottom: 6px;
+            color: var(--text-color);
+            margin-bottom: 10px;
         }
-        .form-group select {
-            width: 100%;
-            padding: 12px;
+        /* Grid Checkbox Bulan */
+        .months-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        .month-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
             border: 1px solid #d1d5db;
-            border-radius: 10px;
-            font-size: 1rem;
-            background: white;
-            outline: none;
+            border-radius: 8px;
+            background: #fff;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        .month-item:hover {
+            border-color: var(--primary-color);
+            background: #f0fdf4;
+        }
+        .month-item input {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary-color);
+            cursor: pointer;
         }
         .summary-box {
-            background: #ecfdf5;
-            border: 1px solid #a7f3d0;
-            border-radius: 10px;
-            padding: 14px;
-            margin-bottom: 20px;
-            display: none;
-        }
-        .summary-box p {
-            font-size: 0.9rem;
-            color: #065f46;
-            margin-bottom: 4px;
+            border-top: 1px dashed #d1d5db;
+            padding-top: 12px;
+            margin-bottom: 16px;
             display: flex;
             justify-content: space-between;
+            align-items: center;
         }
-        .summary-box .total {
+        .summary-box span {
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+        .summary-box .total-amount {
+            font-size: 1.15rem;
+            color: var(--primary-color);
             font-weight: 700;
-            font-size: 1.1rem;
-            border-top: 1px solid #a7f3d0;
-            padding-top: 6px;
-            margin-top: 6px;
         }
         .btn-pay {
             width: 100%;
-            background-color: var(--accent-color);
+            background-color: var(--primary-color);
             color: white;
             border: none;
             padding: 14px;
@@ -185,9 +217,9 @@
             background-color: var(--primary-dark);
         }
         .cash-section {
-            margin-top: 20px;
+            margin-top: 10px;
             border-top: 1px dashed #d1d5db;
-            padding-top: 15px;
+            padding-top: 12px;
             display: none;
         }
         .btn-cash {
@@ -206,7 +238,8 @@
         }
         .footer-admin {
             text-align: center;
-            margin-top: 25px;
+            margin-top: auto;
+            padding: 20px 0;
             font-size: 0.8rem;
         }
         .footer-admin a {
@@ -220,53 +253,55 @@
 </head>
 <body>
 
-<div class="container">
-    <div class="header">
-        <!-- Bagian Logo Pesantren -->
+<div class="wrapper">
+    <!-- Header Hijau dengan Logo -->
+    <div class="header-hero">
         <img src="IMG_20260925_232356.png" alt="Logo PPFHA" class="logo-pesantren" onerror="this.style.display='none'">
-        <h1>PPFHA AL-QAROBIYAH</h1>
-        <p>Portal Pembayaran SPP Pondok Pesantren</p>
+        <h1>PP. Fathul Huda Al-Qarobiyah</h1>
+        <p>Portal Pembayaran SPP Santri</p>
     </div>
 
-    <div class="loading" id="loadingText">Memuat database santri...</div>
+    <div class="content-body">
+        <div class="loading" id="loadingText">Memuat database santri...</div>
 
-    <div class="search-box">
-        <input type="number" id="nisInput" placeholder="Masukkan NIS Santri..." />
-        <button onclick="cariSantri()">Cek</button>
-    </div>
-
-    <div class="error-msg" id="errorMsg">NIS tidak ditemukan di database!</div>
-
-    <div class="santri-card" id="santriCard">
-        <div class="santri-info" id="santriInfo"></div>
-        
-        <div class="form-group" style="margin-top: 15px;">
-            <label for="bulanSelect">Pilih Jumlah Bulan Pembayaran</label>
-            <select id="bulanSelect" onchange="hitungTotal()">
-                <option value="1">1 Bulan</option>
-                <option value="2">2 Bulan</option>
-                <option value="3">3 Bulan</option>
-                <option value="6">6 Bulan</option>
-                <option value="12">12 Bulan (1 Tahun)</option>
-            </select>
+        <label class="label-input" for="nisInput">Masukkan Nomor Induk Santri (NIS)</label>
+        <div class="search-box">
+            <input type="number" id="nisInput" placeholder="Contoh: 20260001" />
+            <button onclick="cariSantri()">Cek</button>
         </div>
 
-        <div class="summary-box" id="summaryBox">
-            <p><span>Nominal SPP:</span> <span id="nominalAsli">Rp 0</span></p>
-            <p><span>Periode:</span> <span id="jmlBulanText">1 Bulan</span></p>
-            <p class="total"><span>Total Bayar:</span> <span id="totalBayar">Rp 0</span></p>
+        <div class="error-msg" id="errorMsg">NIS tidak ditemukan di database!</div>
+
+        <div class="santri-card" id="santriCard">
+            <div class="santri-info" id="santriInfo"></div>
+            
+            <div class="section-title">Pilih Bulan Pembayaran:</div>
+            
+            <div class="months-grid">
+                <label class="month-item"><input type="checkbox" value="Juli" onchange="hitungTotal()"> Juli</label>
+                <label class="month-item"><input type="checkbox" value="Agustus" onchange="hitungTotal()"> Agustus</label>
+                <label class="month-item"><input type="checkbox" value="September" onchange="hitungTotal()"> September</label>
+                <label class="month-item"><input type="checkbox" value="Oktober" onchange="hitungTotal()"> Oktober</label>
+                <label class="month-item"><input type="checkbox" value="November" onchange="hitungTotal()"> November</label>
+                <label class="month-item"><input type="checkbox" value="Desember" onchange="hitungTotal()"> Desember</label>
+            </div>
+
+            <div class="summary-box">
+                <span>Total Tagihan:</span>
+                <span class="total-amount" id="totalBayar">Rp 0</span>
+            </div>
+
+            <a href="#" id="btnOnline" class="btn-pay" target="_blank">Bayar Online (Mayar.id / QRIS)</a>
+
+            <!-- Area Tombol Khusus Bendahara -->
+            <div class="cash-section" id="cashSection">
+                <button class="btn-cash" onclick="catatTunai()">Catat Pembayaran Tunai (Cash)</button>
+            </div>
         </div>
 
-        <a href="#" id="btnOnline" class="btn-pay" target="_blank">Bayar Online (Mayar.id / QRIS)</a>
-
-        <!-- Area Tombol Khusus Bendahara -->
-        <div class="cash-section" id="cashSection">
-            <button class="btn-cash" onclick="catatTunai()">Catat Pembayaran Tunai (Cash)</button>
+        <div class="footer-admin">
+            <a href="#" onclick="loginBendahara()">Login Khusus Bendahara (Cash)</a>
         </div>
-    </div>
-
-    <div class="footer-admin">
-        <a href="#" onclick="loginBendahara()">Login Khusus Bendahara (Cash)</a>
     </div>
 </div>
 
@@ -277,7 +312,6 @@
     // Link CSV Google Sheets Anda
     const csvUrl = "https://docs.google.com/spreadsheets/d/1cqGQaKIOWmYopQPQyI5LTCB77wbLWKoxAqUBDGiSKMw/export?format=csv";
 
-    // Muat data otomatis saat web dibuka
     window.onload = function() {
         Papa.parse(csvUrl, {
             download: true,
@@ -300,29 +334,30 @@
         errorMsg.style.display = 'none';
         santriCard.style.display = 'none';
 
+        // Reset checkbox bulan
+        document.querySelectorAll('.months-grid input').forEach(cb => cb.checked = false);
+
         if (!nisCari) {
             errorMsg.innerText = "Silakan masukkan NIS terlebih dahulu!";
             errorMsg.style.display = 'block';
             return;
         }
 
-        // Cari data berdasarkan NIS di Google Sheets
         const hasil = databaseSantri.find(s => String(s.NIS).trim() === nisCari);
 
         if (hasil) {
             santriAktif = hasil;
+            let nominal = parseInt(hasil.Nominal) || 0;
             
             let htmlInfo = `
-                <p><span>NIS:</span> ${hasil.NIS}</p>
-                <p><span>Nama Santri:</span> ${hasil['Nama Santri']}</p>
-                <p><span>Kelas:</span> ${hasil.Kelas}</p>
-                <p><span>Asrama:</span> ${hasil.Asrama}</p>
-                <p><span>Wali Santri:</span> ${hasil['Wali Santri']}</p>
+                Nama: <strong>${hasil['Nama Santri']}</strong><br>
+                Kelas: <strong>${hasil.Kelas}</strong><br>
+                Asrama: <strong>${hasil.Asrama}</strong><br>
+                Wali Santri: <strong>${hasil['Wali Santri']}</strong><br>
+                SPP per Bulan: <strong>Rp ${nominal.toLocaleString('id-ID')}</strong>
             `;
             document.getElementById('santriInfo').innerHTML = htmlInfo;
             santriCard.style.display = 'block';
-            document.getElementById('summaryBox').style.display = 'block';
-            
             hitungTotal();
         } else {
             errorMsg.innerText = "NIS tidak ditemukan di database pesantren!";
@@ -334,15 +369,14 @@
         if (!santriAktif) return;
 
         let nominalPerBulan = parseInt(santriAktif.Nominal) || 0;
-        let jmlBulan = parseInt(document.getElementById('bulanSelect').value);
-        let total = nominalPerBulan * jmlBulan;
+        let checkedBulan = document.querySelectorAll('.months-grid input:checked');
+        let jumlahBulan = checkedBulan.length;
+        let total = nominalPerBulan * jumlahBulan;
 
-        document.getElementById('nominalAsli').innerText = "Rp " + nominalPerBulan.toLocaleString('id-ID');
-        document.getElementById('jmlBulanText').innerText = jmlBulan + " Bulan";
         document.getElementById('totalBayar').innerText = "Rp " + total.toLocaleString('id-ID');
 
-        // Atur link pembayaran online Mayar.id Anda
-        let linkMayar = `https://mayar.id/@spp-ppfha?amount=${total}&name=${encodeURIComponent(santriAktif['Nama Santri'])}&note=SPP_${santriAktif.NIS}`;
+        let listBulanStr = Array.from(checkedBulan).map(cb => cb.value).join(', ');
+        let linkMayar = `https://mayar.id/@spp-ppfha?amount=${total}&name=${encodeURIComponent(santriAktif['Nama Santri'])}&note=SPP_${santriAktif.NIS}_${encodeURIComponent(listBulanStr)}`;
         document.getElementById('btnOnline').href = linkMayar;
     }
 
@@ -358,12 +392,18 @@
 
     function catatTunai() {
         if (!santriAktif) return;
-        let jmlBulan = document.getElementById('bulanSelect').value;
+        let checkedBulan = document.querySelectorAll('.months-grid input:checked');
+        if (checkedBulan.length === 0) {
+            alert("Pilih minimal 1 bulan pembayaran terlebih dahulu!");
+            return;
+        }
+
         let nominalPerBulan = parseInt(santriAktif.Nominal) || 0;
-        let total = nominalPerBulan * jmlBulan;
+        let total = nominalPerBulan * checkedBulan.length;
+        let listBulanStr = Array.from(checkedBulan).map(cb => cb.value).join(', ');
         let noHpWali = santriAktif['No Hp'] || "";
 
-        let pesan = `Assalamu'alaikum, konfirmasi pembayaran SPP Pondok Pesantren Fathul Huda Al-Qarobiyah:\n\n*Nama:* ${santriAktif['Nama Santri']}\n*NIS:* ${santriAktif.NIS}\n*Kelas:* ${santriAktif.Kelas}\n*Jumlah:* ${jmlBulan} Bulan (Rp ${total.toLocaleString('id-ID')})\n*Status:* LUNAS (Tunai/Cash)\n\nTerima kasih.`;
+        let pesan = `Assalamu'alaikum, konfirmasi pembayaran SPP Pondok Pesantren Fathul Huda Al-Qarobiyah:\n\n*Nama:* ${santriAktif['Nama Santri']}\n*NIS:* ${santriAktif.NIS}\n*Kelas:* ${santriAktif.Kelas}\n*Bulan:* ${listBulanStr}\n*Total:* Rp ${total.toLocaleString('id-ID')}\n*Status:* LUNAS (Tunai/Cash)\n\nTerima kasih.`;
 
         let urlWa = `https://wa.me/62${noHpWali.replace(/^0+/, '')}?text=${encodeURIComponent(pesan)}`;
         window.open(urlWa, '_blank');
