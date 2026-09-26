@@ -335,7 +335,8 @@
     </div>
 
 <script>
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwKc7a7Wag2S1hnEfkM7d0ipPdnMy13HnK_6Ct7CeJb9wl28wxgl8I0Wwu5cL5_81TgbQ/exec";
+    // URL Web App Google Apps Script terbaru Anda
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwVEoquoZd9ojPxubLyHjUfGp6yDQm_Kqjw8gCFPiE9hJXRZyJeommvr-O_5XzJ1YRAEQ/exec";
 
     function cekDataSantri() {
         var nis = document.getElementById("nis").value.trim();
@@ -347,7 +348,7 @@
         document.getElementById("loaderText").innerText = "Mencari data santri...";
         document.getElementById("loadingOverlay").style.display = "flex";
 
-        // Memanggil data santri via GET parameter
+        // Memanggil data santri via GET parameter ke URL terbaru
         fetch(WEB_APP_URL + "?nis=" + encodeURIComponent(nis))
         .then(response => response.json())
         .then(data => {
@@ -367,7 +368,7 @@
         .catch(error => {
             document.getElementById("loadingOverlay").style.display = "none";
             console.error(error);
-            alert("Gagal terhubung ke database. Pastikan backend Google Apps Script sudah diperbarui.");
+            alert("Gagal terhubung ke database. Pastikan fungsi doGet pada Code.gs aktif.");
         });
     }
 
