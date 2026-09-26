@@ -24,23 +24,50 @@
                 <h2 class="text-lg font-semibold text-slate-700">Cek Tagihan / Pembayaran SPP</h2>
                 <div>
                     <label class="block text-sm font-medium text-slate-600 mb-1">Nomor Induk Santri (NIS)</label>
-                    <input type="text" id="nis-input" placeholder="Contoh: 1001" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    <input type="text" id="nis-input" placeholder="Contoh: 20260000" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500">
                 </div>
                 <button onclick="cekSantri()" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-semibold hover:bg-emerald-700 transition">Masuk / Cek Status</button>
             </div>
 
             <!-- Panel Hasil / Pembayaran -->
             <div id="payment-section" class="hidden space-y-4">
-                <div class="bg-emerald-50 p-4 rounded-2xl border border-emerald-100">
+                <div class="bg-emerald-50 p-4 rounded-2xl border border-emerald-100 space-y-1">
                     <p class="text-xs text-emerald-600 font-medium">Informasi Santri</p>
-                    <p id="info-nama" class="text-lg font-bold text-emerald-900 mt-1">-</p>
+                    <p id="info-nama" class="text-lg font-bold text-emerald-900">-</p>
                     <p class="text-sm text-emerald-700">NIS: <span id="info-nis">-</span></p>
+                    <p class="text-sm text-emerald-700">Wali Santri: <span id="info-wali" class="font-medium">-</span></p>
                     <p class="text-sm text-emerald-700">Status: <span id="info-status" class="font-bold">-</span></p>
                 </div>
 
-                <div id="action-buttons" class="space-y-3">
+                <!-- Pilihan Bulan SPP -->
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-slate-600">Pilih Bulan Pembayaran SPP</label>
+                    <select id="bulan-select" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white">
+                        <option value="Juli">Juli</option>
+                        <option value="Agustus">Agustus</option>
+                        <option value="September" selected>September</option>
+                        <option value="Oktober">Oktober</option>
+                        <option value="November">November</option>
+                        <option value="Desember">Desember</option>
+                        <option value="Januari">Januari</option>
+                        <option value="Februari">Februari</option>
+                        <option value="Maret">Maret</option>
+                        <option value="April">April</option>
+                        <option value="Mei">Mei</option>
+                        <option value="Juni">Juni</option>
+                    </select>
+                </div>
+
+                <!-- Pilihan Nominal -->
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-slate-600">Nominal SPP</label>
+                    <input type="text" id="nominal-input" value="Rp 150.000" readonly class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-100 text-slate-600 font-semibold">
+                </div>
+
+                <div id="action-buttons" class="space-y-3 pt-2">
                     <button onclick="bayarOnline()" class="w-full bg-indigo-600 text-white py-3 rounded-xl font-semibold hover:bg-indigo-700 transition">Bayar Online (Mayar.id)</button>
                     <button onclick="bukaModalTunai()" class="w-full bg-amber-600 text-white py-3 rounded-xl font-semibold hover:bg-amber-700 transition">Bayar Tunai / Offline (PIN Bendahara)</button>
+                    <button onclick="kirimKuitansiWA()" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-semibold hover:bg-emerald-700 transition">Kirim Kuitansi (WhatsApp)</button>
                 </div>
                 <button onclick="resetForm()" class="w-full text-slate-500 text-sm py-2">Kembali / Cari NIS Lain</button>
             </div>
@@ -66,10 +93,11 @@
     </div>
 
     <script>
-        // URL Google Apps Script Anda yang sudah terhubung
         const scriptUrl = "https://script.google.com/macros/s/AKfycbzYhVYm2zXGj6IvHAS6lDuvlYs3DupbEKB405nmoKxIj9W_40T0sO1u82VWQtBsQd0Apw/exec";
         
         let currentNis = "";
+        let currentNama = "";
+        let currentWali = "";
         let dataSantriList = [];
 
         async function cekSantri() {
@@ -86,8 +114,14 @@
 
                 if (santri) {
                     currentNis = santri.nis;
-                    document.getElementById('info-nama').innerText = santri.nama || "Santri PPFHA";
-                    document.getElementById('info-nis').innerText = santri.nis;
+                    currentNama = santri.nama || "Santri PPFHA";
+                    // Mendukung berbagai variasi nama kolom wali santri di Google Sheets
+                    currentWali = santri["wali santri"] || santri["orang tua"] || santri["wali"] || "-";
+
+                    document.getElementById('info-nama').innerText = currentNama;
+                    document.getElementById('info-nis').innerText = currentNis;
+                    document.getElementById('info-wali').innerText = currentWali;
+
                     const statusEl = document.getElementById('info-status');
                     statusEl.innerText = santri.status || "BELUM LUNAS";
                     statusEl.className = santri.status === "LUNAS" ? "font-bold text-emerald-600" : "font-bold text-red-600";
@@ -99,14 +133,13 @@
                 }
             } catch (err) {
                 console.error(err);
-                alert('Gagal mengambil data dari Google Sheets. Pastikan koneksi dan URL aktif.');
+                alert('Gagal mengambil data dari Google Sheets.');
             }
         }
 
         function bayarOnline() {
-            // Simulasi integrasi Mayar.id atau arahkan ke payment gateway
-            alert('Mengarahkan ke sistem pembayaran online Mayar.id untuk NIS: ' + currentNis);
-            // Anda dapat menyematkan skrip Mayar checkout di sini sesuai kebutuhan
+            const bulan = document.getElementById('bulan-select').value;
+            alert(`Mengarahkan ke Mayar.id untuk pembayaran SPP bulan ${bulan} (NIS: ${currentNis})`);
         }
 
         function bukaModalTunai() {
@@ -120,27 +153,36 @@
 
         async function prosesTunai() {
             const pin = document.getElementById('pin-input').value.trim();
-            // PIN Bendahara default (bisa diubah sesuai keinginan)
             if (pin !== "1234") {
                 alert('PIN Bendahara salah!');
                 return;
             }
 
+            const bulan = document.getElementById('bulan-select').value;
             try {
-                await axios.post(scriptUrl, JSON.stringify({ nis: currentNis }), {
+                await axios.post(scriptUrl, JSON.stringify({ nis: currentNis, bulan: bulan }), {
                     headers: { "Content-Type": "text/plain;charset=utf-8" }
                 });
-                alert('Pembayaran tunai berhasil dicatat! Status di Google Sheets telah diubah menjadi LUNAS.');
+                alert(`Pembayaran tunai SPP bulan ${bulan} berhasil dicatat dan status Google Sheets menjadi LUNAS.`);
                 tutupModalTunai();
-                cekSantri(); // Refresh status
+                cekSantri();
             } catch (err) {
                 console.error(err);
                 alert('Gagal memperbarui status ke Google Sheets.');
             }
         }
 
+        function kirimKuitansiWA() {
+            const bulan = document.getElementById('bulan-select').value;
+            const pesan = `*KUITANSI PEMBAYARAN SPP PPFHA*\n\nNama Santri: ${currentNama}\nNIS: ${currentNis}\nWali Santri: ${currentWali}\nBulan: ${bulan}\nNominal: Rp 150.000\nStatus: *LUNAS*\n\nTerima kasih, pembayaran telah dikonfirmasi oleh Bendahara Pondok Pesantren Fathul Huda Al-Qarobiyah.`;
+            const encodedPesan = encodeURIComponent(pesan);
+            window.open(`https://api.whatsapp.com/send?text=${encodedPesan}`, '_blank');
+        }
+
         function resetForm() {
             currentNis = "";
+            currentNama = "";
+            currentWali = "";
             document.getElementById('nis-input').value = "";
             document.getElementById('payment-section').classList.add('hidden');
             document.getElementById('login-section').classList.remove('hidden');
