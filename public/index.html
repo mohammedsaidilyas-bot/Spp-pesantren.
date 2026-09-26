@@ -356,7 +356,7 @@
                 <label class="input-label" style="color: #be185d; margin-bottom: 4px;">
                     <i class="fa-solid fa-lock"></i> Masukkan PIN Bendahara
                 </label>
-                <input type="password" id="kodeBendahara" placeholder="PIN khusus bendahara (123456)" autocomplete="current-password">
+                <input type="password" id="kodeBendahara" placeholder="PIN: 123456" autocomplete="current-password">
             </div>
 
             <!-- Tombol Aksi Sesuai Referensi Gambar -->
@@ -422,7 +422,7 @@
         .catch(error => {
             document.getElementById("loadingOverlay").style.display = "none";
             console.error(error);
-            alert("Gagal terhubung ke database. Pastikan backend Google Apps Script sudah disinkronkan.");
+            alert("Gagal terhubung ke database. Pastikan backend Google Apps Script sudah di-deploy dengan akses 'Anyone'.");
         });
     }
 
@@ -439,7 +439,7 @@
             
             if (status === "LUNAS") {
                 option.text = bulan + " (LUNAS)";
-                option.disabled = true;
+                option.disabled = true; // Kunci bulan yang sudah lunas
             } else {
                 option.text = bulan;
             }
@@ -523,7 +523,6 @@
             }
 
             alert("Pembayaran bulan " + bulan + " berhasil dicatat!");
-
             kirimWhatsAppOtomatis(bulan, metode);
 
             document.getElementById("kodeBendahara").value = "";
