@@ -258,7 +258,7 @@
                 <label class="form-label" style="margin-top: 15px;">Metode Pembayaran:</label>
                 <div class="payment-methods">
                     <label class="method-card selected" id="labelTunai" onclick="pilihMetode('tunai')">
-                        <input type="radio" name="metode" value="tunai" checked> Tunai (Offline)
+                        <input type="radio" name="metode" value="tunai" checked> Tunai (Bendahara)
                     </label>
                     <label class="method-card" id="labelOnline" onclick="pilihMetode('online')">
                         <input type="radio" name="metode" value="online"> Online (Mayar.id)
@@ -278,6 +278,9 @@
     <script>
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzYhVYm2zXGj6IvHAS6lDuvlYs3DupbEKB405nmoKxIj9W_40T0sO1u82VWQtBsQd0Apw/exec";
         
+        // PIN Rahasia Khusus Bendahara (bisa diganti sesuai keinginan)
+        const PIN_BENDAHARA = "123456"; 
+
         let santriTerpilih = null;
         let nominalSPP = 150000;
         let metodePilih = 'tunai';
@@ -374,6 +377,13 @@
 
             if (metodePilih === 'online') {
                 alert(`Mengarahkan ke pembayaran Online Mayar.id sejumlah Rp ${totalBayar.toLocaleString('id-ID')} untuk bulan: ${bulanPilihan.join(', ')}`);
+                return;
+            }
+
+            // Proteksi Khusus Tunai (Hanya Bendahara dengan PIN)
+            let pinInput = prompt("Masukkan PIN Khusus Bendahara untuk memproses pembayaran Tunai:");
+            if (pinInput !== PIN_BENDAHARA) {
+                alert("PIN Bendahara salah! Pembayaran tunai dibatalkan. Fitur tunai hanya dapat diakses oleh bendahara pesantren.");
                 return;
             }
 
