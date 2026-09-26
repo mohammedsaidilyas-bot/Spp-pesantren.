@@ -103,7 +103,6 @@
                 <h5 class="fw-bold text-dark mt-1 mb-2" id="txtNama">-</h5>
                 <p class="mb-1 small text-secondary">NIS: <span id="txtNis" class="fw-semibold text-dark">-</span></p>
                 <p class="mb-1 small text-secondary">Wali Santri: <span id="txtWali" class="fw-semibold text-dark">-</span></p>
-                <!-- Label No. Telepon -->
                 <p class="mb-1 small text-secondary">No. Telepon: <span id="txtWa" class="fw-semibold text-dark">-</span></p>
                 <p class="mb-0 small text-secondary">Status SPP: <span id="txtStatus" class="fw-bold text-danger">BELUM LUNAS</span></p>
               </div>
@@ -124,7 +123,7 @@
                     <option value="Maret">Maret</option>
                     <option value="April">April</option>
                     <option value="Mei">Mei</option>
-                    <option value="Juni">Juni</>
+                    <option value="Juni">Juni</option>
                   </select>
                 </div>
                 <div class="col-5">
@@ -161,6 +160,21 @@
     const scriptURL = "https://script.google.com/macros/s/AKfycbzYhVYm2zXGj6IvHAS6lDuvlYs3DupbEKB405nmoKxIj9W_40T0sO1u82VWQtBsQd0Apw/exec";
     let globalDataSantri = null;
 
+    // Fungsi canggih untuk mendeteksi nomor telepon/HP secara dinamis tanpa tertukar dengan nama wali
+    function ambilNomorTelepon(obj) {
+      for (let key in obj) {
+        let k = key.toLowerCase().replace(/[^a-z0-9]/g, ''); // Membersihkan spasi dan simbol pada nama kolom
+        // Cari yang mengandung kata telepon, telp, nohp, wa, atau hp, tapi BUKAN mengandung kata nama
+        if ((k.includes('telepon') || k.includes('telp') || k.includes('nohp') || k.includes('wa') || k.includes('hp')) && !k.includes('nama')) {
+          let val = obj[key];
+          if (val !== undefined && val !== null && String(val).trim() !== "") {
+            return String(val).trim();
+          }
+        }
+      }
+      return "";
+    }
+
     function cariSantri() {
       let nis = document.getElementById('nisInput').value.trim();
       if(!nis) {
@@ -188,10 +202,7 @@
             
             let nama = santri['Nama Santri'] || santri['nama santri'] || santri['Nama'] || '-';
             let wali = santri['Wali Santri'] || santri['wali santri'] || '-';
-            
-            // Membaca kolom 'No Telepon' langsung dari Google Sheets
-            let wa = santri['No Telepon'] || santri['no telepon'] || santri['No. Telepon'] || santri['Telepon'] || '';
-            
+            let wa = ambilNomorTelepon(santri);
             let nominal = parseInt(santri['Nominal'] || santri['nominal']) || 50000;
 
             document.getElementById('txtNama').innerText = nama;
@@ -286,7 +297,7 @@
       let nis = document.getElementById('nisInput').value.trim();
       let nama = document.getElementById('txtNama').innerText;
       
-      let rawWa = String(globalDataSantri['No Telepon'] || santri['no telepon'] || santri['No. Telepon'] || santri['Telepon'] || '').trim().replace(/[^0-9]/g, "");
+      let rawWa = ambilNomorTelepon(globalDataSantri).replace(/[^0-9]/g, "");
 
       if(rawWa.startsWith("0")) {
         rawWa = "62" + rawWa.substring(1);
@@ -335,8 +346,8 @@
     function resetForm(e) {
       e.preventDefault();
       document.getElementById('nisInput').value = '';
-      document.getElementById('sectionCari').classList.remove('d-none');
-      document.getElementById('sectionAksi').classList.add('d-none');
+      document.getElementById('sectionCari').classList.add('d-none');
+      document.getElementById('sectionAksi').classList.remove('d-none');
       globalDataSantri = null;
     }
   </script>
