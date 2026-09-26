@@ -381,7 +381,8 @@
     </div>
 
 <script>
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzAliT7f9OFfXpyYCCzqQW2Yon_C4QXoSzfYYM09dtsvftl_8nPDSuzi0TgK1FhzkG3Dg/exec";
+    // URL Web App Google Apps Script terbaru yang disinkronkan
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx4NQlH7CaaptPVu0O36rSR5XFrcIuzrTpCxz0XmRO9NMK49cG1LmYN8Sf58eHjKNkiTw/exec";
     const PIN_BENDAHARA_VALID = "123456";
     const daftarBulan = ["Juli", "Agustus", "September", "Oktober", "November", "Desember", "Januari", "Februari", "Maret", "April", "Mei", "Juni"];
 
@@ -422,7 +423,7 @@
         .catch(error => {
             document.getElementById("loadingOverlay").style.display = "none";
             console.error(error);
-            alert("Gagal terhubung ke database. Pastikan backend Google Apps Script sudah di-deploy dengan akses 'Anyone'.");
+            alert("Gagal terhubung ke database. Pastikan backend Google Apps Script sudah aktif.");
         });
     }
 
@@ -439,7 +440,7 @@
             
             if (status === "LUNAS") {
                 option.text = bulan + " (LUNAS)";
-                option.disabled = true; // Kunci bulan yang sudah lunas
+                option.disabled = true;
             } else {
                 option.text = bulan;
             }
