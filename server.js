@@ -10,7 +10,7 @@ const dataSantri = {
     "20260004": { nama: "Arif", kelas: "2 Tsanawiyah", nominal: "150000" }
 };
 
-// Middleware untuk membaca file statis (HTML, CSS, Gambar) dari folder public
+// Middleware untuk membaca file statis
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Endpoint API untuk mengecek data santri berdasarkan NIS
@@ -33,10 +33,5 @@ app.get('/api/santri', (req, res) => {
     }
 });
 
-// Jalankan server lokal (untuk Vercel)
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Server berjalan di port ${PORT}`);
-});
-
+// Ekspor untuk Vercel Serverless
 module.exports = app;
