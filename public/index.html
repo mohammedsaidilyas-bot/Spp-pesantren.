@@ -8,62 +8,159 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <!-- FontAwesome untuk ikon -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- SweetAlert2 untuk Notifikasi -->
+  <!-- SweetAlert2 untuk Notifikasi Modern -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
+    :root {
+      --primary-color: #0d5c35;
+      --primary-hover: #094225;
+      --accent-color: #10b981;
+      --bg-gradient: linear-gradient(135deg, #f0fdf4 0%, #e2e8f0 100%);
+    }
+
     body {
-      background-color: #f4f7f6;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg-gradient);
+      font-family: 'Plus Jakarta Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
       padding: 20px 0;
     }
+
     .card-main {
       border: none;
-      border-radius: 16px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+      border-radius: 24px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
       background: #ffffff;
       overflow: hidden;
+      backdrop-filter: blur(10px);
     }
+
     .header-box {
-      background-color: #157347;
+      background: var(--primary-color);
       color: white;
-      padding: 25px 20px;
+      padding: 30px 20px;
       text-align: center;
-      border-radius: 16px 16px 0 0;
+      position: relative;
     }
-    .info-santri-box {
-      background-color: #f0fdf4;
-      border: 1px solid #dcfce7;
+
+    .header-box::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 12px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 12px 12px 0 0;
+    }
+
+    .form-control, .form-select {
       border-radius: 12px;
-      padding: 16px;
+      padding: 12px 16px;
+      border: 1px solid #e2e8f0;
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
     }
+
+    .form-control:focus, .form-select:focus {
+      border-color: var(--accent-color);
+      box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15);
+    }
+
+    .btn-custom {
+      border-radius: 12px;
+      padding: 12px 20px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-cari {
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+    }
+    .btn-cari:hover {
+      background-color: var(--primary-hover);
+      color: white;
+    }
+
+    .info-santri-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 20px;
+      position: relative;
+    }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 0.9rem;
+    }
+
+    .info-label {
+      color: #64748b;
+    }
+
+    .info-value {
+      font-weight: 600;
+      color: #1e293b;
+      text-align: right;
+    }
+
     .btn-online {
       background-color: #6366f1;
       color: white;
       border: none;
+      width: 100%;
     }
-    .btn-online:hover {
+    .btn-online:hover:not(:disabled) {
       background-color: #4f46e5;
       color: white;
+      transform: translateY(-1px);
     }
+
     .btn-tunai {
-      background-color: #d97706;
+      background-color: #f59e0b;
       color: white;
       border: none;
-    }
-    .btn-tunai:hover {
-      background-color: #b45309;
-      color: white;
-    }
-    .action-btn {
-      border-radius: 12px;
-      padding: 12px;
-      font-weight: 600;
       width: 100%;
-      margin-bottom: 12px;
-      transition: all 0.2s;
     }
-    .action-btn:hover {
+    .btn-tunai:hover:not(:disabled) {
+      background-color: #d97706;
+      color: white;
       transform: translateY(-1px);
+    }
+
+    .btn-custom:disabled {
+      background-color: #cbd5e1 !important;
+      border-color: #cbd5e1 !important;
+      color: #64748b !important;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
+    .status-badge {
+      padding: 6px 12px;
+      border-radius: 50px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+    .status-lunas {
+      background-color: #d1fae5;
+      color: #065f46;
+    }
+    .status-belum {
+      background-color: #fee2e2;
+      color: #991b1b;
     }
   </style>
 </head>
@@ -74,43 +171,65 @@
       <div class="col-md-6 col-lg-5">
         <div class="card card-main">
           
-          <!-- Header dengan Lambang Pondok & Nama Lengkap -->
+          <!-- Header Modern -->
           <div class="header-box">
             <div class="mb-2">
-              <i class="fas fa-mosque fa-2x text-white"></i>
+              <i class="fas fa-mosque fa-2x"></i>
             </div>
-            <h5 class="fw-bold mb-1" style="font-size: 1.1rem;">PP Fathul Huda Al-Qorrobiyah</h5>
-            <p class="mb-0 text-white-50 small">Portal Pembayaran SPP Santri</p>
+            <h5 class="fw-bold mb-1" style="letter-spacing: 0.5px;">PP Fathul Huda Al-Qorrobiyah</h5>
+            <p class="mb-0 text-white-50 small">Portal Pembayaran SPP Santri Modern</p>
           </div>
 
           <div class="card-body p-4">
             
-            <!-- Form Input NIS (Tampil di awal) -->
-            <div id="sectionCari" class="mb-3">
-              <label class="form-label fw-semibold small text-muted">MASUKKAN NIS SANTRI</label>
+            <!-- Form Input NIS -->
+            <div id="sectionCari" class="mb-2">
+              <label class="form-label fw-bold text-secondary small text-uppercase mb-2">Masukkan NIS Santri</label>
               <div class="input-group">
                 <input type="text" id="nisInput" class="form-control" placeholder="Contoh: 20260000" required>
-                <button class="btn btn-success px-4" type="button" onclick="cariSantri()">Cari</button>
+                <button class="btn btn-custom btn-cari px-4" type="button" onclick="cariSantri()">
+                  <i class="fas fa-search"></i> Cari
+                </button>
               </div>
             </div>
 
-            <!-- Bagian Detail & Aksi (Muncul setelah NIS ditemukan) -->
+            <!-- Bagian Detail & Aksi (Muncul Setelah Ditemukan) -->
             <div id="sectionAksi" class="d-none">
               
-              <!-- Kotak Informasi Santri -->
+              <!-- Kotak Informasi Santri yang Elegan -->
               <div class="info-santri-box mb-4">
-                <span class="text-success fw-bold small text-uppercase" style="font-size: 11px;">Informasi Santri</span>
-                <h5 class="fw-bold text-dark mt-1 mb-2" id="txtNama">-</h5>
-                <p class="mb-1 small text-secondary">NIS: <span id="txtNis" class="fw-semibold text-dark">-</span></p>
-                <p class="mb-1 small text-secondary">Wali Santri: <span id="txtWali" class="fw-semibold text-dark">-</span></p>
-                <p class="mb-1 small text-secondary">No. Telepon: <span id="txtWa" class="fw-semibold text-dark">-</span></p>
-                <p class="mb-0 small text-secondary">Status SPP: <span id="txtStatus" class="fw-bold text-danger">BELUM LUNAS</span></p>
+                <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                  <div>
+                    <span class="text-muted small d-block" style="font-size: 11px;">NAMA SANTRI</span>
+                    <h5 class="fw-bold text-dark mb-0" id="txtNama">-</h5>
+                  </div>
+                  <div>
+                    <span id="txtStatusBadge" class="status-badge status-belum">BELUM LUNAS</span>
+                  </div>
+                </div>
+
+                <div class="info-row">
+                  <span class="info-label">NIS</span>
+                  <span class="info-value" id="txtNis">-</span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label">Kelas</span>
+                  <span class="info-value" id="txtKelas">-</span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label">Wali Santri</span>
+                  <span class="info-value" id="txtWali">-</span>
+                </div>
+                <div class="info-row mb-0">
+                  <span class="info-label">No. Telepon</span>
+                  <span class="info-value" id="txtWa">-</span>
+                </div>
               </div>
 
               <!-- Pilihan Bulan & Nominal -->
               <div class="row g-2 mb-4">
                 <div class="col-7">
-                  <label class="form-label small text-muted fw-semibold">Bulan</label>
+                  <label class="form-label fw-bold text-secondary small text-uppercase mb-1">Bulan SPP</label>
                   <select id="selectBulan" class="form-select">
                     <option value="Juli">Juli</option>
                     <option value="Agustus">Agustus</option>
@@ -127,24 +246,26 @@
                   </select>
                 </div>
                 <div class="col-5">
-                  <label class="form-label small text-muted fw-semibold">Nominal</label>
-                  <input type="text" id="txtNominal" class="form-control bg-light text-dark fw-bold" value="Rp 50.000" readonly>
+                  <label class="form-label fw-bold text-secondary small text-uppercase mb-1">Nominal</label>
+                  <input type="text" id="txtNominal" class="form-control bg-light text-dark fw-bold text-center" value="Rp 50.000" readonly>
                 </div>
               </div>
 
-              <!-- Tombol Aksi -->
-              <button type="button" class="btn action-btn btn-online shadow-sm" onclick="prosesBayarOnline()">
-                Bayar Online (Mayar.id)
-              </button>
+              <!-- Tombol Aksi Modern -->
+              <div class="d-grid gap-2">
+                <button type="button" id="btnOnline" class="btn btn-custom btn-online shadow-sm" onclick="prosesBayarOnline()">
+                  <i class="fas fa-credit-card"></i> Bayar Online (Mayar.id)
+                </button>
 
-              <button type="button" class="btn action-btn btn-tunai shadow-sm" onclick="prosesBayarTunai()">
-                Bayar Tunai / Offline (PIN Bendahara)
-              </button>
+                <button type="button" id="btnTunai" class="btn btn-custom btn-tunai shadow-sm" onclick="prosesBayarTunai()">
+                  <i class="fas fa-hand-holding-dollar"></i> Bayar Tunai / Offline (PIN)
+                </button>
+              </div>
 
               <!-- Tombol Kembali / Cari NIS Lain -->
               <div class="text-center mt-3">
-                <a href="#" onclick="resetForm(event)" class="text-decoration-none text-muted small">
-                  &larr; Kembali / Cari NIS Lain
+                <a href="#" onclick="resetForm(event)" class="text-decoration-none text-muted small fw-semibold">
+                  <i class="fas fa-arrow-left me-1"></i> Cari NIS Santri Lain
                 </a>
               </div>
 
@@ -163,7 +284,12 @@
     function cariSantri() {
       let nis = document.getElementById('nisInput').value.trim();
       if(!nis) {
-        Swal.fire('Peringatan', 'Masukkan NIS terlebih dahulu!', 'warning');
+        Swal.fire({
+          icon: 'warning',
+          title: 'Perhatian',
+          text: 'Masukkan NIS terlebih dahulu!',
+          confirmButtonColor: '#0d5c35'
+        });
         return;
       }
 
@@ -187,13 +313,15 @@
             
             let nama = santri['Nama Santri'] || santri['nama santri'] || santri['Nama'] || '-';
             let wali = santri['Wali Santri'] || santri['wali santri'] || '-';
+            let kelas = santri['Kelas'] || santri['kelas'] || '-';
             let wa = santri['NoTeleponAktif'] || '';
             let nominal = parseInt(santri['Nominal'] || santri['nominal']) || 50000;
 
             document.getElementById('txtNama').innerText = nama;
             document.getElementById('txtNis').innerText = nis;
+            document.getElementById('txtKelas').innerText = kelas;
             document.getElementById('txtWali').innerText = wali;
-            document.getElementById('txtWa').innerText = wa ? wa : '(Nomor Telepon belum diisi)';
+            document.getElementById('txtWa').innerText = wa ? wa : '(Belum diisi)';
             document.getElementById('txtNominal').value = "Rp " + nominal.toLocaleString('id-ID');
 
             cekStatusBulan();
@@ -201,12 +329,22 @@
             document.getElementById('sectionCari').classList.add('d-none');
             document.getElementById('sectionAksi').classList.remove('d-none');
           } else {
-            Swal.fire('Tidak Ditemukan', 'Data santri dengan NIS tersebut tidak ditemukan.', 'error');
+            Swal.fire({
+              icon: 'error',
+              title: 'Tidak Ditemukan',
+              text: 'Data santri dengan NIS tersebut tidak ditemukan.',
+              confirmButtonColor: '#0d5c35'
+            });
           }
         })
         .catch(err => {
           Swal.close();
-          Swal.fire('Error', 'Gagal terhubung ke database server.', 'error');
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Gagal terhubung ke database server.',
+            confirmButtonColor: '#0d5c35'
+          });
         });
     }
 
@@ -217,36 +355,65 @@
       let bulanPilihan = document.getElementById('selectBulan').value;
       let statusBulan = String(globalDataSantri[bulanPilihan] || "").trim().toUpperCase();
       
-      let elStatus = document.getElementById('txtStatus');
+      let elBadge = document.getElementById('txtStatusBadge');
+      let btnOnline = document.getElementById('btnOnline');
+      let btnTunai = document.getElementById('btnTunai');
+
       if(statusBulan === "LUNAS") {
-        elStatus.innerText = "LUNAS";
-        elStatus.className = "fw-bold text-success";
+        elBadge.innerText = "LUNAS";
+        elBadge.className = "status-badge status-lunas";
+        
+        // Disable tombol bayar jika bulan sudah lunas
+        btnOnline.disabled = true;
+        btnOnline.innerHTML = '<i class="fas fa-check-circle"></i> Bulan Ini Sudah Lunas';
+        btnTunai.disabled = true;
+        btnTunai.innerHTML = '<i class="fas fa-check-circle"></i> Bulan Ini Sudah Lunas';
       } else {
-        elStatus.innerText = "BELUM LUNAS";
-        elStatus.className = "fw-bold text-danger";
+        elBadge.innerText = "BELUM LUNAS";
+        elBadge.className = "status-badge status-belum";
+        
+        // Aktifkan kembali tombol bayar jika belum lunas
+        btnOnline.disabled = false;
+        btnOnline.innerHTML = '<i class="fas fa-credit-card"></i> Bayar Online (Mayar.id)';
+        btnTunai.disabled = false;
+        btnTunai.innerHTML = '<i class="fas fa-hand-holding-dollar"></i> Bayar Tunai / Offline (PIN)';
       }
     }
 
     async function prosesBayarTunai() {
       if(!globalDataSantri) return;
 
+      let bulanTarget = document.getElementById('selectBulan').value;
+      let statusBulan = String(globalDataSantri[bulanTarget] || "").trim().toUpperCase();
+      if(statusBulan === "LUNAS") {
+        Swal.fire('Informasi', 'Bulan ini sudah berstatus LUNAS.', 'info');
+        return;
+      }
+
       const { value: pin } = await Swal.fire({
         title: 'Proteksi Bendahara',
         input: 'password',
         inputLabel: 'Masukkan PIN Bendahara',
-        inputPlaceholder: 'Masukkan 6 digit PIN',
+        inputPlaceholder: '••••••',
         showCancelButton: true,
         confirmButtonText: 'Konfirmasi',
-        cancelButtonText: 'Batal'
+        cancelButtonText: 'Batal',
+        confirmButtonColor: '#0d5c35'
       });
 
       if (pin !== "123456") {
-        if(pin !== undefined) Swal.fire('Gagal', 'PIN Bendahara salah!', 'error');
+        if(pin !== undefined) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Gagal',
+            text: 'PIN Bendahara salah!',
+            confirmButtonColor: '#0d5c35'
+          });
+        }
         return;
       }
 
       let nis = document.getElementById('nisInput').value.trim();
-      let bulanTarget = document.getElementById('selectBulan').value;
 
       Swal.fire({
         title: 'Memproses Pembayaran...',
@@ -266,14 +433,29 @@
 
             kirimWaOtomatis(bulanTarget);
 
-            Swal.fire('Berhasil!', 'Pembayaran Tunai tercatat dan kuitansi dikirim ke WhatsApp.', 'success');
+            Swal.fire({
+              icon: 'success',
+              title: 'Berhasil!',
+              text: 'Pembayaran Tunai tercatat dan kuitansi dikirim ke WhatsApp.',
+              confirmButtonColor: '#0d5c35'
+            });
           } else {
-            Swal.fire('Gagal', 'Terjadi kesalahan pada server.', 'error');
+            Swal.fire({
+              icon: 'error',
+              title: 'Gagal',
+              text: 'Terjadi kesalahan pada server.',
+              confirmButtonColor: '#0d5c35'
+            });
           }
         })
         .catch(err => {
           Swal.close();
-          Swal.fire('Error', 'Gagal koneksi ke server.', 'error');
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Gagal koneksi ke server.',
+            confirmButtonColor: '#0d5c35'
+          });
         });
     }
 
@@ -282,7 +464,7 @@
       let nis = document.getElementById('nisInput').value.trim();
       let nama = document.getElementById('txtNama').innerText;
       let wali = document.getElementById('txtWali').innerText;
-      let kelas = globalDataSantri['Kelas'] || globalDataSantri['kelas'] || '-';
+      let kelas = document.getElementById('txtKelas').innerText;
       
       let rawWa = String(globalDataSantri['NoTeleponAktif'] || '').trim().replace(/[^0-9]/g, "");
 
@@ -291,7 +473,12 @@
       }
 
       if(!rawWa) {
-        Swal.fire('Perhatian', 'Nomor telepon kosong atau tidak terbaca.', 'warning');
+        Swal.fire({
+          icon: 'warning',
+          title: 'Perhatian',
+          text: 'Nomor telepon kosong atau tidak terbaca.',
+          confirmButtonColor: '#0d5c35'
+        });
         return;
       }
 
@@ -311,9 +498,15 @@
     }
 
     function prosesBayarOnline() {
+      let bulanTarget = document.getElementById('selectBulan').value;
+      let statusBulan = String(globalDataSantri[bulanTarget] || "").trim().toUpperCase();
+      if(statusBulan === "LUNAS") {
+        Swal.fire('Informasi', 'Bulan ini sudah berstatus LUNAS.', 'info');
+        return;
+      }
+
       let nis = document.getElementById('nisInput').value.trim();
       let nama = document.getElementById('txtNama').innerText;
-      let bulanTarget = document.getElementById('selectBulan').value;
       let nominalStr = document.getElementById('txtNominal').value.replace(/[^0-9]/g, '');
 
       let linkPayment = `https://mayar.id/@ppfha/spp?nis=${nis}&nama=${encodeURIComponent(nama)}&amount=${nominalStr}&bulan=${encodeURIComponent(bulanTarget)}`;
@@ -322,9 +515,11 @@
         title: 'Pembayaran Online',
         text: `Anda akan diarahkan ke Mayar.id untuk pembayaran bulan ${bulanTarget}.`,
         icon: 'info',
+        showScanButton: false,
         showCancelButton: true,
         confirmButtonText: 'Lanjut',
-        cancelButtonText: 'Batal'
+        cancelButtonText: 'Batal',
+        confirmButtonColor: '#0d5c35'
       }).then((res) => {
         if(res.isConfirmed) {
           window.open(linkPayment, '_blank');
