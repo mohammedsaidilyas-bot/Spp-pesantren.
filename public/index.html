@@ -1,81 +1,32 @@
-function doGet(e) {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-  var rows = sheet.getDataRange().getDisplayValues();
-  var headers = rows[0];
-  var data = [];
-  
-  for (var i = 1; i < rows.length; i++) {
-    var obj = {};
-    for (var j = 0; j < headers.length; j++) {
-      obj[headers[j]] = rows[i][j];
-    }
-    data.push(obj);
-  }
-  
-  return ContentService.createTextOutput(JSON.stringify(data))
-    .setMimeType(ContentService.MimeType.JSON);
-}
+// Contoh cuplikan kode di JavaScript frontend setelah fetch sukses:
+fetch(scriptURL, { method: 'POST', body: JSON.stringify(payload) })
+  .then(response => response.json())
+  .then(data => {
+    if (data.status === "success") {
+      // Format pesan kuitansi
+      let pesan = `*KUITANSI PEMBAYARAN SPP*%0A` +
+                  `*PP. Fathul Huda Al-Qarobiyah*%0A%0A` +
+                  `-----------------------------------%0A` +
+                  `NIS : *${nis}*%0A` +
+                  `Nama : *${data.nama}*%0A` +
+                  `Kelas : *${data.kelas}*%0A` +
+                  `Bulan : *${bulanTarget}*%0A` +
+                  `Status : *LUNAS (Tunai/Cash)*%0A%0A` +
+                  `Terima kasih, pembayaran telah diterima oleh Bendahara Pondok.`;
 
-function doPost(e) {
-  var lock = LockService.getScriptLock();
-  lock.tryLock(10000);
-  
-  try {
-    var data = JSON.parse(e.postData.contents);
-    var nisTarget = String(data.nis).trim();
-    var bulanTarget = data.bulan;
-    
-    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-    var rows = sheet.getDataRange().getValues();
-    var headers = rows[0];
-    
-    var colNis = -1;
-    var colWa = -1;
-    var colNama = -1;
-    var colKelas = -1;
-    
-    for (var j = 0; j < headers.length; j++) {
-      var h = String(headers[j]).trim().toLowerCase();
-      if (h === "nis") colNis = j;
-      if (h === "no whatsapp" || h === "no. whatsapp" || h === "nomor wa" || h === "no wa") colWa = j;
-      if (h === "nama santri" || h === "nama") colNama = j;
-      if (h === "kelas") colKelas = j;
+      let urlWa = `https://wa.me/${data.noWa}?text=${pesan}`;
+
+      // Tampilkan notifikasi dan tombol buka WhatsApp ke wali santri
+      Swal.fire({
+        title: 'Pembayaran Berhasil!',
+        html: `Status di Google Sheets sudah diperbarui.<br><br>` +
+              `<a href="${urlWa}" target="_blank" class="btn btn-success" style="background:#25d366; color:white; padding:10px 20px; text-decoration:none; border-radius:5px; font-weight:bold; display:inline-block;">` +
+              `<i class="fab fa-whatsapp"></i> Kirim Kuitansi ke WhatsApp Wali Santri` +
+              `</a>`,
+        icon: 'success',
+        showConfirmButton: true,
+        confirmButtonText: 'Tutup'
+      });
     }
-    
-    var colBulan = headers.indexOf(bulanTarget);
-    var responseData = { status: "success", noWa: "", nama: "", kelas: "" };
-    
-    for (var i = 1; i < rows.length; i++) {
-      if (String(rows[i][colNis]).trim() === nisTarget) {
-        var rowNum = i + 1;
-        
-        // Update status LUNAS di Google Sheets
-        if (colBulan !== -1) {
-          sheet.getRange(rowNum, colBulan + 1).setValue("LUNAS");
-        }
-        
-        var namaSantri = colNama !== -1 ? rows[i][colNama] : "Santri";
-        var kelasSantri = colKelas !== -1 ? rows[i][colKelas] : "-";
-        var noWa = colWa !== -1 ? String(rows[i][colWa]).trim() : "";
-        
-        // Format nomor HP ke 62...
-        if (noWa.startsWith("0")) {
-          noWa = "62" + noWa.substring(1);
-        }
-        
-        responseData.noWa = noWa;
-        responseData.nama = namaSantri;
-        responseData.kelas = kelasSantri;
-        break;
-      }
-    }
-    
-    return ContentService.createTextOutput(JSON.stringify(responseData))
-      .setMimeType(ContentService.MimeType.JSON);
-  } catch (err) {
-    return ContentService.createTextOutput(JSON.stringify({"status": "error", "message": err.toString()}))
-      .setMimeType(ContentService.MimeType.JSON);
-  } finally {
-    lock.releaseLock();
-  }
-}
+  })
+  .catch(error => console.error('Error!', error.message));
