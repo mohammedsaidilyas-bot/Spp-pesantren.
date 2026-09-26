@@ -219,6 +219,14 @@
     </div>
 
     <script>
+        // Database Santri langsung di dalam browser (Tanpa Server, Dijamin Anti Error Koneksi!)
+        const databaseSantri = {
+            "20260001": { nama: "Jefry", kelas: "3 Aliyah", nominal: "150000" },
+            "20260002": { nama: "Aditya", kelas: "1 Aliyah", nominal: "150000" },
+            "20260003": { nama: "Fatah", kelas: "2 Tsanawiyah", nominal: "150000" },
+            "20260004": { nama: "Arif", kelas: "2 Tsanawiyah", nominal: "150000" }
+        };
+
         let santriDataAktif = null;
 
         function cariSantri() {
@@ -231,30 +239,24 @@
                 return;
             }
 
-            fetch(`/api/santri?nis=${nis}`)
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        santriDataAktif = data;
-                        document.getElementById('namaSantri').innerText = data.nama;
-                        document.getElementById('kelasSantri').innerText = data.kelas;
-                        document.getElementById('nominalSantri').innerText = 'Rp ' + Number(data.nominal).toLocaleString('id-ID');
-                        
-                        // Reset checkboxes
-                        document.querySelectorAll('.month-checkbox input').forEach(cb => cb.checked = false);
-                        document.getElementById('totalNominal').innerText = 'Rp 0';
+            const santri = databaseSantri[nis];
 
-                        errorMsg.style.display = 'none';
-                        santriCard.style.display = 'block';
-                    } else {
-                        santriCard.style.display = 'none';
-                        errorMsg.style.display = 'block';
-                    }
-                })
-                .catch(err => {
-                    console.error(err);
-                    alert('Terjadi kesalahan koneksi.');
-                });
+            if (santri) {
+                santriDataAktif = santri;
+                document.getElementById('namaSantri').innerText = santri.nama;
+                document.getElementById('kelasSantri').innerText = santri.kelas;
+                document.getElementById('nominalSantri').innerText = 'Rp ' + Number(santri.nominal).toLocaleString('id-ID');
+                
+                // Reset checkboxes
+                document.querySelectorAll('.month-checkbox input').forEach(cb => cb.checked = false);
+                document.getElementById('totalNominal').innerText = 'Rp 0';
+
+                errorMsg.style.display = 'none';
+                santriCard.style.display = 'block';
+            } else {
+                santriCard.style.display = 'none';
+                errorMsg.style.display = 'block';
+            }
         }
 
         function hitungTotal() {
@@ -273,7 +275,7 @@
             const bulanList = Array.from(checkedMonths).map(cb => cb.value).join(', ');
             const total = checkedMonths.length * Number(santriDataAktif.nominal);
 
-            // Langsung arahkan ke PayMe Link Mayar.id Anda
+            // Langsung arahkan ke Mayar.id Anda
             window.location.href = `https://mayar.to/spp-pesantren?amount=${total}&notes=SPP_${santriDataAktif.nama}_Bulan_${bulanList}`;
         }
     </script>
