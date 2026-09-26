@@ -312,31 +312,16 @@
             download: true,
             header: true,
             skipEmptyLines: true,
-            transformHeader: function(header) {
-                return header.trim();
-            },
             complete: function(results) {
-                // Cetak daftar kolom yang terbaca di konsol browser (Tekan F12 lalu pilih Console untuk melihat)
-                console.log("Kolom terbaca dari Google Sheets:", results.meta.fields);
-                
+                // Membersihkan spasi pada judul kolom secara otomatis
                 databaseSantri = results.data.map(row => {
-                    // Cari kolom yang mengandung kata 'hp', 'telp', 'no', atau 'whatsapp'
-                    let keys = Object.keys(row);
-                    let hpKey = keys.find(k => {
-                        let lk = k.toLowerCase();
-                        return lk.includes('hp') || lk.includes('telp') || lk.includes('whatsapp') || lk.includes('nomor');
-                    });
-                    
-                    let hp = hpKey ? String(row[hpKey] || "").trim() : "";
-                    
-                    // Jika nomor HP diawali angka 8, otomatis jadikan 08...
-                    if (hp.startsWith('8')) {
-                        hp = '0' + hp;
+                    let cleanRow = {};
+                    for (let key in row) {
+                        cleanRow[key.trim()] = row[key];
                     }
-                    
-                    row._noHpFinal = hp;
-                    return row;
+                    return cleanRow;
                 });
+                
                 document.getElementById('loadingText').style.display = 'none';
             },
             error: function(err) {
@@ -361,39 +346,28 @@
             return;
         }
 
+        // Mencari NIS secara fleksibel (mengabaikan spasi atau perbedaan huruf kecil/besar)
         const hasil = databaseSantri.find(s => {
-            let keys = Object.keys(s);
-            let nisKey = keys.find(k => k.toLowerCase().includes('nis'));
-            return nisKey && String(s[nisKey]).trim() === nisCali;
+            let nisKey = Object.keys(s).find(k => k.toLowerCase() === 'nis');
+            return nisKey && String(s[nisKey] || "").trim() === nisCari;
         });
 
         if (hasil) {
             santriAktif = hasil;
+            let nominal = parseInt(hasil.Nominal || hasil.nominal || 0) || 0;
             
-            let keys = Object.keys(hasil);
-            let namaKey = keys.find(k => k.toLowerCase().includes('nama'));
-            let kelasKey = keys.find(k => k.toLowerCase().includes('kelas'));
-            let asramaKey = keys.find(k => k.toLowerCase().includes('asrama'));
-            let waliKey = keys.find(k => k.toLowerCase().includes('wali'));
-            let nisKey = keys.find(k => k.toLowerCase().includes('nis'));
-            let nominalKey = keys.find(k => k.toLowerCase().includes('nominal') || k.toLowerCase().includes('spp') || k.toLowerCase().includes('biaya'));
-
-            let nisVal = nisKey ? hasil[nisKey] : nisCari;
-            let namaVal = namaKey ? hasil[namaKey] : "-";
-            let kelasVal = kelasKey ? hasil[kelasKey] : "-";
-            let asramaVal = asramaKey ? hasil[asramaKey] : "-";
-            let waliVal = waliKey ? hasil[waliKey] : "-";
-            let nominalVal = nominalKey ? (parseInt(hasil[nominalKey]) || 0) : 0;
-            let hpWaliTampil = hasil._noHpFinal || "Belum diisi / Tidak terbaca";
+            // Ambil nomor HP secara fleksibel dari kolom yang mengandung kata 'hp' atau 'no'
+            let hpKey = Object.keys(hasil).find(k => k.toLowerCase().includes('hp') || k.toLowerCase().includes('telp') || k.toLowerCase().includes('whatsapp'));
+            let noHpWali = hpKey ? String(hasil[hpKey] || "").trim() : "Belum diisi";
             
             let htmlInfo = `
-                NIS: <strong>${nisVal}</strong><br>
-                Nama: <strong>${namaVal}</strong><br>
-                Kelas: <strong>${kelasVal}</strong><br>
-                Asrama: <strong>${asramaVal}</strong><br>
-                Wali Santri: <strong>${waliVal}</strong><br>
-                No HP Wali: <strong>${hpWaliTampil}</strong><br>
-                SPP per Bulan: <strong>Rp ${nominalVal.toLocaleString('id-ID')}</strong>
+                NIS: <strong>${hasil.NIS || hasil.nis || '-'}</strong><br>
+                Nama: <strong>${hasil['Nama Santri'] || hasil.nama || '-'}</strong><br>
+                Kelas: <strong>${hasil.Kelas || hasil.kelas || '-'}</strong><br>
+                Asrama: <strong>${hasil.Asrama || hasil.asrama || '-'}</strong><br>
+                Wali Santri: <strong>${hasil['Wali Santri'] || hasil.wali || '-'}</strong><br>
+                No HP Wali: <strong>${noHpWali}</strong><br>
+                SPP per Bulan: <strong>Rp ${nominal.toLocaleString('id-ID')}</strong>
             `;
             document.getElementById('santriInfo').innerHTML = htmlInfo;
             santriCard.style.display = 'block';
@@ -407,22 +381,17 @@
     function hitungTotal() {
         if (!santriAktif) return;
 
-        let keys = Object.keys(santriAktif);
-        let nominalKey = keys.find(k => k.toLowerCase().includes('nominal') || k.toLowerCase().includes('spp') || k.toLowerCase().includes('biaya'));
-        let nominalPerBulan = nominalKey ? (parseInt(santriAktif[nominalKey]) || 0) : 0;
-        
+        let nominal = parseInt(santriAktif.Nominal || santriAktif.nominal || 0) || 0;
         let checkedBulan = document.querySelectorAll('.months-grid input:checked');
         let jumlahBulan = checkedBulan.length;
-        let total = nominalPerBulan * jumlahBulan;
+        let total = nominal * jumlahBulan;
 
         document.getElementById('totalBayar').innerText = "Rp " + total.toLocaleString('id-ID');
 
-        let namaKey = keys.find(k => k.toLowerCase().includes('nama'));
-        let nisKey = keys.find(k => k.toLowerCase().includes('nis'));
-        let namaSantri = namaKey ? santriAktif[namaKey] : "";
-        let nisSantri = nisKey ? santriAktif[nisKey] : "";
-
+        let namaSantri = santriAktif['Nama Santri'] || santriAktif.nama || '';
+        let nisSantri = santriAktif.NIS || santriAktif.nis || '';
         let listBulanStr = Array.from(checkedBulan).map(cb => cb.value).join(', ');
+
         let linkMayar = `https://mayar.id/@spp-ppfha?amount=${total}&name=${encodeURIComponent(namaSantri)}&note=SPP_${nisSantri}_${encodeURIComponent(listBulanStr)}`;
         document.getElementById('btnOnline').href = linkMayar;
     }
@@ -445,40 +414,39 @@
             return;
         }
 
-        let noHpWali = santriAktif._noHpFinal || "";
+        let hpKey = Object.keys(santriAktif).find(k => k.toLowerCase().includes('hp') || k.toLowerCase().includes('telp') || k.toLowerCase().includes('whatsapp'));
+        let noHpWali = hpKey ? String(santriAktif[hpKey] || "").trim() : "";
         
         if (!noHpWali || noHpWali === "" || noHpWali.length < 5) {
-            alert("Nomor HP wali santri kosong atau tidak terbaca! Pastikan kolom nomor HP di Google Sheets ada isinya.");
+            alert("Nomor HP wali santri kosong atau tidak tercatat di database!");
             return;
         }
 
-        // Membersihkan karakter selain angka (misal jika ada spasi, tanda tambah, atau strip)
+        // Karena Anda sudah mengubahnya berawalan 62 di Google Sheets, pastikan bersih dari spasi/simbol
         noHpWali = noHpWali.replace(/\D/g, '');
-
-        // Format nomor untuk WhatsApp (ubah awalan 0 atau 8 menjadi 62)
-        if (noHpWali.startsWith('0')) {
-            noHpWali = '62' + noHpWali.slice(1);
-        } else if (noHpWali.startsWith('8')) {
-            noHpWali = '62' + noHpWali;
-        } else if (!noHpWali.startsWith('62')) {
-            noHpWali = '62' + noHpWali;
+        if (!noHpWali.startsWith('62')) {
+            if (noHpWali.startsWith('0')) {
+                noHpWali = '62' + noHpWali.slice(1);
+            } else if (noHpWali.startsWith('8')) {
+                noHpWali = '62' + noHpWali;
+            } else {
+                noHpWali = '62' + noHpWali;
+            }
         }
 
-        let keys = Object.keys(santriAktif);
-        let nominalKey = keys.find(k => k.toLowerCase().includes('nominal') || k.toLowerCase().includes('spp') || k.toLowerCase().includes('biaya'));
-        let nominalPerBulan = nominalKey ? (parseInt(santriAktif[nominalKey]) || 0) : 0;
-        let total = nominalPerBulan * checkedBulan.length;
+        let nominal = parseInt(santriAktif.Nominal || santriAktif.nominal || 0) || 0;
+        let total = nominal * checkedBulan.length;
         let listBulanStr = Array.from(checkedBulan).map(cb => cb.value).join(', ');
 
-        let namaKey = keys.find(k => k.toLowerCase().includes('nama'));
-        let nisKey = keys.find(k => k.toLowerCase().includes('nis'));
-        let kelasKey = keys.find(k => k.toLowerCase().includes('kelas'));
+        let nisVal = santriAktif.NIS || santriAktif.nis || '-';
+        let namaVal = santriAktif['Nama Santri'] || santriAktif.nama || '-';
+        let kelasVal = santriAktif.Kelas || santriAktif.kelas || '-';
 
         let pesan = `*KUITANSI PEMBAYARAN SPP*\n*PP. Fathul Huda Al-Qarobiyah*\n\n` +
                     `----------------------------------\n` +
-                    `NIS : ${nisKey ? santriAktif[nisKey] : '-'}\n` +
-                    `Nama : ${namaKey ? santriAktif[namaKey] : '-'}\n` +
-                    `Kelas : ${kelasKey ? santriAktif[kelasKey] : '-'}\n` +
+                    `NIS : ${nisVal}\n` +
+                    `Nama : ${namaVal}\n` +
+                    `Kelas : ${kelasVal}\n` +
                     `Bulan : ${listBulanStr}\n` +
                     `Total : Rp ${total.toLocaleString('id-ID')}\n` +
                     `Status : *LUNAS (Tunai/Cash)*\n` +
