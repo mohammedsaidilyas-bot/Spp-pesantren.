@@ -312,7 +312,15 @@
             download: true,
             header: true,
             complete: function(results) {
-                databaseSantri = results.data;
+                // OTOMATIS BERSIHKAN & PERBAIKI NOMOR HP SAAT DATA DIMUAT
+                databaseSantri = results.data.map(row => {
+                    let hp = String(row['No Hp'] || "").trim();
+                    // Jika nomor HP diawali angka 8, otomatis tambahkan '0' di depannya
+                    if (hp.startsWith('8')) {
+                        row['No Hp'] = '0' + hp;
+                    }
+                    return row;
+                });
                 document.getElementById('loadingText').style.display = 'none';
             },
             error: function(err) {
@@ -342,17 +350,7 @@
         if (hasil) {
             santriAktif = hasil;
             let nominal = parseInt(hasil.Nominal) || 0;
-            
-            // FUNGSI OTOMATIS: Sistem langsung menambahkan angka 0 jika diawali angka 8
-            let rawHp = String(hasil['No Hp'] || "").trim();
-            let hpWaliTampil = "Belum diisi";
-            if (rawHp) {
-                if (rawHp.startsWith('8')) {
-                    hpWaliTampil = '0' + rawHp; // Otomatis jadi 08... di layar
-                } else {
-                    hpWaliTampil = rawHp;
-                }
-            }
+            let hpWaliTampil = hasil['No Hp'] || "Belum diisi";
             
             let htmlInfo = `
                 NIS: <strong>${hasil.NIS}</strong><br>
@@ -412,11 +410,11 @@
             return;
         }
 
-        // FUNGSI OTOMATIS WHATSAPP: Mengubah format nomor agar siap dikirim via wa.me (62...)
-        if (noHpWali.startsWith('8')) {
-            noHpWali = '62' + noHpWali;
-        } else if (noHpWali.startsWith('0')) {
+        // Format nomor untuk WhatsApp (ubah 08... menjadi 628...)
+        if (noHpWali.startsWith('0')) {
             noHpWali = '62' + noHpWali.slice(1);
+        } else if (noHpWali.startsWith('8')) {
+            noHpWali = '62' + noHpWali;
         } else if (!noHpWali.startsWith('62')) {
             noHpWali = '62' + noHpWali;
         }
