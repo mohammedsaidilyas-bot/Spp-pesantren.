@@ -101,7 +101,7 @@
             gap: 8px;
         }
 
-        input {
+        input, select {
             width: 100%;
             padding: 11px 14px;
             font-size: 14px;
@@ -113,7 +113,7 @@
             transition: all 0.2s;
         }
 
-        input:focus {
+        input:focus, select:focus {
             border-color: var(--primary);
             background: #ffffff;
             box-shadow: 0 0 0 3px rgba(13, 92, 54, 0.1);
@@ -136,7 +136,7 @@
             background: #1d4ed8;
         }
 
-        /* Bagian Informasi & Pilihan Bulan */
+        /* Bagian Informasi & Pilihan */
         .result-section {
             margin-top: 16px;
             padding-top: 14px;
@@ -156,7 +156,7 @@
             display: flex;
             justify-content: space-between;
             font-size: 13px;
-            padding: 4px 0;
+            padding: 5px 0;
         }
 
         .info-label {
@@ -170,72 +170,41 @@
             text-align: right;
         }
 
-        /* Grid Pilihan Bulan 2 Kolom (Sesuai Referensi) */
-        .months-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin-bottom: 14px;
-        }
-
-        .month-card {
-            border: 1.5px solid var(--border-color);
+        .status-badge-box {
+            background: var(--success-bg);
+            border: 1px solid #a7f3d0;
             border-radius: 10px;
-            padding: 10px 12px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: #ffffff;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .month-card:hover {
-            border-color: var(--primary);
-            background: #f0fdf4;
-        }
-
-        .month-card input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            accent-color: var(--primary);
-            cursor: pointer;
-        }
-
-        .month-info {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .month-name {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-main);
-        }
-
-        .month-status {
-            font-size: 10px;
-            font-weight: 700;
-        }
-
-        .status-lunas { color: #059669; }
-        .status-belum { color: #d97706; }
-
-        /* Total Tagihan */
-        .total-box {
+            padding: 10px 14px;
+            margin-bottom: 14px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: #f8fafc;
-            padding: 10px 12px;
-            border-radius: 10px;
-            margin-bottom: 14px;
-            border: 1px solid var(--border-color);
-            font-size: 14px;
-            font-weight: 700;
         }
 
-        /* Input PIN Bendahara Tersembunyi */
+        .status-badge-box.belum {
+            background: var(--warning-bg);
+            border-color: #fde68a;
+        }
+
+        .status-text {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--success-text);
+        }
+
+        .status-badge-box.belum .status-text {
+            color: var(--warning-text);
+        }
+
+        /* Layout Bulan & Nominal Sejajar Sesuai Gambar */
+        .form-row-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        /* Input PIN Bendahara Khusus Tunai */
         #pinContainer {
             display: none;
             background: #fdf2f8;
@@ -245,45 +214,29 @@
             margin-bottom: 12px;
         }
 
-        /* Tombol Aksi */
-        .btn-online {
+        /* Tombol Aksi Sesuai Referensi */
+        .btn-action {
             width: 100%;
-            background: #2563eb;
-            color: white;
             border: none;
             padding: 12px;
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 600;
             border-radius: 10px;
             cursor: pointer;
             margin-bottom: 8px;
-            transition: background 0.2s;
+            transition: opacity 0.2s;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
-        }
-
-        .btn-online:hover { background: #1d4ed8; }
-
-        .btn-offline {
-            width: 100%;
-            background: var(--primary);
             color: white;
-            border: none;
-            padding: 12px;
-            font-size: 13px;
-            font-weight: 600;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: background 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
         }
 
-        .btn-offline:hover { background: #094428; }
+        .btn-action:hover { opacity: 0.9; }
+
+        .btn-mayar { background: #6366f1; } /* Ungu sesuai referensi */
+        .btn-tunai { background: #d97706; } /* Oranye/Coklat sesuai referensi */
+        .btn-wa { background: #10b981; }    /* Hijau sesuai referensi */
 
         /* Loading Overlay */
         #loadingOverlay {
@@ -348,7 +301,7 @@
             </div>
         </div>
 
-        <!-- Bagian Informasi & Pilihan -->
+        <!-- Bagian Informasi & Aksi -->
         <div class="result-section" id="resultSection">
             <div class="santri-info-box">
                 <div class="info-row">
@@ -369,15 +322,35 @@
                 </div>
             </div>
 
-            <label class="input-label">Pilih Bulan Pembayaran</label>
-            <!-- Grid Checkbox Bulan -->
-            <div class="months-grid" id="monthsGrid">
-                <!-- Dibgenerate otomatis oleh JavaScript -->
+            <!-- Status SPP di Atas Pilihan Bulan -->
+            <div id="statusBadgeContainer" class="status-badge-box">
+                <span style="font-size: 12px; font-weight: 600; color: var(--text-muted);">Status SPP</span>
+                <span id="txtStatusSpp" class="status-text">-</span>
             </div>
 
-            <div class="total-box">
-                <span>Total Tagihan:</span>
-                <span id="txtTotal" style="color: var(--primary);">Rp 0</span>
+            <!-- Bagian Bulan & Nominal Sejajar -->
+            <div class="form-row-2">
+                <div>
+                    <label class="input-label" for="bulan">Bulan</label>
+                    <select id="bulan" onchange="updateStatusBulan()">
+                        <option value="Juli">Juli</option>
+                        <option value="Agustus">Agustus</option>
+                        <option value="September" selected>September</option>
+                        <option value="Oktober">Oktober</option>
+                        <option value="November">November</option>
+                        <option value="Desember">Desember</option>
+                        <option value="Januari">Januari</option>
+                        <option value="Februari">Februari</option>
+                        <option value="Maret">Maret</option>
+                        <option value="April">April</option>
+                        <option value="Mei">Mei</option>
+                        <option value="Juni">Juni</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="input-label" for="nominal">Nominal</label>
+                    <input type="text" id="nominal" value="Rp 150.000" disabled style="background: #e2e8f0; font-weight: 700; color: var(--text-main);">
+                </div>
             </div>
 
             <!-- PIN Bendahara Khusus Tunai -->
@@ -388,12 +361,15 @@
                 <input type="password" id="kodeBendahara" placeholder="PIN khusus bendahara" autocomplete="current-password">
             </div>
 
-            <!-- Tombol Aksi -->
-            <button class="btn-online" onclick="prosesPembayaran('Online / Transfer')">
-                <i class="fa-solid fa-globe"></i> Bayar Online (Mayar.id / QRIS)
+            <!-- Tombol Aksi Sesuai Referensi Gambar -->
+            <button class="btn-action btn-mayar" onclick="prosesPembayaran('Online / Transfer')">
+                <i class="fa-solid fa-globe"></i> Bayar Online (Mayar.id)
             </button>
-            <button class="btn-offline" onclick="handleBayarTunaiClick()">
-                <i class="fa-solid fa-money-bill-wave"></i> Catat Bayar Tunai (Cash ke Bendahara)
+            <button class="btn-action btn-tunai" onclick="handleBayarTunaiClick()">
+                <i class="fa-solid fa-money-bill-wave"></i> Bayar Tunai / Offline (PIN Bendahara)
+            </button>
+            <button class="btn-action btn-wa" onclick="kirimWhatsAppManual()">
+                <i class="fa-brands fa-whatsapp"></i> Kirim Kuitansi ke WhatsApp Wali
             </button>
         </div>
     </div>
@@ -409,9 +385,7 @@
 <script>
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwVEoquoZd9ojPxubLyHjUfGp6yDQm_Kqjw8gCFPiE9hJXRZyJeommvr-O_5XzJ1YRAEQ/exec";
     const PIN_BENDAHARA_VALID = "PPFHA2026"; 
-    const NOMINAL_SPP_BULANAN = 150000; // Sesuaikan nominal SPP per bulan jika perlu
 
-    const daftarBulan = ["Juli", "Agustus", "September", "Oktober", "November", "Desember", "Januari", "Februari", "Maret", "April", "Mei", "Juni"];
     let santriCache = null;
 
     function cekDataSantri() {
@@ -435,7 +409,7 @@
                 document.getElementById("txtWali").innerText = data.wali;
                 document.getElementById("txtTelp").innerText = data.telp;
                 
-                renderGridBulan();
+                updateStatusBulan();
                 document.getElementById("pinContainer").style.display = "none";
                 document.getElementById("resultSection").style.display = "block";
             } else {
@@ -450,33 +424,23 @@
         });
     }
 
-    function renderGridBulan() {
-        var gridHtml = "";
-        var pembayaranData = santriCache.pembayaran || {};
-
-        daftarBulan.forEach(bulan => {
-            var status = pembayaranData[bulan] || "BELUM LUNAS";
-            var isLunas = status.toUpperCase() === "LUNAS";
-            
-            gridHtml += `
-                <label class="month-card" style="${isLunas ? 'background: #f8fafc; opacity: 0.8;' : ''}">
-                    <input type="checkbox" name="pilihBulan" value="${bulan}" ${isLunas ? 'disabled' : ''} onchange="hitungTotal()">
-                    <div class="month-info">
-                        <span class="month-name">${bulan}</span>
-                        <span class="month-status ${isLunas ? 'status-lunas' : 'status-belum'}">${status}</span>
-                    </div>
-                </label>
-            `;
-        });
-
-        document.getElementById("monthsGrid").innerHTML = gridHtml;
-        hitungTotal();
-    }
-
-    function hitungTotal() {
-        var checkboxes = document.querySelectorAll('input[name="pilihBulan"]:checked');
-        var total = checkboxes.length * NOMINAL_SPP_BULANAN;
-        document.getElementById("txtTotal").innerText = "Rp " + total.toLocaleString("id-ID");
+    function updateStatusBulan() {
+        if (!santriCache || !santriCache.pembayaran) return;
+        var bulanPilih = document.getElementById("bulan").value;
+        var statusBulan = santriCache.pembayaran[bulanPilih] || "BELUM LUNAS";
+        
+        var elStatus = document.getElementById("txtStatusSpp");
+        var containerBadge = document.getElementById("statusBadgeContainer");
+        
+        elStatus.innerText = "LUNAS (" + bulanPilih + ")";
+        
+        if (statusBulan.toUpperCase() === "LUNAS") {
+            elStatus.innerText = "LUNAS (" + bulanPilih + ")";
+            containerBadge.className = "status-badge-box";
+        } else {
+            elStatus.innerText = "BELUM LUNAS (" + bulanPilih + ")";
+            containerBadge.className = "status-badge-box belum";
+        }
     }
 
     function handleBayarTunaiClick() {
@@ -490,13 +454,9 @@
     }
 
     function prosesPembayaran(metode) {
-        var checkboxes = document.querySelectorAll('input[name="pilihBulan"]:checked');
-        if (checkboxes.length === 0) {
-            alert("Pilih minimal satu bulan yang ingin dibayarkan!");
-            return;
-        }
-
         var nis = document.getElementById("nis").value.trim();
+        var bulan = document.getElementById("bulan").value;
+
         if (!nis) return;
 
         if (metode === "Tunai / Offline") {
@@ -507,38 +467,34 @@
             }
         }
 
-        // Ambil semua bulan yang dicentang
-        var listBulan = [];
-        checkboxes.forEach(cb => listBulan.push(cb.value));
+        var dataKirim = { 
+            nis: nis, 
+            bulan: bulan, 
+            metode: metode 
+        };
 
         document.getElementById("loaderText").innerText = "Menyimpan pembayaran & mengirim kuitansi WA...";
         document.getElementById("loadingOverlay").style.display = "flex";
 
-        // Kirim berurutan / sekaligus untuk setiap bulan yang dipilih
-        Promise.all(listBulan.map(bulan => {
-            return fetch(WEB_APP_URL, {
-                method: "POST",
-                mode: "no-cors",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ nis: nis, bulan: bulan, metode: metode })
-            });
-        }))
+        fetch(WEB_APP_URL, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(dataKirim)
+        })
         .then(() => {
             document.getElementById("loadingOverlay").style.display = "none";
             
-            // Perbarui cache lokal
-            listBulan.forEach(bulan => {
-                if (santriCache && santriCache.pembayaran) {
-                    santriCache.pembayaran[bulan] = "LUNAS";
-                }
-            });
+            if (santriCache && santriCache.pembayaran) {
+                santriCache.pembayaran[bulan] = "LUNAS";
+                updateStatusBulan();
+            }
 
-            alert("Pembayaran untuk bulan (" + listBulan.join(", ") + ") berhasil dicatat!");
+            alert("Pembayaran bulan " + bulan + " berhasil dicatat!");
 
-            // Kirim kuitansi WhatsApp otomatis
-            kirimWhatsAppOtomatis(listBulan, metode);
+            // Otomatis Kirim WhatsApp tanpa diklik
+            kirimWhatsAppOtomatis(bulan, metode);
 
-            // Reset form
             document.getElementById("kodeBendahara").value = "";
             document.getElementById("pinContainer").style.display = "none";
             document.getElementById("nis").value = "";
@@ -550,7 +506,7 @@
         });
     }
 
-    function kirimWhatsAppOtomatis(listBulan, metode) {
+    function kirimWhatsAppOtomatis(bulan, metode) {
         if (!santriCache) return;
 
         var nama = santriCache.nama;
@@ -559,7 +515,6 @@
         var wali = santriCache.wali;
         var telp = santriCache.telp;
         var tanggal = new Date().toLocaleDateString("id-ID", { day: 'numeric', month: 'long', year: 'numeric' });
-        var totalBayar = (listBulan.length * NOMINAL_SPP_BULANAN).toLocaleString("id-ID");
 
         let noWa = telp.trim();
         if (noWa.startsWith('0')) {
@@ -577,14 +532,19 @@
 🏫 *Kelas:* ${kelas}
 👨‍👩‍👦 *Wali Santri:* ${wali}
 ---------------------------------------
-📌 *Bulan Dibayar:* *${listBulan.join(", ")}*
-💰 *Total:* Rp ${totalBayar}
+📌 *Untuk Pembayaran SPP Bulan:* *${bulan}*
 ✅ *Status:* LUNAS
 ---------------------------------------
 Terima kasih, pembayaran Anda telah tercatat sah di sistem database pesantren.`;
 
         let urlWa = `https://api.whatsapp.com/send?phone=${noWa}&text=${encodeURIComponent(pesan)}`;
         window.open(urlWa, '_blank');
+    }
+
+    function kirimWhatsAppManual() {
+        var bulan = document.getElementById("bulan").value;
+        var metode = "Manual WhatsApp";
+        kirimWhatsAppOtomatis(bulan, metode);
     }
 </script>
 
