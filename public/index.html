@@ -8,73 +8,79 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://checkout.mayar.id/v1/checkout.js"></script>
 </head>
-<body class="bg-slate-50 min-h-screen font-sans antialiased text-slate-800">
+<body class="bg-slate-100 min-h-screen font-sans antialiased text-slate-800 flex items-center justify-center p-0 sm:p-4">
 
-    <div class="max-w-md mx-auto bg-white min-h-screen shadow-xl flex flex-col justify-between">
+    <div class="w-full max-w-md bg-white min-h-screen sm:min-h-0 sm:rounded-3xl shadow-xl flex flex-col justify-between overflow-hidden">
         <!-- Header -->
-        <header class="bg-emerald-700 text-white p-6 rounded-b-3xl shadow-md">
-            <h1 class="text-xl font-bold text-center">PPFHA</h1>
-            <p class="text-xs text-emerald-100 text-center mt-1">Pondok Pesantren Fathul Huda Al-Qarobiyah</p>
+        <header class="bg-emerald-700 text-white p-6 rounded-b-3xl shadow-md text-center">
+            <h1 class="text-xl font-bold">PPFHA</h1>
+            <p class="text-xs text-emerald-100 mt-1">Pondok Pesantren Fathul Huda Al-Qarobiyah</p>
         </header>
 
         <!-- Main Content -->
-        <main class="p-6 flex-grow">
+        <main class="p-5 flex-grow space-y-4">
             <!-- Form Cek NIS / Login Santri -->
-            <div id="login-section" class="space-y-4">
-                <h2 class="text-lg font-semibold text-slate-700">Cek Tagihan / Pembayaran SPP</h2>
+            <div id="login-section" class="space-y-4 pt-4">
+                <h2 class="text-base font-semibold text-slate-700">Cek Tagihan & Pembayaran SPP</h2>
                 <div>
-                    <label class="block text-sm font-medium text-slate-600 mb-1">Nomor Induk Santri (NIS)</label>
-                    <input type="text" id="nis-input" placeholder="Contoh: 20260000" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    <label class="block text-xs font-medium text-slate-500 mb-1">Nomor Induk Santri (NIS)</label>
+                    <input type="text" id="nis-input" placeholder="Masukkan NIS (Contoh: 20260000)" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
                 </div>
-                <button onclick="cekSantri()" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-semibold hover:bg-emerald-700 transition">Masuk / Cek Status</button>
+                <button onclick="cekSantri()" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-semibold text-sm hover:bg-emerald-700 transition shadow-sm">Masuk / Cek Status</button>
             </div>
 
             <!-- Panel Hasil / Pembayaran -->
             <div id="payment-section" class="hidden space-y-4">
                 <div class="bg-emerald-50 p-4 rounded-2xl border border-emerald-100 space-y-1">
-                    <p class="text-xs text-emerald-600 font-medium">Informasi Santri</p>
-                    <p id="info-nama" class="text-lg font-bold text-emerald-900">-</p>
-                    <p class="text-sm text-emerald-700">NIS: <span id="info-nis">-</span></p>
-                    <p class="text-sm text-emerald-700">Wali Santri: <span id="info-wali" class="font-medium">-</span></p>
-                    <p class="text-sm text-emerald-700">Status: <span id="info-status" class="font-bold">-</span></p>
+                    <span class="text-[10px] uppercase tracking-wider text-emerald-600 font-bold">Informasi Santri</span>
+                    <p id="info-nama" class="text-base font-bold text-emerald-950">-</p>
+                    <div class="text-xs text-emerald-800 space-y-0.5 pt-1">
+                        <p>NIS: <span id="info-nis" class="font-medium">-</span></p>
+                        <p>Wali Santri: <span id="info-wali" class="font-medium">-</span></p>
+                        <p>Status SPP: <span id="info-status" class="font-bold">-</span></p>
+                    </div>
                 </div>
 
-                <!-- Pilihan Bulan SPP -->
-                <div class="space-y-2">
-                    <label class="block text-sm font-medium text-slate-600">Pilih Bulan Pembayaran SPP</label>
-                    <select id="bulan-select" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white">
-                        <option value="Juli">Juli</option>
-                        <option value="Agustus">Agustus</option>
-                        <option value="September" selected>September</option>
-                        <option value="Oktober">Oktober</option>
-                        <option value="November">November</option>
-                        <option value="Desember">Desember</option>
-                        <option value="Januari">Januari</option>
-                        <option value="Februari">Februari</option>
-                        <option value="Maret">Maret</option>
-                        <option value="April">April</option>
-                        <option value="Mei">Mei</option>
-                        <option value="Juni">Juni</option>
-                    </select>
+                <!-- Pilihan Bulan & Nominal dalam 1 Baris Grid -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-500 mb-1">Bulan</label>
+                        <select id="bulan-select" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white text-xs font-medium">
+                            <option value="Juli">Juli</option>
+                            <option value="Agustus">Agustus</option>
+                            <option value="September" selected>September</option>
+                            <option value="Oktober">Oktober</option>
+                            <option value="November">November</option>
+                            <option value="Desember">Desember</option>
+                            <option value="Januari">Januari</option>
+                            <option value="Februari">Februari</option>
+                            <option value="Maret">Maret</option>
+                            <option value="April">April</option>
+                            <option value="Mei">Mei</option>
+                            <option value="Juni">Juni</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-500 mb-1">Nominal</label>
+                        <input type="text" id="nominal-input" value="Rp 150.000" readonly class="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-100 text-slate-600 text-xs font-semibold">
+                    </div>
                 </div>
 
-                <!-- Pilihan Nominal -->
-                <div class="space-y-2">
-                    <label class="block text-sm font-medium text-slate-600">Nominal SPP</label>
-                    <input type="text" id="nominal-input" value="Rp 150.000" readonly class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-100 text-slate-600 font-semibold">
+                <!-- Tombol Aksi yang Ringkas & Padu -->
+                <div id="action-buttons" class="space-y-2.5 pt-1">
+                    <button onclick="bayarOnline()" class="w-full bg-indigo-600 text-white py-3 rounded-xl font-semibold text-xs hover:bg-indigo-700 transition shadow-sm">Bayar Online (Mayar.id)</button>
+                    <button onclick="bukaModalTunai()" class="w-full bg-amber-600 text-white py-3 rounded-xl font-semibold text-xs hover:bg-amber-700 transition shadow-sm">Bayar Tunai / Offline (PIN Bendahara)</button>
+                    <button onclick="kirimKuitansiWA()" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-semibold text-xs hover:bg-emerald-700 transition shadow-sm flex items-center justify-center space-x-1.5">
+                        <span>Kirim Kuitansi ke WhatsApp</span>
+                    </button>
                 </div>
-
-                <div id="action-buttons" class="space-y-3 pt-2">
-                    <button onclick="bayarOnline()" class="w-full bg-indigo-600 text-white py-3 rounded-xl font-semibold hover:bg-indigo-700 transition">Bayar Online (Mayar.id)</button>
-                    <button onclick="bukaModalTunai()" class="w-full bg-amber-600 text-white py-3 rounded-xl font-semibold hover:bg-amber-700 transition">Bayar Tunai / Offline (PIN Bendahara)</button>
-                    <button onclick="kirimKuitansiWA()" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-semibold hover:bg-emerald-700 transition">Kirim Kuitansi (WhatsApp)</button>
-                </div>
-                <button onclick="resetForm()" class="w-full text-slate-500 text-sm py-2">Kembali / Cari NIS Lain</button>
+                
+                <button onclick="resetForm()" class="w-full text-slate-400 text-xs py-1 hover:text-slate-600 transition">← Kembali / Cari NIS Lain</button>
             </div>
         </main>
 
         <!-- Footer -->
-        <footer class="p-4 text-center text-xs text-slate-400 border-t border-slate-100">
+        <footer class="p-4 text-center text-[10px] text-slate-400 border-t border-slate-100">
             &copy; 2026 PPFHA - Sistem SPP Terpadu
         </footer>
     </div>
@@ -82,12 +88,12 @@
     <!-- Modal PIN Tunai -->
     <div id="pin-modal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
         <div class="bg-white w-full max-w-sm p-6 rounded-2xl shadow-xl space-y-4">
-            <h3 class="text-lg font-bold text-slate-800">Otorisasi Bendahara</h3>
+            <h3 class="text-base font-bold text-slate-800">Otorisasi Bendahara</h3>
             <p class="text-xs text-slate-500">Masukkan PIN bendahara untuk mencatat pembayaran tunai secara langsung.</p>
-            <input type="password" id="pin-input" placeholder="Masukkan PIN" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500 text-center tracking-widest text-lg">
+            <input type="password" id="pin-input" placeholder="Masukkan PIN" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500 text-center tracking-widest text-base">
             <div class="flex space-x-2">
-                <button onclick="tutupModalTunai()" class="w-1/2 bg-slate-200 text-slate-700 py-2.5 rounded-xl font-semibold">Batal</button>
-                <button onclick="prosesTunai()" class="w-1/2 bg-amber-600 text-white py-2.5 rounded-xl font-semibold hover:bg-amber-700">Konfirmasi</button>
+                <button onclick="tutupModalTunai()" class="w-1/2 bg-slate-100 text-slate-600 py-2.5 rounded-xl font-semibold text-xs">Batal</button>
+                <button onclick="prosesTunai()" class="w-1/2 bg-amber-600 text-white py-2.5 rounded-xl font-semibold text-xs hover:bg-amber-700">Konfirmasi</button>
             </div>
         </div>
     </div>
@@ -115,7 +121,6 @@
                 if (santri) {
                     currentNis = santri.nis;
                     currentNama = santri.nama || "Santri PPFHA";
-                    // Mendukung berbagai variasi nama kolom wali santri di Google Sheets
                     currentWali = santri["wali santri"] || santri["orang tua"] || santri["wali"] || "-";
 
                     document.getElementById('info-nama').innerText = currentNama;
@@ -163,7 +168,7 @@
                 await axios.post(scriptUrl, JSON.stringify({ nis: currentNis, bulan: bulan }), {
                     headers: { "Content-Type": "text/plain;charset=utf-8" }
                 });
-                alert(`Pembayaran tunai SPP bulan ${bulan} berhasil dicatat dan status Google Sheets menjadi LUNAS.`);
+                alert(`Pembayaran tunai SPP bulan ${bulan} berhasil dicatat & status menjadi LUNAS.`);
                 tutupModalTunai();
                 cekSantri();
             } catch (err) {
