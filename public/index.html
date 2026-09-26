@@ -88,7 +88,7 @@
               <!-- Pilihan Bulan -->
               <label class="form-label fw-semibold mb-2">Pilih Bulan SPP yang Dibayar</label>
               <div class="month-grid mb-4" id="bulanContainer">
-                <!-- Bulan akan digenerate otomatis via JS -->
+                <!-- Bulan digenerate otomatis -->
               </div>
 
               <!-- Total Tagihan -->
@@ -97,10 +97,15 @@
                 <span class="fs-4 fw-bold text-success" id="txtTotal">Rp 0</span>
               </div>
 
-              <!-- Tombol Bayar Tunai -->
-              <button type="button" class="btn btn-success w-100 py-2 fw-bold" onclick="prosesBayarTunai()">
-                <i class="fas fa-money-bill-wave me-2"></i> Bayar Tunai (Cash)
-              </button>
+              <!-- Pilihan Metode Pembayaran -->
+              <div class="d-grid gap-2">
+                <button type="button" class="btn btn-success py-2 fw-bold" onclick="prosesBayarTunai()">
+                  <i class="fas fa-money-bill-wave me-2"></i> Bayar Tunai (Cash / Bendahara)
+                </button>
+                <button type="button" class="btn btn-outline-primary py-2 fw-bold" onclick="prosesBayarOnline()">
+                  <i class="fas fa-credit-card me-2"></i> Bayar Online (QRIS / Transfer Bank)
+                </button>
+              </div>
             </div>
 
           </div>
@@ -110,7 +115,6 @@
   </div>
 
   <script>
-    // URL Web App Google Apps Script Anda yang benar
     const scriptURL = "https://script.google.com/macros/s/AKfycbzYhVYm2zXGj6IvHAS6lDuvlYs3DupbEKB405nmoKxIj9W_40T0sO1u82VWQtBsQd0Apw/exec";
     
     const listBulan = [
@@ -119,7 +123,7 @@
     ];
     
     let dataSantriGlobal = null;
-    let nominalSpp = 50000; // Default nominal SPP
+    let nominalSpp = 50000;
 
     function cariSantri() {
       let nis = document.getElementById('nisInput').value.trim();
@@ -197,6 +201,7 @@
       let checkboxes = document.querySelectorAll('.chk-bulan:checked');
       let total = checkboxes.length * nominalSpp;
       document.getElementById('txtTotal').innerText = "Rp " + total.toLocaleString('id-ID');
+      return total;
     }
 
     async function prosesBayarTunai() {
@@ -206,17 +211,11 @@
         return;
       }
 
-      // Minta PIN Bendahara
       const { value: pin } = await Swal.fire({
         title: 'Proteksi Bendahara',
         input: 'password',
         inputLabel: 'Masukkan PIN Bendahara',
         inputPlaceholder: 'Masukkan 6 digit PIN',
-        inputAttributes: {
-          maxlength: 10,
-          autocapitalize: 'off',
-          autocorrect: 'off'
-        },
         showCancelButton: true,
         confirmButtonText: 'Konfirmasi',
         cancelButtonText: 'Batal'
@@ -242,16 +241,9 @@
       let lastResponseData = null;
 
       for (let i = 0; i < bulanTerpilih.length; i++) {
-        let payload = {
-          nis: nis,
-          bulan: bulanTerpilih[i]
-        };
-
+        let payload = { nis: nis, bulan: bulanTerpilih[i] };
         try {
-          let response = await fetch(scriptURL, {
-            method: 'POST',
-            body: JSON.stringify(payload)
-          });
+          let response = await fetch(scriptURL, { method: 'POST', body: JSON.stringify(payload) });
           let result = await response.json();
           if(result.status === "success") {
             successCount++;
@@ -287,11 +279,41 @@
           icon: 'success',
           confirmButtonText: 'Selesai'
         }).then(() => {
-          cariSantri(); // Refresh tampilan bulan
+          cariSantri();
         });
       } else {
         Swal.fire('Gagal', 'Terjadi kesalahan saat memperbarui database.', 'error');
       }
+    }
+
+    function prosesBayarOnline() {
+      let checkboxes = document.querySelectorAll('.chk-bulan:checked');
+      if(checkboxes.length === 0) {
+        Swal.fire('Peringatan', 'Pilih minimal satu bulan yang ingin dibayar!', 'warning');
+        return;
+      }
+
+      let total = hitungTotal();
+      let nis = document.getElementById('nisInput').value.trim();
+      let nama = document.getElementById('txtNama').innerText;
+      let bulanTerpilih = Array.from(checkboxes).map(cb => cb.value).join(", ");
+
+      // Arahkan ke link payment gateway (misal Mayar.id atau tautan pembayaran online Anda)
+      // Anda bisa menyambungkan URL payment gateway dinamis di sini
+      let linkPayment = `https://mayar.id/@ppfha/spp?nis=${nis}&nama=${encodeURIComponent(nama)}&amount=${total}&bulan=${encodeURIComponent(bulanTerpilih)}`;
+
+      Swal.fire({
+        title: 'Konfirmasi Pembayaran Online',
+        text: `Anda akan diarahkan ke halaman pembayaran online untuk total tagihan Rp ${total.toLocaleString('id-ID')}.`,
+        icon: 'info',
+        showCancelButton: true,
+        confirmButtonText: 'Lanjut ke Pembayaran',
+        cancelButtonText: 'Batal'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          window.open(linkPayment, '_blank');
+        }
+      });
     }
   </script>
 </body>
