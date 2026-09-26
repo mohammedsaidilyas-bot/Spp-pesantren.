@@ -3,73 +3,278 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pembayaran SPP Pesantren</title>
+    <title>Pembayaran SPP - PPFHA</title>
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: Arial, sans-serif; background-color: #f4f6f9; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .card { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
-        .logo-container { margin-bottom: 20px; }
-        .logo { width: 100px; height: 100px; object-fit: contain; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        h2 { margin-top: 0; color: #333; }
-        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 14px; }
-        button { background: #28a745; color: white; border: none; padding: 12px; width: 100%; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: bold; }
-        button:hover { background: #218838; }
-        #result { margin-top: 15px; text-align: left; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+        body {
+            background-color: #f0f4f8;
+            color: #334155;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+        }
+        .container {
+            background: #ffffff;
+            width: 100%;
+            max-width: 480px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+        }
+        .header {
+            background: linear-gradient(135deg, #0f766e 0%, #115e59 100%);
+            color: white;
+            padding: 24px 20px;
+            text-align: center;
+        }
+        .logo-box {
+            width: 70px;
+            height: 70px;
+            background: white;
+            border-radius: 50%;
+            margin: 0 auto 12px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .logo-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .header h1 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .header p {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+        .content {
+            padding: 24px 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #475569;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 15px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            outline: none;
+            transition: all 0.2s;
+        }
+        input[type="text"]:focus {
+            border-color: #0d9488;
+            box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.15);
+        }
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #0d9488;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn:hover {
+            background-color: #0f766e;
+        }
+        .santri-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 16px;
+            margin-top: 20px;
+            display: none;
+        }
+        .santri-info p {
+            font-size: 14px;
+            margin-bottom: 6px;
+        }
+        .santri-info span {
+            font-weight: 600;
+            color: #1e293b;
+        }
+        .months-container {
+            margin-top: 16px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+        .month-checkbox {
+            display: flex;
+            align-items: center;
+            font-size: 13px;
+            background: white;
+            padding: 8px 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .month-checkbox input {
+            margin-right: 8px;
+            accent-color: #0d9488;
+        }
+        .total-section {
+            margin-top: 16px;
+            padding-top: 12px;
+            border-top: 1px dashed #cbd5e1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            font-size: 15px;
+        }
+        .error-msg {
+            color: #ef4444;
+            font-size: 13px;
+            margin-top: 10px;
+            text-align: center;
+            display: none;
+        }
+        .footer {
+            text-align: center;
+            padding: 16px;
+            font-size: 11px;
+            color: #94a3b8;
+            border-top: 1px solid #f1f5f9;
+        }
     </style>
 </head>
 <body>
-    <div class="card">
-        <!-- Logo Pondok Utama -->
-        <div class="logo-container">
-            <img src="https://raw.githubusercontent.com/mohammedsaidilyas-bot/Spp-pesantren/main/IMG_20260925_232356.png" alt="Logo Pondok" class="logo">
+
+    <div class="container">
+        <div class="header">
+            <div class="logo-box">
+                <img src="https://raw.githubusercontent.com/Spp-pesantren/Spp-pesantren/main/IMG_20260925_232356.png" alt="Logo Pesantren">
+            </div>
+            <h1>PP. Fathul Huda Al-Qarobiyah</h1>
+            <p>Portal Pembayaran SPP Santri Online</p>
         </div>
-        
-        <h2>Cek & Pembayaran SPP</h2>
-        <p>Masukkan NIS Santri:</p>
-        <input type="text" id="nisInput" placeholder="Contoh: 12345">
-        <button onclick="cekNis()">Cek Data SPP</button>
-        <div id="result"></div>
+
+        <div class="content">
+            <div class="form-group">
+                <label for="nisInput">Masukkan Nomor Induk Santri (NIS)</label>
+                <div style="display: flex; gap: 8px;">
+                    <input type="text" id="nisInput" placeholder="Contoh: 20260001">
+                    <button class="btn" style="width: 120px;" onclick="cariSantri()">Cek</button>
+                </div>
+                <div id="errorMsg" class="error-msg">NIS tidak ditemukan. Periksa kembali nomor Anda.</div>
+            </div>
+
+            <div id="santriCard" class="santri-card">
+                <div class="santri-info">
+                    <p>Nama: <span id="namaSantri">-</span></p>
+                    <p>Kelas: <span id="kelasSantri">-</span></p>
+                    <p>SPP per Bulan: <span id="nominalSantri">-</span></p>
+                </div>
+
+                <label style="margin-top: 14px;">Pilih Bulan Pembayaran:</label>
+                <div class="months-container">
+                    <label class="month-checkbox"><input type="checkbox" value="Juli" onchange="hitungTotal()"> Juli</label>
+                    <label class="month-checkbox"><input type="checkbox" value="Agustus" onchange="hitungTotal()"> Agustus</label>
+                    <label class="month-checkbox"><input type="checkbox" value="September" onchange="hitungTotal()"> September</label>
+                    <label class="month-checkbox"><input type="checkbox" value="Oktober" onchange="hitungTotal()"> Oktober</label>
+                    <label class="month-checkbox"><input type="checkbox" value="November" onchange="hitungTotal()"> November</label>
+                    <label class="month-checkbox"><input type="checkbox" value="Desember" onchange="hitungTotal()"> Desember</label>
+                </div>
+
+                <div class="total-section">
+                    <span>Total Tagihan:</span>
+                    <span id="totalNominal" style="color: #0d9488;">Rp 0</span>
+                </div>
+
+                <button class="btn" style="margin-top: 16px; background-color: #2563eb;" onclick="bayarSekarang()">Bayar via Mayar.id</button>
+            </div>
+        </div>
+
+        <div class="footer">
+            &copy; 2026 Pondok Pesantren Fathul Huda Al-Qarobiyah
+        </div>
     </div>
 
     <script>
-        async function cekNis() {
-            const nis = document.getElementById('nisInput').value;
-            const resultDiv = document.getElementById('result');
+        let santriDataAktif = null;
+
+        function cariSantri() {
+            const nis = document.getElementById('nisInput').value.trim();
+            const errorMsg = document.getElementById('errorMsg');
+            const santriCard = document.getElementById('santriCard');
+
             if (!nis) {
-                alert('Silakan masukkan NIS terlebih dahulu!');
+                alert('Silakan masukkan NIS terlebih dahulu.');
                 return;
             }
-            try {
-                const response = await fetch(`/cek-nis/${nis}`);
-                const data = await response.json();
-                if (data.success) {
-                    resultDiv.innerHTML = `
-                        <p><strong>Nama:</strong> ${data.nama}</p>
-                        <p><strong>Kelas:</strong> ${data.kelas}</p>
-                        <p><strong>Bulan:</strong> ${data.bulan}</p>
-                        <p><strong>Nominal:</strong> ${data.nominal}</p>
-                        <button onclick="bayarSPP('${nis}')" style="background:#007bff; margin-top:10px;">Bayar Sekarang</button>
-                    `;
-                } else {
-                    resultDiv.innerHTML = `<p style="color:red;">${data.message}</p>`;
-                }
-            } catch (err) {
-                resultDiv.innerHTML = `<p style="color:red;">Terjadi kesalahan sistem.</p>`;
-            }
+
+            fetch(`/api/santri?nis=${nis}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        santriDataAktif = data;
+                        document.getElementById('namaSantri').innerText = data.nama;
+                        document.getElementById('kelasSantri').innerText = data.kelas;
+                        document.getElementById('nominalSantri').innerText = 'Rp ' + Number(data.nominal).toLocaleString('id-ID');
+                        
+                        // Reset checkboxes
+                        document.querySelectorAll('.month-checkbox input').forEach(cb => cb.checked = false);
+                        document.getElementById('totalNominal').innerText = 'Rp 0';
+
+                        errorMsg.style.display = 'none';
+                        santriCard.style.display = 'block';
+                    } else {
+                        santriCard.style.display = 'none';
+                        errorMsg.style.display = 'block';
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert('Terjadi kesalahan koneksi.');
+                });
         }
 
-        async function bayarSPP(nis) {
-            const response = await fetch('/bayar', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ nis })
-            });
-            const data = await response.json();
-            if (data.success) {
-                alert('Mengarahkan ke halaman pembayaran Mayar.id...');
-                window.location.href = data.paymentUrl;
-            } else {
-                alert('Gagal memproses pembayaran.');
+        function hitungTotal() {
+            if (!santriDataAktif) return;
+            const checkedMonths = document.querySelectorAll('.month-checkbox input:checked');
+            const total = checkedMonths.length * Number(santriDataAktif.nominal);
+            document.getElementById('totalNominal').innerText = 'Rp ' + total.toLocaleString('id-ID');
+        }
+
+        function bayarSekarang() {
+            const checkedMonths = document.querySelectorAll('.month-checkbox input:checked');
+            if (checkedMonths.length === 0) {
+                alert('Pilih minimal satu bulan pembayaran terlebih dahulu.');
+                return;
             }
+            const bulanList = Array.from(checkedMonths).map(cb => cb.value).join(', ');
+            const total = checkedMonths.length * Number(santriDataAktif.nominal);
+
+            // Langsung arahkan ke PayMe Link Mayar.id Anda
+            window.location.href = `https://mayar.to/spp-pesantren?amount=${total}&notes=SPP_${santriDataAktif.nama}_Bulan_${bulanList}`;
         }
     </script>
 </body>
