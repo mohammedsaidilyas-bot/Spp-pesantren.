@@ -38,7 +38,6 @@
             display: flex;
             flex-direction: column;
         }
-        /* Header Blok Hijau Penuh */
         .header-hero {
             background-color: var(--primary-color);
             color: white;
@@ -151,7 +150,6 @@
             color: var(--text-color);
             margin-bottom: 10px;
         }
-        /* Grid Checkbox Bulan */
         .months-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -254,7 +252,6 @@
 <body>
 
 <div class="wrapper">
-    <!-- Header Hijau dengan Logo -->
     <div class="header-hero">
         <img src="IMG_20260925_232356.png" alt="Logo PPFHA" class="logo-pesantren" onerror="this.style.display='none'">
         <h1>PP. Fathul Huda Al-Qarobiyah</h1>
@@ -293,9 +290,8 @@
 
             <a href="#" id="btnOnline" class="btn-pay" target="_blank">Bayar Online (Mayar.id / QRIS)</a>
 
-            <!-- Area Tombol Khusus Bendahara -->
             <div class="cash-section" id="cashSection">
-                <button class="btn-cash" onclick="catatTunai()">Catat Pembayaran Tunai (Cash)</button>
+                <button class="btn-cash" onclick="catatTunai()">Catat Pembayaran Tunai & Kirim WA</button>
             </div>
         </div>
 
@@ -309,7 +305,6 @@
     let databaseSantri = [];
     let santriAktif = null;
 
-    // Link CSV Google Sheets Anda
     const csvUrl = "https://docs.google.com/spreadsheets/d/1cqGQaKIOWmYopQPQyI5LTCB77wbLWKoxAqUBDGiSKMw/export?format=csv";
 
     window.onload = function() {
@@ -334,7 +329,6 @@
         errorMsg.style.display = 'none';
         santriCard.style.display = 'none';
 
-        // Reset checkbox bulan
         document.querySelectorAll('.months-grid input').forEach(cb => cb.checked = false);
 
         if (!nisCari) {
@@ -349,12 +343,24 @@
             santriAktif = hasil;
             let nominal = parseInt(hasil.Nominal) || 0;
             
+            // FUNGSI OTOMATIS: Sistem langsung menambahkan angka 0 jika diawali angka 8
+            let rawHp = String(hasil['No Hp'] || "").trim();
+            let hpWaliTampil = "Belum diisi";
+            if (rawHp) {
+                if (rawHp.startsWith('8')) {
+                    hpWaliTampil = '0' + rawHp; // Otomatis jadi 08... di layar
+                } else {
+                    hpWaliTampil = rawHp;
+                }
+            }
+            
             let htmlInfo = `
                 NIS: <strong>${hasil.NIS}</strong><br>
                 Nama: <strong>${hasil['Nama Santri']}</strong><br>
                 Kelas: <strong>${hasil.Kelas}</strong><br>
                 Asrama: <strong>${hasil.Asrama}</strong><br>
                 Wali Santri: <strong>${hasil['Wali Santri']}</strong><br>
+                No HP Wali: <strong>${hpWaliTampil}</strong><br>
                 SPP per Bulan: <strong>Rp ${nominal.toLocaleString('id-ID')}</strong>
             `;
             document.getElementById('santriInfo').innerHTML = htmlInfo;
@@ -399,22 +405,40 @@
             return;
         }
 
-        let nominalPerBulan = parseInt(santriAktif.Nominal) || 0;
-        let total = nominalPerBulan * checkedBulan.length;
-        let listBulanStr = Array.from(checkedBulan).map(cb => cb.value).join(', ');
         let noHpWali = String(santriAktif['No Hp'] || "").trim();
+        
+        if (!noHpWali || noHpWali === "" || noHpWali.length < 5) {
+            alert("Nomor HP wali santri untuk santri ini belum tercatat atau kosong di database!");
+            return;
+        }
 
-        // Bersihkan format nomor HP agar diawali 62
-        if (noHpWali.startsWith('0')) {
+        // FUNGSI OTOMATIS WHATSAPP: Mengubah format nomor agar siap dikirim via wa.me (62...)
+        if (noHpWali.startsWith('8')) {
+            noHpWali = '62' + noHpWali;
+        } else if (noHpWali.startsWith('0')) {
             noHpWali = '62' + noHpWali.slice(1);
         } else if (!noHpWali.startsWith('62')) {
             noHpWali = '62' + noHpWali;
         }
 
-        let pesan = `Assalamu'alaikum, konfirmasi pembayaran SPP Pondok Pesantren Fathul Huda Al-Qarobiyah:\n\n*NIS:* ${santriAktif.NIS}\n*Nama:* ${santriAktif['Nama Santri']}\n*Kelas:* ${santriAktif.Kelas}\n*Bulan:* ${listBulanStr}\n*Total:* Rp ${total.toLocaleString('id-ID')}\n*Status:* LUNAS (Tunai/Cash)\n\nTerima kasih.`;
+        let nominalPerBulan = parseInt(santriAktif.Nominal) || 0;
+        let total = nominalPerBulan * checkedBulan.length;
+        let listBulanStr = Array.from(checkedBulan).map(cb => cb.value).join(', ');
 
-        // Menggunakan api.whatsapp.com/send agar fleksibel tanpa memaksa membuka WhatsApp Business
-        let urlWa = `https://api.whatsapp.com/send?phone=${noHpWali}&text=${encodeURIComponent(pesan)}`;
+        let pesan = `*KUITANSI PEMBAYARAN SPP*\n*PP. Fathul Huda Al-Qarobiyah*\n\n` +
+                    `----------------------------------\n` +
+                    `NIS : ${santriAktif.NIS}\n` +
+                    `Nama : ${santriAktif['Nama Santri']}\n` +
+                    `Kelas : ${santriAktif.Kelas}\n` +
+                    `Bulan : ${listBulanStr}\n` +
+                    `Total : Rp ${total.toLocaleString('id-ID')}\n` +
+                    `Status : *LUNAS (Tunai/Cash)*\n` +
+                    `----------------------------------\n` +
+                    `Terima kasih, pembayaran telah diterima oleh Bendahara Pondok.`;
+
+        navigator.clipboard.writeText(pesan).catch(() => {});
+
+        let urlWa = `https://wa.me/${noHpWali}?text=${encodeURIComponent(pesan)}`;
         window.open(urlWa, '_blank');
     }
 </script>
