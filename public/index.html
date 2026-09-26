@@ -402,11 +402,19 @@
         let nominalPerBulan = parseInt(santriAktif.Nominal) || 0;
         let total = nominalPerBulan * checkedBulan.length;
         let listBulanStr = Array.from(checkedBulan).map(cb => cb.value).join(', ');
-        let noHpWali = santriAktif['No Hp'] || "";
+        let noHpWali = String(santriAktif['No Hp'] || "").trim();
+
+        // Bersihkan format nomor HP agar diawali 62
+        if (noHpWali.startsWith('0')) {
+            noHpWali = '62' + noHpWali.slice(1);
+        } else if (!noHpWali.startsWith('62')) {
+            noHpWali = '62' + noHpWali;
+        }
 
         let pesan = `Assalamu'alaikum, konfirmasi pembayaran SPP Pondok Pesantren Fathul Huda Al-Qarobiyah:\n\n*NIS:* ${santriAktif.NIS}\n*Nama:* ${santriAktif['Nama Santri']}\n*Kelas:* ${santriAktif.Kelas}\n*Bulan:* ${listBulanStr}\n*Total:* Rp ${total.toLocaleString('id-ID')}\n*Status:* LUNAS (Tunai/Cash)\n\nTerima kasih.`;
 
-        let urlWa = `https://wa.me/62${noHpWali.replace(/^0+/, '')}?text=${encodeURIComponent(pesan)}`;
+        // Menggunakan api.whatsapp.com/send agar fleksibel tanpa memaksa membuka WhatsApp Business
+        let urlWa = `https://api.whatsapp.com/send?phone=${noHpWali}&text=${encodeURIComponent(pesan)}`;
         window.open(urlWa, '_blank');
     }
 </script>
