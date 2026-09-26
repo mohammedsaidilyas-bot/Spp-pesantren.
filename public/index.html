@@ -1,418 +1,81 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal Pembayaran SPP - PPFHA</title>
-    <style>
-        :root {
-            --primary-color: #0d6efd;
-            --primary-dark: #0b5ed7;
-            --success-color: #198754;
-            --bg-color: #f8f9fa;
-            --card-bg: #ffffff;
-            --text-color: #212529;
-            --border-color: #dee2e6;
-        }
+function doGet(e) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var rows = sheet.getDataRange().getDisplayValues();
+  var headers = rows[0];
+  var data = [];
+  
+  for (var i = 1; i < rows.length; i++) {
+    var obj = {};
+    for (var j = 0; j < headers.length; j++) {
+      obj[headers[j]] = rows[i][j];
+    }
+    data.push(obj);
+  }
+  
+  return ContentService.createTextOutput(JSON.stringify(data))
+    .setMimeType(ContentService.MimeType.JSON);
+}
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            padding-bottom: 40px;
-        }
-
-        .header-bg {
-            background: linear-gradient(135deg, #0f5132, #198754);
-            color: white;
-            padding: 30px 20px 60px 20px;
-            text-align: center;
-            border-bottom-left-radius: 30px;
-            border-bottom-right-radius: 30px;
-        }
-
-        .avatar-placeholder {
-            width: 70px;
-            height: 70px;
-            background: white;
-            border-radius: 50%;
-            margin: 0 auto 15px auto;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-
-        .header-bg h1 {
-            font-size: 1.4rem;
-            font-weight: 600;
-            margin-bottom: 5px;
-        }
-
-        .header-bg p {
-            font-size: 0.9rem;
-            opacity: 0.9;
-        }
-
-        .container {
-            max-width: 480px;
-            margin: -35px auto 0 auto;
-            padding: 0 15px;
-        }
-
-        .card {
-            background: var(--card-bg);
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-
-        .form-label {
-            font-size: 0.85rem;
-            color: #6c757d;
-            margin-bottom: 8px;
-            display: block;
-            font-weight: 500;
-        }
-
-        .search-box {
-            display: flex;
-            gap: 10px;
-        }
-
-        .form-control {
-            flex: 1;
-            padding: 12px 15px;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            font-size: 1rem;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-
-        .form-control:focus {
-            border-color: var(--primary-color);
-        }
-
-        .btn {
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .btn:hover {
-            background: var(--primary-dark);
-        }
-
-        .btn-success {
-            background: var(--success-color);
-            width: 100%;
-            margin-top: 15px;
-        }
-
-        .btn-success:hover {
-            background: #157347;
-        }
-
-        .santri-info {
-            display: none;
-            margin-top: 15px;
-            border-top: 1px dashed var(--border-color);
-            padding-top: 15px;
-        }
-
-        .santri-info p {
-            font-size: 0.95rem;
-            margin-bottom: 6px;
-        }
-
-        .months-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        .month-item {
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 10px 12px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .month-item:hover {
-            background: #f1f3f5;
-        }
-
-        .month-item input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            accent-color: var(--success-color);
-            cursor: pointer;
-        }
-
-        .month-item.lunas {
-            background: #d1e7dd;
-            border-color: #badbcc;
-            color: #0f5132;
-            cursor: not-allowed;
-        }
-
-        .payment-methods {
-            margin-top: 15px;
-            display: flex;
-            gap: 10px;
-        }
-
-        .method-card {
-            flex: 1;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 10px;
-            text-align: center;
-            cursor: pointer;
-            font-size: 0.9rem;
-            font-weight: 500;
-            transition: all 0.2s;
-        }
-
-        .method-card input {
-            display: none;
-        }
-
-        .method-card.selected {
-            border-color: var(--success-color);
-            background: #e8f5e9;
-            color: var(--success-color);
-        }
-
-        .total-section {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 20px;
-            border-top: 1px dashed var(--border-color);
-            padding-top: 15px;
-            font-size: 1.1rem;
-            font-weight: bold;
-        }
-
-        .total-amount {
-            color: var(--success-color);
-            font-size: 1.25rem;
-        }
-
-        .loading {
-            text-align: center;
-            color: #6c757d;
-            font-size: 0.9rem;
-            margin-top: 10px;
-            display: none;
-        }
-    </style>
-</head>
-<body>
-
-    <div class="header-bg">
-        <div class="avatar-placeholder"></div>
-        <h1>PP. Fathul Huda Al-Qarobiyah</h1>
-        <p>Portal Pembayaran SPP Santri</p>
-    </div>
-
-    <div class="container">
-        <!-- Kotak Pencarian NIS -->
-        <div class="card">
-            <label class="form-label">Masukkan Nomor Induk Santri (NIS)</label>
-            <div class="search-box">
-                <input type="text" id="nisInput" class="form-control" placeholder="Contoh: 20260000">
-                <button class="btn" onclick="cariSantri()">Cek</button>
-            </div>
-            <div id="loadingText" class="loading">Mencari data santri...</div>
-
-            <!-- Informasi Santri & Pilihan Bulan -->
-            <div id="santriInfoSection" class="santri-info">
-                <p><strong>Nama:</strong> <span id="valNama">-</span></p>
-                <p><strong>Kelas:</strong> <span id="valKelas">-</span></p>
-                <p><strong>Asrama:</strong> <span id="valAsrama">-</span></p>
-                <p><strong>SPP per Bulan:</strong> <span id="valNominal">Rp 0</span></p>
-
-                <label class="form-label" style="margin-top: 15px;">Pilih Bulan Pembayaran:</label>
-                <div class="months-grid" id="monthsContainer">
-                    <!-- Daftar bulan dimuat dinamis -->
-                </div>
-
-                <label class="form-label" style="margin-top: 15px;">Metode Pembayaran:</label>
-                <div class="payment-methods">
-                    <label class="method-card selected" id="labelTunai" onclick="pilihMetode('tunai')">
-                        <input type="radio" name="metode" value="tunai" checked> Tunai (Bendahara)
-                    </label>
-                    <label class="method-card" id="labelOnline" onclick="pilihMetode('online')">
-                        <input type="radio" name="metode" value="online"> Online (Mayar.id)
-                    </label>
-                </div>
-
-                <div class="total-section">
-                    <span>Total Tagihan:</span>
-                    <span class="total-amount" id="totalTagihan">Rp 0</span>
-                </div>
-
-                <button class="btn btn-success" onclick="prosesPembayaran()">Bayar Sekarang</button>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzYhVYm2zXGj6IvHAS6lDuvlYs3DupbEKB405nmoKxIj9W_40T0sO1u82VWQtBsQd0Apw/exec";
+function doPost(e) {
+  var lock = LockService.getScriptLock();
+  lock.tryLock(10000);
+  
+  try {
+    var data = JSON.parse(e.postData.contents);
+    var nisTarget = String(data.nis).trim();
+    var bulanTarget = data.bulan;
+    
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    var rows = sheet.getDataRange().getValues();
+    var headers = rows[0];
+    
+    var colNis = -1;
+    var colWa = -1;
+    var colNama = -1;
+    var colKelas = -1;
+    
+    for (var j = 0; j < headers.length; j++) {
+      var h = String(headers[j]).trim().toLowerCase();
+      if (h === "nis") colNis = j;
+      if (h === "no whatsapp" || h === "no. whatsapp" || h === "nomor wa" || h === "no wa") colWa = j;
+      if (h === "nama santri" || h === "nama") colNama = j;
+      if (h === "kelas") colKelas = j;
+    }
+    
+    var colBulan = headers.indexOf(bulanTarget);
+    var responseData = { status: "success", noWa: "", nama: "", kelas: "" };
+    
+    for (var i = 1; i < rows.length; i++) {
+      if (String(rows[i][colNis]).trim() === nisTarget) {
+        var rowNum = i + 1;
         
-        // PIN Rahasia Khusus Bendahara
-        const PIN_BENDAHARA = "123456"; 
-
-        let santriTerpilih = null;
-        let nominalSPP = 150000;
-        let metodePilih = 'tunai';
-
-        const daftarBulan = [
-            "Juli", "Agustus", "September", "Oktober", 
-            "November", "Desember", "Januari", "Februari", 
-            "Maret", "April", "Mei", "Juni"
-        ];
-
-        function pilihMetode(metode) {
-            metodePilih = metode;
-            document.getElementById('labelTunai').className = `method-card ${metode === 'tunai' ? 'selected' : ''}`;
-            document.getElementById('labelOnline').className = `method-card ${metode === 'online' ? 'selected' : ''}`;
+        // Update status LUNAS di Google Sheets
+        if (colBulan !== -1) {
+          sheet.getRange(rowNum, colBulan + 1).setValue("LUNAS");
         }
-
-        async function cariSantri() {
-            const nis = document.getElementById('nisInput').value.trim();
-            if (!nis) {
-                alert("Silakan masukkan Nomor Induk Santri (NIS) terlebih dahulu!");
-                return;
-            }
-
-            document.getElementById('loadingText').style.display = 'block';
-            document.getElementById('santriInfoSection').style.display = 'none';
-
-            try {
-                let response = await fetch(WEB_APP_URL);
-                let data = await response.json();
-                
-                let santri = data.find(item => String(item.NIS || item.nis).trim() === nis);
-
-                if (santri) {
-                    santriTerpilih = santri;
-                    document.getElementById('valNama').innerText = santri['Nama Santri'] || santri['nama santri'] || '-';
-                    document.getElementById('valKelas').innerText = santri['Kelas'] || santri['kelas'] || '-';
-                    document.getElementById('valAsrama').innerText = santri['Asrama'] || santri['asrama'] || '-';
-                    
-                    let nomDb = santri['Nominal'] || santri['nominal'];
-                    if (nomDb && !isNaN(nomDb)) {
-                        nominalSPP = Number(nomDb);
-                    }
-                    document.getElementById('valNominal').innerText = "Rp " + nominalSPP.toLocaleString('id-ID');
-
-                    renderPilihanBulan(santri);
-                    document.getElementById('santriInfoSection').style.display = 'block';
-                } else {
-                    alert("NIS tidak ditemukan! Periksa kembali nomor induk santri.");
-                }
-            } catch (err) {
-                console.error(err);
-                alert("Gagal mengambil data dari server. Periksa koneksi atau URL Apps Script.");
-            } finally {
-                document.getElementById('loadingText').style.display = 'none';
-            }
+        
+        var namaSantri = colNama !== -1 ? rows[i][colNama] : "Santri";
+        var kelasSantri = colKelas !== -1 ? rows[i][colKelas] : "-";
+        var noWa = colWa !== -1 ? String(rows[i][colWa]).trim() : "";
+        
+        // Format nomor HP ke 62...
+        if (noWa.startsWith("0")) {
+          noWa = "62" + noWa.substring(1);
         }
-
-        function renderPilihanBulan(santri) {
-            const container = document.getElementById('monthsContainer');
-            container.innerHTML = '';
-
-            daftarBulan.forEach(bulan => {
-                let statusBulan = santri[bulan] || santri[bulan.toLowerCase()] || "";
-                let isLunas = String(statusBulan).toUpperCase() === "LUNAS";
-
-                let div = document.createElement('div');
-                div.className = `month-item ${isLunas ? 'lunas' : ''}`;
-                
-                div.innerHTML = `
-                    <input type="checkbox" value="${bulan}" ${isLunas ? 'checked disabled' : 'onchange="hitungTotal()"'}>
-                    <span>${bulan} ${isLunas ? '(Lunas)' : ''}</span>
-                `;
-                container.appendChild(div);
-            });
-            hitungTotal();
-        }
-
-        function hitungTotal() {
-            let checkboxes = document.querySelectorAll('#monthsContainer input[type="checkbox"]:checked:not(:disabled)');
-            let total = checkboxes.length * nominalSPP;
-            document.getElementById('totalTagihan').innerText = "Rp " + total.toLocaleString('id-ID');
-        }
-
-        async function prosesPembayaran() {
-            let checkboxes = document.querySelectorAll('#monthsContainer input[type="checkbox"]:checked:not(:disabled)');
-            if (checkboxes.length === 0) {
-                alert("Pilih minimal satu bulan yang belum lunas untuk dibayar!");
-                return;
-            }
-
-            let bulanPilihan = Array.from(checkboxes).map(cb => cb.value);
-            let nis = santriTerpilih.NIS || santriTerpilih.nis;
-            let totalBayar = checkboxes.length * nominalSPP;
-
-            if (metodePilih === 'online') {
-                alert(`Mengarahkan ke pembayaran Online Mayar.id sejumlah Rp ${totalBayar.toLocaleString('id-ID')} untuk bulan: ${bulanPilihan.join(', ')}`);
-                return;
-            }
-
-            // Validasi PIN Bendahara
-            let pinInput = prompt("Masukkan PIN Khusus Bendahara untuk memproses pembayaran Tunai:");
-            if (pinInput !== PIN_BENDAHARA) {
-                alert("PIN Bendahara salah! Pembayaran tunai dibatalkan.");
-                return;
-            }
-
-            if (!confirm(`Konfirmasi pembayaran Tunai untuk bulan: ${bulanPilihan.join(', ')}?`)) return;
-
-            document.getElementById('loadingText').innerText = "Memproses pembayaran & mengirim kuitansi ke WhatsApp...";
-            document.getElementById('loadingText').style.display = 'block';
-
-            try {
-                // Mengirim data per bulan ke Google Apps Script (update Sheets + Trigger WhatsApp)
-                for (let b of bulanPilihan) {
-                    await fetch(WEB_APP_URL, {
-                        method: 'POST',
-                        mode: 'no-cors',
-                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                        body: JSON.stringify({ nis: nis, bulan: b })
-                    });
-                }
-
-                alert("Pembayaran Tunai berhasil! Status Google Sheets diperbarui dan kuitansi terkirim otomatis ke WhatsApp wali santri.");
-                location.reload();
-            } catch (err) {
-                console.error(err);
-                alert("Pembayaran diproses. Halaman akan dimuat ulang.");
-                location.reload();
-            } finally {
-                document.getElementById('loadingText').style.display = 'none';
-            }
-        }
-    </script>
-</body>
-</html>
+        
+        responseData.noWa = noWa;
+        responseData.nama = namaSantri;
+        responseData.kelas = kelasSantri;
+        break;
+      }
+    }
+    
+    return ContentService.createTextOutput(JSON.stringify(responseData))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({"status": "error", "message": err.toString()}))
+      .setMimeType(ContentService.MimeType.JSON);
+  } finally {
+    lock.releaseLock();
+  }
+}
