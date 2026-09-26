@@ -295,18 +295,18 @@
         return;
       }
 
-      let pesan = `*KUITANSI PEMBAYARAN SPP*%0A` +
-                  `*PP Fathul Huda Al-Qorrobiyah*%0A%0A` +
-                  `-----------------------------------%0A` +
-                  `NIS : *${nis}*%0A` +
-                  `Nama : *${nama}*%0A` +
-                  `Kelas : *${kelas}*%0A` +
-                  `Wali Santri : *${wali}*%0A` +
-                  `Bulan : *${bulanTarget}*%0A` +
-                  `Status : *LUNAS*%0A%0A` +
-                  `Terima kasih. Pembayaran telah dikonfirmasi oleh Bendahara.`;
+      let teksPesan = "*KUITANSI PEMBAYARAN SPP*\n" +
+                      "*PP Fathul Huda Al-Qorrobiyah*\n\n" +
+                      "-----------------------------------\n" +
+                      "NIS : *" + nis + "*\n" +
+                      "Nama : *" + nama + "*\n" +
+                      "Kelas : *" + kelas + "*\n" +
+                      "Wali Santri : *" + wali + "*\n" +
+                      "Bulan : *" + bulanTarget + "*\n" +
+                      "Status : *LUNAS*\n\n" +
+                      "Terima kasih. Pembayaran telah dikonfirmasi oleh Bendahara.";
 
-      let urlWa = `https://wa.me/${rawWa}?text=${pesan}`;
+      let urlWa = "https://wa.me/" + rawWa + "?text=" + encodeURIComponent(teksPesan);
       window.open(urlWa, '_blank');
     }
 
