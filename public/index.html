@@ -224,7 +224,7 @@
 
                 <label class="form-label" style="margin-top: 15px;">Pilih Bulan Pembayaran:</label>
                 <div class="months-grid" id="monthsContainer">
-                    <!-- Daftar bulan akan dimuat dinamis oleh JavaScript -->
+                    <!-- Daftar bulan dimuat dinamis -->
                 </div>
 
                 <div class="total-section">
@@ -238,12 +238,11 @@
     </div>
 
     <script>
-        // Masukkan URL Web App Google Apps Script Anda di sini
-        const WEB_APP_URL = "GANTI_DENGAN_URL_WEB_APP_APPS_SCRIPT_ANDA";
+        // URL Web App Google Apps Script Anda yang aktif
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzYhVYm2zXGj6IvHAS6lDuvlYs3DupbEKB405nmoKxIj9W_40T0sO1u82VWQtBsQd0Apw/exec";
         
-        let dataSantriGlobal = [];
         let santriTerpilih = null;
-        let nominalSPP = 150000; // Default SPP per bulan
+        let nominalSPP = 150000;
 
         const daftarBulan = [
             "Juli", "Agustus", "September", "Oktober", 
@@ -273,7 +272,6 @@
                     document.getElementById('valKelas').innerText = santri['Kelas'] || santri['kelas'] || '-';
                     document.getElementById('valAsrama').innerText = santri['Asrama'] || santri['asrama'] || '-';
                     
-                    // Ambil nominal dari kolom database jika ada
                     let nomDb = santri['Nominal'] || santri['nominal'];
                     if (nomDb && !isNaN(nomDb)) {
                         nominalSPP = Number(nomDb);
@@ -335,7 +333,6 @@
             document.getElementById('loadingText').style.display = 'block';
 
             try {
-                // Loop untuk melunasi tiap bulan yang dipilih
                 for (let b of bulanPilihan) {
                     await fetch(WEB_APP_URL, {
                         method: 'POST',
