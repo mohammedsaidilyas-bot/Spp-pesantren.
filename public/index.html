@@ -172,6 +172,34 @@
             cursor: not-allowed;
         }
 
+        .payment-methods {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .method-card {
+            flex: 1;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .method-card input {
+            display: none;
+        }
+
+        .method-card.selected {
+            border-color: var(--success-color);
+            background: #e8f5e9;
+            color: var(--success-color);
+        }
+
         .total-section {
             display: flex;
             justify-content: space-between;
@@ -210,7 +238,7 @@
         <div class="card">
             <label class="form-label">Masukkan Nomor Induk Santri (NIS)</label>
             <div class="search-box">
-                <input type="text" id="nisInput" class="form-control" placeholder="Contoh: 20260001">
+                <input type="text" id="nisInput" class="form-control" placeholder="Contoh: 20260000">
                 <button class="btn" onclick="cariSantri()">Cek</button>
             </div>
             <div id="loadingText" class="loading">Mencari data santri...</div>
@@ -227,6 +255,16 @@
                     <!-- Daftar bulan dimuat dinamis -->
                 </div>
 
+                <label class="form-label" style="margin-top: 15px;">Metode Pembayaran:</label>
+                <div class="payment-methods">
+                    <label class="method-card selected" id="labelTunai" onclick="pilihMetode('tunai')">
+                        <input type="radio" name="metode" value="tunai" checked> Tunai (Offline)
+                    </label>
+                    <label class="method-card" id="labelOnline" onclick="pilihMetode('online')">
+                        <input type="radio" name="metode" value="online"> Online (Mayar.id)
+                    </label>
+                </div>
+
                 <div class="total-section">
                     <span>Total Tagihan:</span>
                     <span class="total-amount" id="totalTagihan">Rp 0</span>
@@ -238,17 +276,23 @@
     </div>
 
     <script>
-        // URL Web App Google Apps Script Anda yang aktif
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzYhVYm2zXGj6IvHAS6lDuvlYs3DupbEKB405nmoKxIj9W_40T0sO1u82VWQtBsQd0Apw/exec";
         
         let santriTerpilih = null;
         let nominalSPP = 150000;
+        let metodePilih = 'tunai';
 
         const daftarBulan = [
             "Juli", "Agustus", "September", "Oktober", 
             "November", "Desember", "Januari", "Februari", 
             "Maret", "April", "Mei", "Juni"
         ];
+
+        function pilihMetode(metode) {
+            metodePilih = metode;
+            document.getElementById('labelTunai').className = `method-card ${metode === 'tunai' ? 'selected' : ''}`;
+            document.getElementById('labelOnline').className = `method-card ${metode === 'online' ? 'selected' : ''}`;
+        }
 
         async function cariSantri() {
             const nis = document.getElementById('nisInput').value.trim();
@@ -326,8 +370,18 @@
 
             let bulanPilihan = Array.from(checkboxes).map(cb => cb.value);
             let nis = santriTerpilih.NIS || santriTerpilih.nis;
+            let totalBayar = checkboxes.length * nominalSPP;
 
-            if (!confirm(`Lanjutkan pembayaran untuk bulan: ${bulanPilihan.join(', ')}?`)) return;
+            if (metodePilih === 'online') {
+                // Integrasi ke Mayar.id atau redirect pembayaran online
+                alert(`Mengarahkan ke pembayaran Online Mayar.id sejumlah Rp ${totalBayar.toLocaleString('id-ID')} untuk bulan: ${bulanPilihan.join(', ')}`);
+                // Contoh tautan link pembayaran Mayar.id (bisa disesuaikan dengan link produk/payment link Anda)
+                // window.location.href = `https://app.mayar.id/pl/...&amount=${totalBayar}`;
+                return;
+            }
+
+            // Jika memilih pembayaran Tunai (Offline)
+            if (!confirm(`Konfirmasi pembayaran Tunai untuk bulan: ${bulanPilihan.join(', ')}?`)) return;
 
             document.getElementById('loadingText').innerText = "Memproses pembayaran & mengirim kuitansi...";
             document.getElementById('loadingText').style.display = 'block';
@@ -342,7 +396,7 @@
                     });
                 }
 
-                alert("Pembayaran berhasil! Status telah diperbarui dan kuitansi telah dikirim ke WhatsApp.");
+                alert("Pembayaran Tunai berhasil! Status telah diperbarui dan kuitansi otomatis dikirim ke WhatsApp.");
                 location.reload();
             } catch (err) {
                 console.error(err);
