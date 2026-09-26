@@ -43,6 +43,16 @@
             text-align: center;
             margin-bottom: 24px;
         }
+        .logo-pesantren {
+            width: 75px;
+            height: 75px;
+            object-fit: contain;
+            margin-bottom: 12px;
+            border-radius: 50%;
+            background-color: #f0fdf4;
+            padding: 5px;
+            border: 2px solid var(--accent-color);
+        }
         .header h1 {
             font-size: 1.25rem;
             color: var(--primary-color);
@@ -212,6 +222,8 @@
 
 <div class="container">
     <div class="header">
+        <!-- Bagian Logo Pesantren -->
+        <img src="IMG_20260925_232356.png" alt="Logo PPFHA" class="logo-pesantren" onerror="this.style.display='none'">
         <h1>PPFHA AL-QAROBIYAH</h1>
         <p>Portal Pembayaran SPP Pondok Pesantren</p>
     </div>
@@ -235,7 +247,7 @@
                 <option value="2">2 Bulan</option>
                 <option value="3">3 Bulan</option>
                 <option value="6">6 Bulan</option>
-                <option value="12">1 Bulan (Lunas 1 Tahun)</option>
+                <option value="12">12 Bulan (1 Tahun)</option>
             </select>
         </div>
 
@@ -329,7 +341,7 @@
         document.getElementById('jmlBulanText').innerText = jmlBulan + " Bulan";
         document.getElementById('totalBayar').innerText = "Rp " + total.toLocaleString('id-ID');
 
-        // Atur link pembayaran online Mayar.id Anda (bisa disesuaikan link produk Mayar Anda)
+        // Atur link pembayaran online Mayar.id Anda
         let linkMayar = `https://mayar.id/@spp-ppfha?amount=${total}&name=${encodeURIComponent(santriAktif['Nama Santri'])}&note=SPP_${santriAktif.NIS}`;
         document.getElementById('btnOnline').href = linkMayar;
     }
