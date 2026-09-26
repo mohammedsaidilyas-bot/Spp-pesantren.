@@ -37,6 +37,7 @@
                     <div class="text-xs text-emerald-800 space-y-0.5 pt-1">
                         <p>NIS: <span id="info-nis" class="font-medium">-</span></p>
                         <p>Wali Santri: <span id="info-wali" class="font-medium">-</span></p>
+                        <p>No. WhatsApp Wali: <span id="info-hp" class="font-medium">-</span></p>
                         <p>Status SPP: <span id="info-status" class="font-bold">-</span></p>
                     </div>
                 </div>
@@ -66,12 +67,12 @@
                     </div>
                 </div>
 
-                <!-- Tombol Aksi yang Ringkas & Padu -->
+                <!-- Tombol Aksi -->
                 <div id="action-buttons" class="space-y-2.5 pt-1">
                     <button onclick="bayarOnline()" class="w-full bg-indigo-600 text-white py-3 rounded-xl font-semibold text-xs hover:bg-indigo-700 transition shadow-sm">Bayar Online (Mayar.id)</button>
                     <button onclick="bukaModalTunai()" class="w-full bg-amber-600 text-white py-3 rounded-xl font-semibold text-xs hover:bg-amber-700 transition shadow-sm">Bayar Tunai / Offline (PIN Bendahara)</button>
                     <button onclick="kirimKuitansiWA()" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-semibold text-xs hover:bg-emerald-700 transition shadow-sm flex items-center justify-center space-x-1.5">
-                        <span>Kirim Kuitansi ke WhatsApp</span>
+                        <span>Kirim Kuitansi ke WhatsApp Wali</span>
                     </button>
                 </div>
                 
@@ -104,7 +105,21 @@
         let currentNis = "";
         let currentNama = "";
         let currentWali = "";
+        let currentHp = "";
         let dataSantriList = [];
+
+        // Fungsi bantu untuk mendeteksi berbagai variasi nama kolom dari Google Sheets
+        function cariData(obj, keywords) {
+            for (let key of Object.keys(obj)) {
+                let cleanKey = key.toLowerCase().trim();
+                for (let kw of keywords) {
+                    if (cleanKey.includes(kw)) {
+                        return obj[key];
+                    }
+                }
+            }
+            return null;
+        }
 
         async function cekSantri() {
             const nis = document.getElementById('nis-input').value.trim();
@@ -116,20 +131,23 @@
             try {
                 const res = await axios.get(scriptUrl);
                 dataSantriList = res.data;
-                const santri = dataSantriList.find(s => String(s.nis) === String(nis));
+                const santri = dataSantriList.find(s => String(cariData(s, ['nis'])) === String(nis));
 
                 if (santri) {
-                    currentNis = santri.nis;
-                    currentNama = santri.nama || "Santri PPFHA";
-                    currentWali = santri["wali santri"] || santri["orang tua"] || santri["wali"] || "-";
+                    currentNis = cariData(santri, ['nis']) || nis;
+                    currentNama = cariData(santri, ['nama']) || "Santri PPFHA";
+                    currentWali = cariData(santri, ['wali', 'orang tua', 'ortu']) || "-";
+                    currentHp = cariData(santri, ['hp', 'whatsapp', 'telp', 'phone', 'wa']) || "";
 
                     document.getElementById('info-nama').innerText = currentNama;
                     document.getElementById('info-nis').innerText = currentNis;
                     document.getElementById('info-wali').innerText = currentWali;
+                    document.getElementById('info-hp').innerText = currentHp ? currentHp : "(Belum ada nomor HP di Sheets)";
 
                     const statusEl = document.getElementById('info-status');
-                    statusEl.innerText = santri.status || "BELUM LUNAS";
-                    statusEl.className = santri.status === "LUNAS" ? "font-bold text-emerald-600" : "font-bold text-red-600";
+                    const statusVal = cariData(santri, ['status']) || "BELUM LUNAS";
+                    statusEl.innerText = statusVal;
+                    statusEl.className = statusVal === "LUNAS" ? "font-bold text-emerald-600" : "font-bold text-red-600";
 
                     document.getElementById('login-section').classList.add('hidden');
                     document.getElementById('payment-section').classList.remove('hidden');
@@ -178,16 +196,31 @@
         }
 
         function kirimKuitansiWA() {
+            if (!currentHp) {
+                alert('Nomor WhatsApp wali santri belum tercatat di database Google Sheets.');
+                return;
+            }
+
+            // Format nomor HP (ubah awalan 0 menjadi 62)
+            let formattedHp = String(currentHp).trim();
+            if (formattedHp.startsWith('0')) {
+                formattedHp = '62' + formattedHp.slice(1);
+            } else if (formattedHp.startsWith('+62')) {
+                formattedHp = formattedHp.slice(1);
+            }
+
             const bulan = document.getElementById('bulan-select').value;
             const pesan = `*KUITANSI PEMBAYARAN SPP PPFHA*\n\nNama Santri: ${currentNama}\nNIS: ${currentNis}\nWali Santri: ${currentWali}\nBulan: ${bulan}\nNominal: Rp 150.000\nStatus: *LUNAS*\n\nTerima kasih, pembayaran telah dikonfirmasi oleh Bendahara Pondok Pesantren Fathul Huda Al-Qarobiyah.`;
+            
             const encodedPesan = encodeURIComponent(pesan);
-            window.open(`https://api.whatsapp.com/send?text=${encodedPesan}`, '_blank');
+            window.open(`https://wa.me/${formattedHp}?text=${encodedPesan}`, '_blank');
         }
 
         function resetForm() {
             currentNis = "";
             currentNama = "";
             currentWali = "";
+            currentHp = "";
             document.getElementById('nis-input').value = "";
             document.getElementById('payment-section').classList.add('hidden');
             document.getElementById('login-section').classList.remove('hidden');
