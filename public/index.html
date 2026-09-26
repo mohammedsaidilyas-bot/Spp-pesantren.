@@ -62,8 +62,8 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-slate-500 mb-1">Nominal</label>
-                        <input type="text" id="nominal-input" value="Rp 150.000" readonly class="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-100 text-slate-600 text-xs font-semibold">
+                        <label class="block text-xs font-medium text-slate-500 mb-1">Nominal (Rp)</label>
+                        <input type="text" id="nominal-input" value="150000" readonly class="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-100 text-slate-600 text-xs font-semibold">
                     </div>
                 </div>
 
@@ -106,14 +106,15 @@
         let currentNama = "";
         let currentWali = "";
         let currentHp = "";
+        let currentNominal = "150000";
         let dataSantriList = [];
 
-        // Fungsi bantu untuk mendeteksi berbagai variasi nama kolom dari Google Sheets
+        // Fungsi canggih untuk mencocokkan berbagai variasi nama kolom di Google Sheets
         function cariData(obj, keywords) {
             for (let key of Object.keys(obj)) {
                 let cleanKey = key.toLowerCase().trim();
                 for (let kw of keywords) {
-                    if (cleanKey.includes(kw)) {
+                    if (cleanKey === kw || cleanKey.includes(kw)) {
                         return obj[key];
                     }
                 }
@@ -131,23 +132,29 @@
             try {
                 const res = await axios.get(scriptUrl);
                 dataSantriList = res.data;
-                const santri = dataSantriList.find(s => String(cariData(s, ['nis'])) === String(nis));
+                const santri = dataSantriList.find(s => String(cariData(s, ['nis', 'no induk'])) === String(nis));
 
                 if (santri) {
-                    currentNis = cariData(santri, ['nis']) || nis;
-                    currentNama = cariData(santri, ['nama']) || "Santri PPFHA";
-                    currentWali = cariData(santri, ['wali', 'orang tua', 'ortu']) || "-";
-                    currentHp = cariData(santri, ['hp', 'whatsapp', 'telp', 'phone', 'wa']) || "";
+                    currentNis = cariData(santri, ['nis', 'no induk']) || nis;
+                    currentNama = cariData(santri, ['nama', 'nama santri']) || "Santri PPFHA";
+                    currentWali = cariData(santri, ['wali', 'wali santri', 'orang tua', 'ortu', 'ayah', 'ibu']) || "-";
+                    currentHp = cariData(santri, ['hp', 'whatsapp', 'telp', 'phone', 'wa', 'no hp', 'nomor hp']) || "";
+                    
+                    let dbNominal = cariData(santri, ['nominal', 'spp', 'biaya', 'tagihan']);
+                    if (dbNominal) {
+                        currentNominal = String(dbNominal).replace(/[^0-9]/g, '');
+                    }
 
                     document.getElementById('info-nama').innerText = currentNama;
                     document.getElementById('info-nis').innerText = currentNis;
                     document.getElementById('info-wali').innerText = currentWali;
                     document.getElementById('info-hp').innerText = currentHp ? currentHp : "(Belum ada nomor HP di Sheets)";
+                    document.getElementById('nominal-input').value = "Rp " + Number(currentNominal).toLocaleString('id-ID');
 
                     const statusEl = document.getElementById('info-status');
-                    const statusVal = cariData(santri, ['status']) || "BELUM LUNAS";
+                    const statusVal = cariData(santri, ['status', 'status spp']) || "BELUM LUNAS";
                     statusEl.innerText = statusVal;
-                    statusEl.className = statusVal === "LUNAS" ? "font-bold text-emerald-600" : "font-bold text-red-600";
+                    statusEl.className = statusVal.toUpperCase() === "LUNAS" ? "font-bold text-emerald-600" : "font-bold text-red-600";
 
                     document.getElementById('login-section').classList.add('hidden');
                     document.getElementById('payment-section').classList.remove('hidden');
@@ -162,7 +169,7 @@
 
         function bayarOnline() {
             const bulan = document.getElementById('bulan-select').value;
-            alert(`Mengarahkan ke Mayar.id untuk pembayaran SPP bulan ${bulan} (NIS: ${currentNis})`);
+            alert(`Mengarahkan ke Mayar.id untuk pembayaran SPP bulan ${bulan} (Nominal: Rp ${Number(currentNominal).toLocaleString('id-ID')})`);
         }
 
         function bukaModalTunai() {
@@ -188,7 +195,7 @@
                 });
                 alert(`Pembayaran tunai SPP bulan ${bulan} berhasil dicatat & status menjadi LUNAS.`);
                 tutupModalTunai();
-                cekSantri();
+                cekSantri(); // Refresh data otomatis setelah bayar
             } catch (err) {
                 console.error(err);
                 alert('Gagal memperbarui status ke Google Sheets.');
@@ -201,7 +208,6 @@
                 return;
             }
 
-            // Format nomor HP (ubah awalan 0 menjadi 62)
             let formattedHp = String(currentHp).trim();
             if (formattedHp.startsWith('0')) {
                 formattedHp = '62' + formattedHp.slice(1);
@@ -210,7 +216,7 @@
             }
 
             const bulan = document.getElementById('bulan-select').value;
-            const pesan = `*KUITANSI PEMBAYARAN SPP PPFHA*\n\nNama Santri: ${currentNama}\nNIS: ${currentNis}\nWali Santri: ${currentWali}\nBulan: ${bulan}\nNominal: Rp 150.000\nStatus: *LUNAS*\n\nTerima kasih, pembayaran telah dikonfirmasi oleh Bendahara Pondok Pesantren Fathul Huda Al-Qarobiyah.`;
+            const pesan = `*KUITANSI PEMBAYARAN SPP PPFHA*\n\nNama Santri: ${currentNama}\nNIS: ${currentNis}\nWali Santri: ${currentWali}\nBulan: ${bulan}\nNominal: Rp ${Number(currentNominal).toLocaleString('id-ID')}\nStatus: *LUNAS*\n\nTerima kasih, pembayaran telah dikonfirmasi oleh Bendahara Pondok Pesantren Fathul Huda Al-Qarobiyah.`;
             
             const encodedPesan = encodeURIComponent(pesan);
             window.open(`https://wa.me/${formattedHp}?text=${encodedPesan}`, '_blank');
@@ -221,6 +227,7 @@
             currentNama = "";
             currentWali = "";
             currentHp = "";
+            currentNominal = "150000";
             document.getElementById('nis-input').value = "";
             document.getElementById('payment-section').classList.add('hidden');
             document.getElementById('login-section').classList.remove('hidden');
