@@ -48,104 +48,107 @@
         }
 
         .logo-circle {
-            width: 70px;
-            height: 70px;
+            width: 65px;
+            height: 65px;
             background: #ffffff;
             color: var(--primary);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 28px;
-            margin: 0 auto 12px;
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+            font-size: 26px;
+            margin: 0 auto 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
 
         .brand-container h1 {
-            font-size: 20px;
+            font-size: 19px;
             font-weight: 700;
-            margin-bottom: 3px;
+            margin-bottom: 2px;
         }
 
         .brand-container p {
-            font-size: 12px;
+            font-size: 11px;
             color: #a7f3d0;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
-        /* Kartu Utama */
+        /* Kartu Utama Minimalis */
         .search-card {
             background: var(--card-bg);
             width: 100%;
-            max-width: 460px;
+            max-width: 440px;
             padding: 24px;
             border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
             margin-bottom: 20px;
         }
 
         .input-label {
             display: block;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
-            color: var(--text-main);
-            margin-bottom: 8px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
         }
 
         .input-group {
             display: flex;
-            gap: 10px;
+            gap: 8px;
         }
 
-        .input-group input {
-            flex: 1;
-            padding: 12px 14px;
+        input, select {
+            width: 100%;
+            padding: 11px 14px;
             font-size: 14px;
             border: 1.5px solid var(--border-color);
-            border-radius: 12px;
+            border-radius: 10px;
             outline: none;
             background: #f8fafc;
             color: var(--text-main);
             transition: all 0.2s;
         }
 
-        .input-group input:focus {
+        input:focus, select:focus {
             border-color: var(--primary);
             background: #ffffff;
-            box-shadow: 0 0 0 4px rgba(13, 92, 54, 0.1);
+            box-shadow: 0 0 0 3px rgba(13, 92, 54, 0.1);
         }
 
         .btn-cek {
             background: #2563eb;
             color: white;
             border: none;
-            padding: 0 20px;
+            padding: 0 18px;
             font-size: 14px;
             font-weight: 600;
-            border-radius: 12px;
+            border-radius: 10px;
             cursor: pointer;
             transition: background 0.2s;
+            white-space: nowrap;
         }
 
         .btn-cek:hover {
             background: #1d4ed8;
         }
 
-        /* Bagian Informasi & Pembayaran */
+        /* Bagian Informasi & Aksi */
         .result-section {
-            margin-top: 20px;
-            padding-top: 18px;
+            margin-top: 18px;
+            padding-top: 16px;
             border-top: 1px solid var(--border-color);
             display: none;
         }
 
         .santri-info-box {
             background: #f8fafc;
-            border-radius: 12px;
-            padding: 14px;
-            margin-bottom: 14px;
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin-bottom: 16px;
             border: 1px solid var(--border-color);
         }
 
@@ -153,12 +156,7 @@
             display: flex;
             justify-content: space-between;
             font-size: 13px;
-            padding: 5px 0;
-            border-bottom: 1px dashed var(--border-color);
-        }
-
-        .info-row:last-child {
-            border-bottom: none;
+            padding: 4px 0;
         }
 
         .info-label {
@@ -175,8 +173,8 @@
         .badge-lunas {
             background: var(--success-bg);
             color: var(--success-text);
-            padding: 2px 8px;
-            border-radius: 6px;
+            padding: 1px 7px;
+            border-radius: 5px;
             font-size: 11px;
             font-weight: 700;
         }
@@ -184,34 +182,31 @@
         .badge-belum {
             background: var(--warning-bg);
             color: var(--warning-text);
-            padding: 2px 8px;
-            border-radius: 6px;
+            padding: 1px 7px;
+            border-radius: 5px;
             font-size: 11px;
             font-weight: 700;
         }
 
-        .form-group-custom {
+        .form-group {
             margin-bottom: 14px;
         }
 
-        .form-group-custom select, .form-group-custom input {
-            width: 100%;
-            padding: 12px 14px;
-            font-size: 14px;
-            border: 1.5px solid var(--border-color);
-            border-radius: 12px;
-            outline: none;
-            background: #f8fafc;
-            color: var(--text-main);
-        }
-
+        /* Kotak PIN Bendahara yang lebih bersih */
         #pinGroup {
-            display: none; /* Hanya muncul jika metode Tunai/Offline dipilih */
-            background: #fdf2f8;
-            border: 1.5px dashed #f472b6;
-            padding: 12px;
-            border-radius: 12px;
+            display: none;
+            margin-top: -8px;
             margin-bottom: 14px;
+            background: #fdf2f8;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px dashed #db2777;
+        }
+
+        #pinGroup label {
+            color: #be185d;
+            font-size: 11px;
+            margin-bottom: 4px;
         }
 
         .btn-bayar {
@@ -219,16 +214,17 @@
             background: var(--primary);
             color: white;
             border: none;
-            padding: 13px;
+            padding: 12px;
             font-size: 14px;
             font-weight: 600;
-            border-radius: 12px;
+            border-radius: 10px;
             cursor: pointer;
             transition: background 0.2s;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
+            margin-top: 6px;
         }
 
         .btn-bayar:hover {
@@ -249,17 +245,17 @@
 
         .loader-box {
             background: white;
-            padding: 20px 28px;
-            border-radius: 14px;
+            padding: 18px 24px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: 12px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
         }
 
         .spinner {
-            width: 22px;
-            height: 22px;
+            width: 20px;
+            height: 20px;
             border: 3px solid #e2e8f0;
             border-top-color: var(--primary);
             border-radius: 50%;
@@ -271,7 +267,7 @@
         }
 
         .loader-text {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
             color: var(--text-main);
         }
@@ -290,10 +286,12 @@
 
     <!-- Kartu Utama -->
     <div class="search-card">
-        <label class="input-label" for="nis">Nomor Induk Santri (NIS)</label>
-        <div class="input-group">
-            <input type="text" id="nis" placeholder="Contoh: 20260001" autocomplete="off">
-            <button class="btn-cek" onclick="cekDataSantri()">Cek</button>
+        <div class="form-group">
+            <label class="input-label" for="nis">Nomor Induk Santri (NIS)</label>
+            <div class="input-group">
+                <input type="text" id="nis" placeholder="Contoh: 20260001" autocomplete="off">
+                <button class="btn-cek" onclick="cekDataSantri()">Cek</button>
+            </div>
         </div>
 
         <!-- Bagian Informasi & Pembayaran -->
@@ -315,14 +313,14 @@
                     <span class="info-label">No. Telepon</span>
                     <span class="info-value" id="txtTelp">-</span>
                 </div>
-                <div class="info-row">
-                    <span class="info-label">SPP</span>
+                <div class="info-row" style="margin-top: 4px; border-top: 1px dashed var(--border-color); padding-top: 6px;">
+                    <span class="info-label" style="font-weight: 700; color: var(--text-main);">SPP</span>
                     <span class="info-value"><span id="txtStatusSpp" class="badge-belum">-</span></span>
                 </div>
             </div>
 
             <!-- Pilihan Metode Pembayaran -->
-            <div class="form-group-custom">
+            <div class="form-group">
                 <label class="input-label" for="metode">Metode Pembayaran</label>
                 <select id="metode" onchange="togglePinBendahara()">
                     <option value="Tunai / Offline">Tunai / Offline (Bayar di Kantor)</option>
@@ -330,16 +328,14 @@
                 </select>
             </div>
 
-            <!-- Input Kode/PIN Bendahara khusus Offline -->
-            <div id="pinGroup" class="form-group-custom">
-                <label class="input-label" for="kodeBendahara" style="color: #be185d;">
-                    <i class="fa-solid fa-lock"></i> Masukkan Kode / PIN Bendahara
-                </label>
+            <!-- Input PIN Bendahara (Hanya tampil jika Tunai/Offline dipilih) -->
+            <div id="pinGroup">
+                <label class="input-label" for="kodeBendahara"><i class="fa-solid fa-lock"></i> PIN Bendahara</label>
                 <input type="password" id="kodeBendahara" placeholder="Masukkan PIN khusus bendahara" autocomplete="current-password">
             </div>
 
             <!-- Pilihan Bulan Pembayaran -->
-            <div class="form-group-custom">
+            <div class="form-group">
                 <label class="input-label" for="bulan">Pilih Bulan Pembayaran</label>
                 <select id="bulan" onchange="updateStatusBulan()">
                     <option value="Juli">Juli</option>
@@ -358,7 +354,7 @@
             </div>
 
             <button class="btn-bayar" onclick="prosesPembayaran()">
-                <i class="fa-solid fa-circle-check"></i> Proses Pembayaran & Kirim Kuitansi WA
+                <i class="fa-solid fa-paper-plane"></i> Proses & Kirim Kuitansi WA
             </button>
         </div>
     </div>
@@ -367,14 +363,14 @@
     <div id="loadingOverlay">
         <div class="loader-box">
             <div class="spinner"></div>
-            <div class="loader-text" id="loaderText">Memeriksa database...</div>
+            <div class="loader-text" id="loaderText">Memproses...</div>
         </div>
     </div>
 
 <script>
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwVEoquoZd9ojPxubLyHjUfGp6yDQm_Kqjw8gCFPiE9hJXRZyJeommvr-O_5XzJ1YRAEQ/exec";
 
-    // KODE BENDAHARA RESMI (Anda dapat mengganti PIN ini sesuai keinginan)
+    // PIN Bendahara Resmi (Dapat diubah sesuai kebutuhan)
     const PIN_BENDAHARA_VALID = "PPFHA2026"; 
 
     let santriCache = null;
@@ -411,7 +407,7 @@
                 document.getElementById("txtTelp").innerText = data.telp;
                 
                 updateStatusBulan();
-                togglePinBendahara(); // Cek status awal metode pembayaran
+                togglePinBendahara();
 
                 document.getElementById("resultSection").style.display = "block";
             } else {
@@ -448,11 +444,10 @@
 
         if (!nis) return;
 
-        // Validasi PIN Bendahara jika memilih pembayaran Offline / Tunai
         if (metode === "Tunai / Offline") {
             var inputPin = document.getElementById("kodeBendahara").value.trim();
             if (inputPin !== PIN_BENDAHARA_VALID) {
-                alert("Akses Ditolak! Kode/PIN Bendahara yang Anda masukkan salah.");
+                alert("Akses Ditolak! PIN Bendahara salah.");
                 return;
             }
         }
@@ -463,7 +458,7 @@
             metode: metode 
         };
 
-        document.getElementById("loaderText").innerText = "Menyimpan data & menyiapkan kuitansi WA...";
+        document.getElementById("loaderText").innerText = "Menyimpan & mengirim kuitansi...";
         document.getElementById("loadingOverlay").style.display = "flex";
 
         fetch(WEB_APP_URL, {
@@ -475,18 +470,16 @@
         .then(() => {
             document.getElementById("loadingOverlay").style.display = "none";
             
-            // Perbarui status lokal menjadi LUNAS
             if (santriCache && santriCache.pembayaran) {
                 santriCache.pembayaran[bulan] = "LUNAS";
                 updateStatusBulan();
             }
 
-            alert("Pembayaran bulan " + bulan + " berhasil dicatat dan status diperbarui menjadi LUNAS!");
+            alert("Pembayaran bulan " + bulan + " berhasil dicatat!");
 
-            // OTOMATIS KIRIM KUITANSI KE WHATSAPP TANPA DIKLIK MANUAL
+            // Kirim kuitansi ke WhatsApp secara otomatis tanpa diklik
             kirimWhatsAppOtomatis();
 
-            // Reset form input PIN & NIS
             document.getElementById("kodeBendahara").value = "";
             document.getElementById("nis").value = "";
             document.getElementById("resultSection").style.display = "none";
@@ -531,8 +524,6 @@
 Terima kasih, pembayaran Anda telah tercatat sah di sistem database pesantren.`;
 
         let urlWa = `https://api.whatsapp.com/send?phone=${noWa}&text=${encodeURIComponent(pesan)}`;
-        
-        // Membuka tab WhatsApp secara otomatis untuk mengirim kuitansi
         window.open(urlWa, '_blank');
     }
 </script>
