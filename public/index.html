@@ -150,6 +150,24 @@
             font-weight: 600;
             font-size: 15px;
         }
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 16px;
+        }
+        .btn-online {
+            background-color: #2563eb;
+        }
+        .btn-online:hover {
+            background-color: #1d4ed8;
+        }
+        .btn-offline {
+            background-color: #16a34a;
+        }
+        .btn-offline:hover {
+            background-color: #15803d;
+        }
         .error-msg {
             color: #ef4444;
             font-size: 13px;
@@ -174,7 +192,7 @@
                 <img src="https://raw.githubusercontent.com/Spp-pesantren/Spp-pesantren/main/IMG_20260925_232356.png" alt="Logo Pesantren">
             </div>
             <h1>PP. Fathul Huda Al-Qarobiyah</h1>
-            <p>Portal Pembayaran SPP Santri Online</p>
+            <p>Portal Pembayaran SPP Santri Online & Offline</p>
         </div>
 
         <div class="content">
@@ -209,7 +227,10 @@
                     <span id="totalNominal" style="color: #0d9488;">Rp 0</span>
                 </div>
 
-                <button class="btn" style="margin-top: 16px; background-color: #2563eb;" onclick="bayarSekarang()">Bayar via Mayar.id</button>
+                <div class="button-group">
+                    <button class="btn btn-online" onclick="bayarOnline()">Bayar Online (Mayar.id / QRIS)</button>
+                    <button class="btn btn-offline" onclick="bayarOffline()">Catat Bayar Tunai (Cash ke Bendahara)</button>
+                </div>
             </div>
         </div>
 
@@ -219,7 +240,6 @@
     </div>
 
     <script>
-        // Database Santri langsung di dalam browser (Tanpa Server, Dijamin Anti Error Koneksi!)
         const databaseSantri = {
             "20260001": { nama: "Jefry", kelas: "3 Aliyah", nominal: "150000" },
             "20260002": { nama: "Aditya", kelas: "1 Aliyah", nominal: "150000" },
@@ -247,11 +267,10 @@
                 document.getElementById('kelasSantri').innerText = santri.kelas;
                 document.getElementById('nominalSantri').innerText = 'Rp ' + Number(santri.nominal).toLocaleString('id-ID');
                 
-                // Reset checkboxes
                 document.querySelectorAll('.month-checkbox input').forEach(cb => cb.checked = false);
                 document.getElementById('totalNominal').innerText = 'Rp 0';
 
-                errorMsg.style.display = 'none';
+                errormsg.style.display = 'none';
                 santriCard.style.display = 'block';
             } else {
                 santriCard.style.display = 'none';
@@ -266,7 +285,7 @@
             document.getElementById('totalNominal').innerText = 'Rp ' + total.toLocaleString('id-ID');
         }
 
-        function bayarSekarang() {
+        function bayarOnline() {
             const checkedMonths = document.querySelectorAll('.month-checkbox input:checked');
             if (checkedMonths.length === 0) {
                 alert('Pilih minimal satu bulan pembayaran terlebih dahulu.');
@@ -275,8 +294,27 @@
             const bulanList = Array.from(checkedMonths).map(cb => cb.value).join(', ');
             const total = checkedMonths.length * Number(santriDataAktif.nominal);
 
-            // Langsung arahkan ke Mayar.id Anda
             window.location.href = `https://mayar.to/spp-pesantren?amount=${total}&notes=SPP_${santriDataAktif.nama}_Bulan_${bulanList}`;
+        }
+
+        function bayarOffline() {
+            const checkedMonths = document.querySelectorAll('.month-checkbox input:checked');
+            if (checkedMonths.length === 0) {
+                alert('Pilih minimal satu bulan pembayaran terlebih dahulu.');
+                return;
+            }
+            const bulanList = Array.from(checkedMonths).map(cb => cb.value).join(', ');
+            const total = checkedMonths.length * Number(santriDataAktif.nominal);
+
+            // Menampilkan konfirmasi pencatatan kas tunai (bisa dihubungkan ke WhatsApp bendahara jika diinginkan)
+            const konfirmasi = confirm(`Konfirmasi Pembayaran Tunai (Cash):\n\nNama: ${santriDataAktif.nama}\nKelas: ${santriDataAktif.kelas}\nBulan: ${bulanList}\nTotal: Rp ${total.toLocaleString('id-ID')}\n\nCatat pembayaran tunai ini?`);
+            
+            if (konfirmasi) {
+                alert('Pembayaran tunai berhasil dicatat oleh Bendahara! Silakan berikan kwitansi fisik kepada wali santri.');
+                // Reset form setelah dicatat
+                document.querySelectorAll('.month-checkbox input').forEach(cb => cb.checked = false);
+                document.getElementById('totalNominal').innerText = 'Rp 0';
+            }
         }
     </script>
 </body>
