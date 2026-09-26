@@ -11,12 +11,13 @@
         :root {
             --primary: #064e3b;
             --primary-light: #059669;
-            --accent: #34d399;
             --bg-gradient: linear-gradient(135deg, #064e3b 0%, #022c22 100%);
-            --card-bg: rgba(255, 255, 255, 0.95);
+            --card-bg: #ffffff;
             --text-main: #0f172a;
             --text-muted: #64748b;
-            --border-color: #cbd5e1;
+            --border-color: #e2e8f0;
+            --success-bg: #d1fae5;
+            --success-text: #065f46;
         }
 
         * {
@@ -33,71 +34,54 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            padding: 24px;
+            justify-content: flex-start;
+            padding: 40px 20px;
         }
 
-        /* Bagian Brand Header */
+        /* Bagian Header Brand */
         .brand-container {
             text-align: center;
-            margin-bottom: 28px;
+            margin-bottom: 30px;
             color: #ffffff;
         }
 
         .logo-circle {
-            width: 70px;
-            height: 70px;
+            width: 75px;
+            height: 75px;
             background: #ffffff;
             color: var(--primary);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 28px;
+            font-size: 30px;
             margin: 0 auto 14px;
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-            transition: transform 0.3s ease;
-        }
-
-        .logo-circle:hover {
-            transform: scale(1.05);
         }
 
         .brand-container h1 {
-            font-size: 21px;
+            font-size: 22px;
             font-weight: 700;
             margin-bottom: 4px;
-            letter-spacing: -0.3px;
         }
 
         .brand-container p {
             font-size: 13px;
             color: #a7f3d0;
             font-weight: 500;
-            letter-spacing: 0.5px;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        /* Kartu Utama Minimalis Modern */
+        /* Kartu Utama */
         .search-card {
             background: var(--card-bg);
-            backdrop-filter: blur(10px);
             width: 100%;
-            max-width: 440px;
+            max-width: 480px;
             padding: 28px;
-            border-radius: 24px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            animation: fadeIn 0.5s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .input-group-container {
-            margin-bottom: 4px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            margin-bottom: 20px;
         }
 
         .input-label {
@@ -108,12 +92,12 @@
             margin-bottom: 8px;
         }
 
-        .input-wrapper {
+        .input-group {
             display: flex;
             gap: 10px;
         }
 
-        .input-wrapper input {
+        .input-group input {
             flex: 1;
             padding: 12px 16px;
             font-size: 14px;
@@ -124,14 +108,14 @@
             background: #f8fafc;
         }
 
-        .input-wrapper input:focus {
+        .input-group input:focus {
             border-color: var(--primary-light);
             background: #ffffff;
-            box-shadow: 0 0 0 4px rgba(5, 150, 105, 0.12);
+            box-shadow: 0 0 0 4px rgba(5, 150, 105, 0.1);
         }
 
         .btn-cek {
-            background: var(--primary);
+            background: #2563eb;
             color: white;
             border: none;
             padding: 0 22px;
@@ -139,49 +123,80 @@
             font-weight: 600;
             border-radius: 12px;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: background 0.2s ease;
         }
 
         .btn-cek:hover {
-            background: var(--primary-light);
+            background: #1d4ed8;
         }
 
-        .btn-cek:active {
-            transform: scale(0.97);
-        }
-
-        /* Bagian Opsi Bulan & Tombol Bayar */
-        .payment-section {
-            margin-top: 20px;
+        /* Bagian Informasi Santri & Pembayaran (Tampil setelah Cek) */
+        .result-section {
+            margin-top: 24px;
             padding-top: 20px;
-            border-top: 1px solid #e2e8f0;
-            display: none; /* Muncul setelah NIS dikonfirmasi */
-            animation: fadeIn 0.4s ease-out;
+            border-top: 1px solid var(--border-color);
+            display: none; /* Muncul setelah NIS ditemukan */
         }
 
-        .payment-section select {
+        .santri-info-box {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            border: 1px solid var(--border-color);
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            padding: 6px 0;
+            border-bottom: 1px dashed var(--border-color);
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .info-value {
+            color: var(--text-main);
+            font-weight: 600;
+            text-align: right;
+        }
+
+        .badge-status {
+            background: var(--success-bg);
+            color: var(--success-text);
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .payment-group {
+            margin-bottom: 14px;
+        }
+
+        .payment-group select {
             width: 100%;
             padding: 12px 16px;
             font-size: 14px;
             border: 1.5px solid var(--border-color);
             border-radius: 12px;
             outline: none;
-            margin-bottom: 14px;
             background: #f8fafc;
             color: var(--text-main);
             cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .payment-section select:focus {
-            border-color: var(--primary-light);
-            background: #ffffff;
-            box-shadow: 0 0 0 4px rgba(5, 150, 105, 0.12);
         }
 
         .btn-bayar {
             width: 100%;
-            background: #059669;
+            background: var(--primary-light);
             color: white;
             border: none;
             padding: 13px;
@@ -189,7 +204,7 @@
             font-weight: 600;
             border-radius: 12px;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: background 0.2s ease;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -200,17 +215,13 @@
             background: #047857;
         }
 
-        .btn-bayar:active {
-            transform: scale(0.98);
-        }
-
-        /* Loading Overlay Modern */
+        /* Loading Overlay */
         #loadingOverlay {
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(2, 44, 34, 0.6);
-            backdrop-filter: blur(6px);
+            backdrop-filter: blur(4px);
             justify-content: center;
             align-items: center;
             z-index: 999;
@@ -248,7 +259,7 @@
 </head>
 <body>
 
-    <!-- Header Lembaga -->
+    <!-- Header Brand -->
     <div class="brand-container">
         <div class="logo-circle">
             <i class="fa-solid fa-mosque"></i>
@@ -257,44 +268,71 @@
         <p>Portal Pembayaran SPP Santri</p>
     </div>
 
-    <!-- Kartu Interaktif -->
+    <!-- Kartu Utama -->
     <div class="search-card">
-        <div class="input-group-container">
-            <label class="input-label" for="nis">Nomor Induk Santri (NIS)</label>
-            <div class="input-wrapper">
-                <input type="text" id="nis" placeholder="Contoh: 20260000" autocomplete="off">
-                <button class="btn-cek" onclick="tampilOpsiBayar()">Cek</button>
-            </div>
+        <label class="input-label" for="nis">Nomor Induk Santri (NIS)</label>
+        <div class="input-group">
+            <input type="text" id="nis" placeholder="Contoh: 20260001" autocomplete="off">
+            <button class="btn-cek" onclick="cekDataSantri()">Cek</button>
         </div>
 
-        <!-- Bagian Pilihan Bulan & Tombol Konfirmasi -->
-        <div class="payment-section" id="paymentSection">
-            <label class="input-label" for="bulan">Pilih Bulan Pembayaran</label>
-            <select id="bulan">
-                <option value="Juli">Juli</option>
-                <option value="Agustus">Agustus</option>
-                <option value="September">September</option>
-                <option value="Oktober">Oktober</option>
-                <option value="November" selected>November</option>
-                <option value="Desember">Desember</option>
-                <option value="Januari">Januari</option>
-                <option value="Februari">Februari</option>
-                <option value="Maret">Maret</option>
-                <option value="April">April</option>
-                <option value="Mei">Mei</option>
-                <option value="Juni">Juni</option>
-            </select>
+        <!-- Bagian Informasi & Pembayaran (Muncul setelah tombol Cek diklik) -->
+        <div class="result-section" id="resultSection">
+            
+            <!-- Kotak Informasi Detail Santri -->
+            <div class="santri-info-box">
+                <div class="info-row">
+                    <span class="info-label">Nama Santri</span>
+                    <span class="info-value" id="txtNama">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Kelas</span>
+                    <span class="info-value" id="txtKelas">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Wali Santri</span>
+                    <span class="info-value" id="txtWali">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">No. Telepon</span>
+                    <span class="info-value" id="txtTelp">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Status Terakhir</span>
+                    <span class="info-value"><span class="badge-status" id="txtStatus">AKTIF</span></span>
+                </div>
+            </div>
+
+            <!-- Pilihan Bulan & Tombol Pembayaran -->
+            <div class="payment-group">
+                <label class="input-label" for="bulan">Pilih Bulan Pembayaran</label>
+                <select id="bulan">
+                    <option value="Juli">Juli</option>
+                    <option value="Agustus">Agustus</option>
+                    <option value="September">September</option>
+                    <option value="Oktober">Oktober</option>
+                    <option value="November" selected>November</option>
+                    <option value="Desember">Desember</option>
+                    <option value="Januari">Januari</option>
+                    <option value="Februari">Februari</option>
+                    <option value="Maret">Maret</option>
+                    <option value="April">April</option>
+                    <option value="Mei">Mei</option>
+                    <option value="Juni">Juni</option>
+                </select>
+            </div>
+
             <button class="btn-bayar" onclick="prosesPembayaran()">
                 <i class="fa-solid fa-circle-check"></i> Bayar & Buat Kolom Otomatis
             </button>
         </div>
     </div>
 
-    <!-- Loading State -->
+    <!-- Loading Overlay -->
     <div id="loadingOverlay">
         <div class="loader-box">
             <div class="spinner"></div>
-            <div class="loader-text">Menyinkronkan ke Spreadsheet...</div>
+            <div class="loader-text" id="loaderText">Memeriksa data santri...</div>
         </div>
     </div>
 
@@ -302,14 +340,30 @@
     // URL Web App Google Apps Script terbaru Anda
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwKc7a7Wag2S1hnEfkM7d0ipPdnMy13HnK_6Ct7CeJb9wl28wxgl8I0Wwu5cL5_81TgbQ/exec";
 
-    function tampilOpsiBayar() {
+    function cekDataSantri() {
         var nis = document.getElementById("nis").value.trim();
         if (!nis) {
             alert("Harap masukkan Nomor Induk Santri (NIS) terlebih dahulu!");
             return;
         }
-        // Menampilkan pilihan bulan dengan efek transisi halus
-        document.getElementById("paymentSection").style.display = "block";
+
+        // Tampilkan loading sebentar mensimulasikan pencarian data
+        document.getElementById("loaderText").innerText = "Mencari data santri...";
+        document.getElementById("loadingOverlay").style.display = "flex";
+
+        setTimeout(function() {
+            document.getElementById("loadingOverlay").style.display = "none";
+            
+            // Contoh data info santri yang ditemukan (bisa disesuaikan dengan respons database Anda)
+            document.getElementById("txtNama").innerText = "Santri NIS " + nis;
+            document.getElementById("txtKelas").innerText = "Tsanawiyah / Aliyah";
+            document.getElementById("txtWali").innerText = "Wali Santri";
+            document.getElementById("txtTelp").innerText = "08xxxxxxxxxx";
+            document.getElementById("txtStatus").innerText = "TERVERIFIKASI";
+
+            // Munculkan kotak informasi dan pilihan pembayaran
+            document.getElementById("resultSection").style.display = "block";
+        }, 600);
     }
 
     function prosesPembayaran() {
@@ -326,7 +380,7 @@
             bulan: bulan
         };
 
-        // Tampilkan loading overlay
+        document.getElementById("loaderText").innerText = "Memproses pembayaran & membuat kolom...";
         document.getElementById("loadingOverlay").style.display = "flex";
 
         fetch(WEB_APP_URL, {
@@ -339,9 +393,11 @@
         })
         .then(response => {
             document.getElementById("loadingOverlay").style.display = "none";
-            alert("Berhasil! Transaksi bulan " + bulan + " untuk NIS " + nis + " telah diproses. Kolom bulan (jika baru) otomatis dibuat dan status diperbarui.");
+            alert("Sukses! Pembayaran SPP bulan " + bulan + " untuk NIS " + nis + " berhasil dicatat. Kolom bulan otomatis dibuat dan status diperbarui menjadi LUNAS.");
+            
+            // Reset tampilan
             document.getElementById("nis").value = "";
-            document.getElementById("paymentSection").style.display = "none";
+            document.getElementById("resultSection").style.display = "none";
         })
         .catch(error => {
             document.getElementById("loadingOverlay").style.display = "none";
