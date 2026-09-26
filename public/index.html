@@ -363,7 +363,6 @@
         elBadge.innerText = "LUNAS";
         elBadge.className = "status-badge status-lunas";
         
-        // Disable tombol bayar jika bulan sudah lunas
         btnOnline.disabled = true;
         btnOnline.innerHTML = '<i class="fas fa-check-circle"></i> Bulan Ini Sudah Lunas';
         btnTunai.disabled = true;
@@ -372,7 +371,6 @@
         elBadge.innerText = "BELUM LUNAS";
         elBadge.className = "status-badge status-belum";
         
-        // Aktifkan kembali tombol bayar jika belum lunas
         btnOnline.disabled = false;
         btnOnline.innerHTML = '<i class="fas fa-credit-card"></i> Bayar Online (Mayar.id)';
         btnTunai.disabled = false;
@@ -414,6 +412,9 @@
       }
 
       let nis = document.getElementById('nisInput').value.trim();
+      if(!nis && globalDataSantri) {
+        nis = String(globalDataSantri['NIS'] || globalDataSantri['nis'] || '').trim();
+      }
 
       Swal.fire({
         title: 'Memproses Pembayaran...',
@@ -423,7 +424,10 @@
 
       let payload = { nis: nis, bulan: bulanTarget };
 
-      fetch(scriptURL, { method: 'POST', body: JSON.stringify(payload) })
+      fetch(scriptURL, { 
+        method: 'POST', 
+        body: JSON.stringify(payload) 
+      })
         .then(res => res.json())
         .then(result => {
           Swal.close();
@@ -443,7 +447,7 @@
             Swal.fire({
               icon: 'error',
               title: 'Gagal',
-              text: 'Terjadi kesalahan pada server.',
+              text: result.message || 'Terjadi kesalahan pada server.',
               confirmButtonColor: '#0d5c35'
             });
           }
@@ -515,7 +519,6 @@
         title: 'Pembayaran Online',
         text: `Anda akan diarahkan ke Mayar.id untuk pembayaran bulan ${bulanTarget}.`,
         icon: 'info',
-        showScanButton: false,
         showCancelButton: true,
         confirmButtonText: 'Lanjut',
         cancelButtonText: 'Batal',
