@@ -278,7 +278,7 @@
     <script>
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzYhVYm2zXGj6IvHAS6lDuvlYs3DupbEKB405nmoKxIj9W_40T0sO1u82VWQtBsQd0Apw/exec";
         
-        // PIN Rahasia Khusus Bendahara (bisa diganti sesuai keinginan)
+        // PIN Rahasia Khusus Bendahara
         const PIN_BENDAHARA = "123456"; 
 
         let santriTerpilih = null;
@@ -380,19 +380,20 @@
                 return;
             }
 
-            // Proteksi Khusus Tunai (Hanya Bendahara dengan PIN)
+            // Validasi PIN Bendahara
             let pinInput = prompt("Masukkan PIN Khusus Bendahara untuk memproses pembayaran Tunai:");
             if (pinInput !== PIN_BENDAHARA) {
-                alert("PIN Bendahara salah! Pembayaran tunai dibatalkan. Fitur tunai hanya dapat diakses oleh bendahara pesantren.");
+                alert("PIN Bendahara salah! Pembayaran tunai dibatalkan.");
                 return;
             }
 
             if (!confirm(`Konfirmasi pembayaran Tunai untuk bulan: ${bulanPilihan.join(', ')}?`)) return;
 
-            document.getElementById('loadingText').innerText = "Memproses pembayaran & mengirim kuitansi...";
+            document.getElementById('loadingText').innerText = "Memproses pembayaran & mengirim kuitansi ke WhatsApp...";
             document.getElementById('loadingText').style.display = 'block';
 
             try {
+                // Mengirim data per bulan ke Google Apps Script (update Sheets + Trigger WhatsApp)
                 for (let b of bulanPilihan) {
                     await fetch(WEB_APP_URL, {
                         method: 'POST',
@@ -402,11 +403,11 @@
                     });
                 }
 
-                alert("Pembayaran Tunai berhasil! Status telah diperbarui dan kuitansi otomatis dikirim ke WhatsApp.");
+                alert("Pembayaran Tunai berhasil! Status Google Sheets diperbarui dan kuitansi terkirim otomatis ke WhatsApp wali santri.");
                 location.reload();
             } catch (err) {
                 console.error(err);
-                alert("Pembayaran berhasil diproses. Halaman akan dimuat ulang.");
+                alert("Pembayaran diproses. Halaman akan dimuat ulang.");
                 location.reload();
             } finally {
                 document.getElementById('loadingText').style.display = 'none';
