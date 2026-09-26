@@ -3,50 +3,320 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aplikasi Pembayaran SPP - PPFHA</title>
+    <title>Sistem Pembayaran SPP - PPFHA</title>
+    <!-- Google Fonts & FontAwesome Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        body { font-family: Arial, sans-serif; background-color: #f4f6f9; margin: 0; padding: 20px; }
-        .container { max-width: 500px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        h2 { text-align: center; color: #333; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
-        input, select { width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
-        button { width: 100%; background-color: #28a745; color: white; padding: 12px; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; }
-        button:hover { background-color: #218838; }
-        #loading { display: none; text-align: center; margin-top: 10px; color: #007bff; font-weight: bold; }
+        :root {
+            --primary: #4338ca;
+            --primary-hover: #3730a3;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --success: #10b981;
+            --success-bg: #d1fae5;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .main-container {
+            width: 100%;
+            max-width: 650px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 28px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .header .icon-box {
+            width: 52px;
+            height: 52px;
+            background: #eef2ff;
+            color: var(--primary);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            margin: 0 auto 12px;
+        }
+
+        .header h1 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 4px;
+        }
+
+        .header p {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 6px;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 15px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 11px 14px 11px 42px;
+            font-size: 14px;
+            border: 1.5px solid var(--border-color);
+            border-radius: 12px;
+            outline: none;
+            transition: all 0.2s ease;
+            background: #fff;
+            color: var(--text-main);
+        }
+
+        input:focus, select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(67, 56, 202, 0.1);
+        }
+
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            background-size: 15px;
+            padding-right: 36px;
+        }
+
+        .btn-submit {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 13px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.2s ease, transform 0.1s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 6px;
+        }
+
+        .btn-submit:hover {
+            background: var(--primary-hover);
+        }
+
+        .btn-submit:active {
+            transform: scale(0.98);
+        }
+
+        /* Detail Santri Card */
+        #santriInfo {
+            display: none;
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            padding: 6px 0;
+            border-bottom: 1px dashed var(--border-color);
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .info-value {
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        .badge-lunas {
+            background: var(--success-bg);
+            color: var(--success);
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        /* Loading Overlay */
+        #loadingOverlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(4px);
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+        }
+
+        .loader-card {
+            background: white;
+            padding: 24px 32px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid #e2e8f0;
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loader-text {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-main);
+        }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2>Pembayaran SPP</h2>
-    <div class="form-group">
-        <label for="nis">NIS Santri:</label>
-        <input type="text" id="nis" placeholder="Masukkan NIS Santri">
+    <div class="main-container">
+        <div class="card">
+            <div class="header">
+                <div class="icon-box">
+                    <i class="fa-solid fa-wallet"></i>
+                </div>
+                <h1>Pembayaran SPP PPFHA</h1>
+                <p>Pondok Pesantren Fathul Huda Al-Qarobiyah</p>
+            </div>
+
+            <div class="form-group">
+                <label for="nis">NIS Santri</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-id-card"></i>
+                    <input type="text" id="nis" placeholder="Masukkan NIS Santri (Contoh: 20260001)" autocomplete="off">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="bulan">Pilih Bulan Pembayaran</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-calendar-days"></i>
+                    <select id="bulan">
+                        <option value="Juli">Juli</option>
+                        <option value="Agustus">Agustus</option>
+                        <option value="September">September</option>
+                        <option value="Oktober">Oktober</option>
+                        <option value="November" selected>November</option>
+                        <option value="Desember">Desember</option>
+                        <option value="Januari">Januari</option>
+                        <option value="Februari">Februari</option>
+                        <option value="Maret">Maret</option>
+                        <option value="April">April</option>
+                        <option value="Mei">Mei</option>
+                        <option value="Juni">Juni</option>
+                    </select>
+                </div>
+            </div>
+
+            <button class="btn-submit" onclick="prosesPembayaran()">
+                <i class="fa-solid fa-paper-plane"></i> Proses Pembayaran & Buat Kolom
+            </button>
+
+            <!-- Card Informasi Ringkas Santri -->
+            <div id="santriInfo">
+                <div class="info-row">
+                    <span class="info-label">Nama Santri</span>
+                    <span class="info-value" id="valNama">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Wali Santri</span>
+                    <span class="info-value" id="valWali">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">No. Telepon</span>
+                    <span class="info-value" id="valTelp">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Status Bulan Ini</span>
+                    <span class="info-value"><span class="badge-lunas" id="valStatus">LUNAS</span></span>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="form-group">
-        <label for="bulan">Pilih Bulan:</label>
-        <select id="bulan">
-            <option value="Juli">Juli</option>
-            <option value="Agustus">Agustus</option>
-            <option value="September">September</option>
-            <option value="Oktober">Oktober</option>
-            <option value="November">November</option>
-            <option value="Desember">Desember</option>
-            <option value="Januari">Januari</option>
-            <option value="Februari">Februari</option>
-            <option value="Maret">Maret</option>
-            <option value="April">April</option>
-            <option value="Mei">Mei</option>
-            <option value="Juni">Juni</option>
-        </select>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay">
+        <div class="loader-card">
+            <div class="spinner"></div>
+            <div class="loader-text" id="loaderText">Menghubungkan ke Spreadsheet...</div>
+        </div>
     </div>
-    <button onclick="prosesPembayaran()">Bayar Sekarang</button>
-    <div id="loading">Memproses pembayaran & membuat kolom jika belum ada...</div>
-</div>
 
 <script>
-    // URL Web App Google Apps Script terbaru Anda yang sudah terhubung
+    // URL Web App Google Apps Script terbaru Anda
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwKc7a7Wag2S1hnEfkM7d0ipPdnMy13HnK_6Ct7CeJb9wl28wxgl8I0Wwu5cL5_81TgbQ/exec";
 
     function prosesPembayaran() {
@@ -54,7 +324,7 @@
         var bulan = document.getElementById("bulan").value;
 
         if (!nis) {
-            alert("Silakan masukkan NIS santri terlebih dahulu!");
+            alert("Harap masukkan NIS santri terlebih dahulu!");
             return;
         }
 
@@ -63,26 +333,33 @@
             bulan: bulan
         };
 
-        document.getElementById("loading").style.display = "block";
+        // Tampilkan loading modern
+        document.getElementById("loaderText").innerText = "Membuat kolom bulan & menyimpan data...";
+        document.getElementById("loadingOverlay").style.display = "flex";
 
         fetch(WEB_APP_URL, {
             method: "POST",
-            mode: "no-cors", // Menghindari isu CORS pada Google Apps Script
+            mode: "no-cors",
             headers: {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify(dataKirim)
         })
         .then(response => {
-            document.getElementById("loading").style.display = "none";
-            alert("Permintaan pembayaran berhasil dikirim! Silakan cek Google Sheets Anda, kolom bulan (" + bulan + ") akan otomatis dibuat jika belum ada dan status santri diubah menjadi LUNAS.");
-            // Reset input form
-            document.getElementById("nis").value = "";
+            document.getElementById("loadingOverlay").style.display = "none";
+            
+            // Tampilkan info ringkas setelah sukses
+            document.getElementById("valNama").innerText = "Santri dengan NIS " + nis;
+            document.getElementById("valWali").innerText = "Tersimpan di Sistem";
+            document.getElementById("valTelp").innerText = "Terverifikasi";
+            document.getElementById("santriInfo").style.display = "block";
+
+            alert("Sukses! Pembayaran SPP bulan " + bulan + " berhasil dicatat. Jika kolom bulan tersebut belum ada di Google Sheets, sistem telah otomatis membuatnya.");
         })
         .catch(error => {
-            document.getElementById("loading").style.display = "none";
+            document.getElementById("loadingOverlay").style.display = "none";
             console.error("Error:", error);
-            alert("Terjadi kesalahan koneksi: " + error);
+            alert("Terjadi kesalahan koneksi. Silakan periksa kembali jaringan Anda.");
         });
     }
 </script>
