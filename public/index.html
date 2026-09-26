@@ -270,7 +270,7 @@
                 document.querySelectorAll('.month-checkbox input').forEach(cb => cb.checked = false);
                 document.getElementById('totalNominal').innerText = 'Rp 0';
 
-                errormsg.style.display = 'none';
+                errorMsg.style.display = 'none';
                 santriCard.style.display = 'block';
             } else {
                 santriCard.style.display = 'none';
@@ -306,12 +306,10 @@
             const bulanList = Array.from(checkedMonths).map(cb => cb.value).join(', ');
             const total = checkedMonths.length * Number(santriDataAktif.nominal);
 
-            // Menampilkan konfirmasi pencatatan kas tunai (bisa dihubungkan ke WhatsApp bendahara jika diinginkan)
             const konfirmasi = confirm(`Konfirmasi Pembayaran Tunai (Cash):\n\nNama: ${santriDataAktif.nama}\nKelas: ${santriDataAktif.kelas}\nBulan: ${bulanList}\nTotal: Rp ${total.toLocaleString('id-ID')}\n\nCatat pembayaran tunai ini?`);
             
             if (konfirmasi) {
                 alert('Pembayaran tunai berhasil dicatat oleh Bendahara! Silakan berikan kwitansi fisik kepada wali santri.');
-                // Reset form setelah dicatat
                 document.querySelectorAll('.month-checkbox input').forEach(cb => cb.checked = false);
                 document.getElementById('totalNominal').innerText = 'Rp 0';
             }
