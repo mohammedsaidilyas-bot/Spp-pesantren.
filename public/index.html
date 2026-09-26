@@ -234,6 +234,34 @@
         .btn-cash:hover {
             background-color: #b45309;
         }
+        /* Panel Khusus Rekap Bendahara */
+        .admin-panel {
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .admin-panel h3 {
+            font-size: 1rem;
+            color: #b45309;
+            margin-bottom: 10px;
+        }
+        .santri-list-table {
+            width: 100%;
+            font-size: 0.85rem;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        .santri-list-table th, .santri-list-table td {
+            border: 1px solid #e5e7eb;
+            padding: 8px;
+            text-align: left;
+        }
+        .santri-list-table th {
+            background-color: #f3f4f6;
+        }
         .footer-admin {
             text-align: center;
             margin-top: auto;
@@ -243,6 +271,7 @@
         .footer-admin a {
             color: var(--text-light);
             text-decoration: none;
+            cursor: pointer;
         }
         .footer-admin a:hover {
             color: var(--primary-color);
@@ -261,42 +290,66 @@
     <div class="content-body">
         <div class="loading" id="loadingText">Memuat database santri...</div>
 
-        <label class="label-input" for="nisInput">Masukkan Nomor Induk Santri (NIS)</label>
-        <div class="search-box">
-            <input type="number" id="nisInput" placeholder="Contoh: 20260001" />
-            <button onclick="cariSantri()">Cek</button>
+        <!-- Menu Utama Pencarian NIS -->
+        <div id="mainSearchSection">
+            <label class="label-input" for="nisInput">Masukkan Nomor Induk Santri (NIS)</label>
+            <div class="search-box">
+                <input type="number" id="nisInput" placeholder="Contoh: 20260001" />
+                <button onclick="cariSantri()">Cek</button>
+            </div>
+
+            <div class="error-msg" id="errorMsg">NIS tidak ditemukan di database!</div>
+
+            <div class="santri-card" id="santriCard">
+                <div class="santri-info" id="santriInfo"></div>
+                
+                <div class="section-title">Pilih Bulan Pembayaran:</div>
+                
+                <div class="months-grid">
+                    <label class="month-item"><input type="checkbox" value="Juli" onchange="hitungTotal()"> Juli</label>
+                    <label class="month-item"><input type="checkbox" value="Agustus" onchange="hitungTotal()"> Agustus</label>
+                    <label class="month-item"><input type="checkbox" value="September" onchange="hitungTotal()"> September</label>
+                    <label class="month-item"><input type="checkbox" value="Oktober" onchange="hitungTotal()"> Oktober</label>
+                    <label class="month-item"><input type="checkbox" value="November" onchange="hitungTotal()"> November</label>
+                    <label class="month-item"><input type="checkbox" value="Desember" onchange="hitungTotal()"> Desember</label>
+                </div>
+
+                <div class="summary-box">
+                    <span>Total Tagihan:</span>
+                    <span class="total-amount" id="totalBayar">Rp 0</span>
+                </div>
+
+                <a href="#" id="btnOnline" class="btn-pay" target="_blank">Bayar Online (Mayar.id / QRIS)</a>
+
+                <div class="cash-section" id="cashSection">
+                    <button class="btn-cash" onclick="catatTunai()">Catat Pembayaran Tunai & Kirim WA</button>
+                </div>
+            </div>
         </div>
 
-        <div class="error-msg" id="errorMsg">NIS tidak ditemukan di database!</div>
-
-        <div class="santri-card" id="santriCard">
-            <div class="santri-info" id="santriInfo"></div>
-            
-            <div class="section-title">Pilih Bulan Pembayaran:</div>
-            
-            <div class="months-grid">
-                <label class="month-item"><input type="checkbox" value="Juli" onchange="hitungTotal()"> Juli</label>
-                <label class="month-item"><input type="checkbox" value="Agustus" onchange="hitungTotal()"> Agustus</label>
-                <label class="month-item"><input type="checkbox" value="September" onchange="hitungTotal()"> September</label>
-                <label class="month-item"><input type="checkbox" value="Oktober" onchange="hitungTotal()"> Oktober</label>
-                <label class="month-item"><input type="checkbox" value="November" onchange="hitungTotal()"> November</label>
-                <label class="month-item"><input type="checkbox" value="Desember" onchange="hitungTotal()"> Desember</label>
+        <!-- Panel Rekap Khusus Bendahara -->
+        <div class="admin-panel" id="adminPanel">
+            <h3>Panel Khusus Bendahara: Daftar Seluruh Santri</h3>
+            <p style="font-size: 0.85rem; color: #6b7280; margin-bottom: 8px;">Berikut adalah daftar seluruh santri yang terdaftar di database pesantren:</p>
+            <div style="max-height: 300px; overflow-y: auto;">
+                <table class="santri-list-table" id="tableSantri">
+                    <thead>
+                        <tr>
+                            <th>NIS</th>
+                            <th>Nama Santri</th>
+                            <th>Kelas</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bodyTableSantri">
+                        <!-- Data dimasukkan otomatis lewat JavaScript -->
+                    </tbody>
+                </table>
             </div>
-
-            <div class="summary-box">
-                <span>Total Tagihan:</span>
-                <span class="total-amount" id="totalBayar">Rp 0</span>
-            </div>
-
-            <a href="#" id="btnOnline" class="btn-pay" target="_blank">Bayar Online (Mayar.id / QRIS)</a>
-
-            <div class="cash-section" id="cashSection">
-                <button class="btn-cash" onclick="catatTunai()">Catat Pembayaran Tunai & Kirim WA</button>
-            </div>
+            <button class="btn-cash" style="margin-top: 12px; background-color: #4b5563;" onclick="tutupPanelAdmin()">Kembali ke Menu Utama</button>
         </div>
 
         <div class="footer-admin">
-            <a href="#" onclick="loginBendahara()">Login Khusus Bendahara (Cash)</a>
+            <a href="#" onclick="loginBendahara()">Login Khusus Bendahara (Cash & Rekap)</a>
         </div>
     </div>
 </div>
@@ -313,7 +366,6 @@
             header: true,
             skipEmptyLines: true,
             complete: function(results) {
-                // Membersihkan spasi pada judul kolom secara otomatis
                 databaseSantri = results.data.map(row => {
                     let cleanRow = {};
                     for (let key in row) {
@@ -346,27 +398,20 @@
             return;
         }
 
-        // Mencari NIS secara fleksibel (mengabaikan spasi atau perbedaan huruf kecil/besar)
-        const hasil = databaseSantri.find(s => {
-            let nisKey = Object.keys(s).find(k => k.toLowerCase() === 'nis');
-            return nisKey && String(s[nisKey] || "").trim() === nisCari;
-        });
+        const hasil = databaseSantri.find(s => String(s.NIS || "").trim() === nisCari);
 
         if (hasil) {
             santriAktif = hasil;
-            let nominal = parseInt(hasil.Nominal || hasil.nominal || 0) || 0;
-            
-            // Ambil nomor HP secara fleksibel dari kolom yang mengandung kata 'hp' atau 'no'
-            let hpKey = Object.keys(hasil).find(k => k.toLowerCase().includes('hp') || k.toLowerCase().includes('telp') || k.toLowerCase().includes('whatsapp'));
-            let noHpWali = hpKey ? String(hasil[hpKey] || "").trim() : "Belum diisi";
+            let nominal = parseInt(hasil.Nominal || 0) || 0;
+            let hpWaliTampil = hasil['No Hp'] || "Belum diisi";
             
             let htmlInfo = `
-                NIS: <strong>${hasil.NIS || hasil.nis || '-'}</strong><br>
-                Nama: <strong>${hasil['Nama Santri'] || hasil.nama || '-'}</strong><br>
-                Kelas: <strong>${hasil.Kelas || hasil.kelas || '-'}</strong><br>
-                Asrama: <strong>${hasil.Asrama || hasil.asrama || '-'}</strong><br>
-                Wali Santri: <strong>${hasil['Wali Santri'] || hasil.wali || '-'}</strong><br>
-                No HP Wali: <strong>${noHpWali}</strong><br>
+                NIS: <strong>${hasil.NIS || '-'}</strong><br>
+                Nama: <strong>${hasil['Nama Santri'] || '-'}</strong><br>
+                Kelas: <strong>${hasil.Kelas || '-'}</strong><br>
+                Asrama: <strong>${hasil.Asrama || '-'}</strong><br>
+                Wali Santri: <strong>${hasil['Wali Santri'] || '-'}</strong><br>
+                No HP Wali: <strong>${hpWaliTampil}</strong><br>
                 SPP per Bulan: <strong>Rp ${nominal.toLocaleString('id-ID')}</strong>
             `;
             document.getElementById('santriInfo').innerHTML = htmlInfo;
@@ -381,18 +426,13 @@
     function hitungTotal() {
         if (!santriAktif) return;
 
-        let nominal = parseInt(santriAktif.Nominal || santriAktif.nominal || 0) || 0;
+        let nominal = parseInt(santriAktif.Nominal || 0) || 0;
         let checkedBulan = document.querySelectorAll('.months-grid input:checked');
-        let jumlahBulan = checkedBulan.length;
-        let total = nominal * jumlahBulan;
+        let total = nominal * checkedBulan.length;
 
         document.getElementById('totalBayar').innerText = "Rp " + total.toLocaleString('id-ID');
 
-        let namaSantri = santriAktif['Nama Santri'] || santriAktif.nama || '';
-        let nisSantri = santriAktif.NIS || santriAktif.nis || '';
-        let listBulanStr = Array.from(checkedBulan).map(cb => cb.value).join(', ');
-
-        let linkMayar = `https://mayar.id/@spp-ppfha?amount=${total}&name=${encodeURIComponent(namaSantri)}&note=SPP_${nisSantri}_${encodeURIComponent(listBulanStr)}`;
+        let linkMayar = `https://mayar.id/@spp-ppfha?amount=${total}&name=${encodeURIComponent(santriAktif['Nama Santri'] || '')}&note=SPP_${santriAktif.NIS}_${encodeURIComponent(Array.from(checkedBulan).map(cb => cb.value).join(', '))}`;
         document.getElementById('btnOnline').href = linkMayar;
     }
 
@@ -400,10 +440,29 @@
         let password = prompt("Masukkan Password Khusus Bendahara:");
         if (password === "bendahara123") {
             document.getElementById('cashSection').style.display = 'block';
-            alert("Login Bendahara Berhasil! Tombol catat tunai diaktifkan.");
+            document.getElementById('adminPanel').style.display = 'block';
+            document.getElementById('mainSearchSection').style.display = 'none';
+
+            // Muat tabel rekap santri
+            let tbody = document.getElementById('bodyTableSantri');
+            tbody.innerHTML = "";
+            databaseSantri.forEach(s => {
+                if (s.NIS) {
+                    let tr = document.createElement('tr');
+                    tr.innerHTML = `<td>${s.NIS}</td><td>${s['Nama Santri'] || '-'}</td><td>${s.Kelas || '-'}</td>`;
+                    tbody.appendChild(tr);
+                }
+            });
+
+            alert("Login Bendahara Berhasil! Menu rekap santri dan catat tunai diaktifkan.");
         } else if (password !== null) {
             alert("Password Salah!");
         }
+    }
+
+    function tutupPanelAdmin() {
+        document.getElementById('adminPanel').style.display = 'none';
+        document.getElementById('mainSearchSection').style.display = 'block';
     }
 
     function catatTunai() {
@@ -414,15 +473,12 @@
             return;
         }
 
-        let hpKey = Object.keys(santriAktif).find(k => k.toLowerCase().includes('hp') || k.toLowerCase().includes('telp') || k.toLowerCase().includes('whatsapp'));
-        let noHpWali = hpKey ? String(santriAktif[hpKey] || "").trim() : "";
-        
-        if (!noHpWali || noHpWali === "" || noHpWali.length < 5) {
+        let noHpWali = String(santriAktif['No Hp'] || "").trim();
+        if (!noHpWali || noHpWali.length < 5) {
             alert("Nomor HP wali santri kosong atau tidak tercatat di database!");
             return;
         }
 
-        // Karena Anda sudah mengubahnya berawalan 62 di Google Sheets, pastikan bersih dari spasi/simbol
         noHpWali = noHpWali.replace(/\D/g, '');
         if (!noHpWali.startsWith('62')) {
             if (noHpWali.startsWith('0')) {
@@ -434,19 +490,15 @@
             }
         }
 
-        let nominal = parseInt(santriAktif.Nominal || santriAktif.nominal || 0) || 0;
+        let nominal = parseInt(santriAktif.Nominal || 0) || 0;
         let total = nominal * checkedBulan.length;
         let listBulanStr = Array.from(checkedBulan).map(cb => cb.value).join(', ');
 
-        let nisVal = santriAktif.NIS || santriAktif.nis || '-';
-        let namaVal = santriAktif['Nama Santri'] || santriAktif.nama || '-';
-        let kelasVal = santriAktif.Kelas || santriAktif.kelas || '-';
-
         let pesan = `*KUITANSI PEMBAYARAN SPP*\n*PP. Fathul Huda Al-Qarobiyah*\n\n` +
                     `----------------------------------\n` +
-                    `NIS : ${nisVal}\n` +
-                    `Nama : ${namaVal}\n` +
-                    `Kelas : ${kelasVal}\n` +
+                    `NIS : ${santriAktif.NIS || '-'}\n` +
+                    `Nama : ${santriAktif['Nama Santri'] || '-'}\n` +
+                    `Kelas : ${santriAktif.Kelas || '-'}\n` +
                     `Bulan : ${listBulanStr}\n` +
                     `Total : Rp ${total.toLocaleString('id-ID')}\n` +
                     `Status : *LUNAS (Tunai/Cash)*\n` +
