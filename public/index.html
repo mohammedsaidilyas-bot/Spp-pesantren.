@@ -194,7 +194,7 @@
             margin-bottom: 14px;
         }
 
-        .form-group-custom select {
+        .form-group-custom select, .form-group-custom input {
             width: 100%;
             padding: 12px 14px;
             font-size: 14px;
@@ -203,7 +203,15 @@
             outline: none;
             background: #f8fafc;
             color: var(--text-main);
-            cursor: pointer;
+        }
+
+        #pinGroup {
+            display: none; /* Hanya muncul jika metode Tunai/Offline dipilih */
+            background: #fdf2f8;
+            border: 1.5px dashed #f472b6;
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 14px;
         }
 
         .btn-bayar {
@@ -221,32 +229,10 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
-            margin-bottom: 10px;
         }
 
         .btn-bayar:hover {
             background: #094428;
-        }
-
-        .btn-wa {
-            width: 100%;
-            background: #25d366;
-            color: white;
-            border: none;
-            padding: 12px;
-            font-size: 14px;
-            font-weight: 600;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: background 0.2s;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .btn-wa:hover {
-            background: #1ebd5a;
         }
 
         /* Loading Overlay */
@@ -338,10 +324,18 @@
             <!-- Pilihan Metode Pembayaran -->
             <div class="form-group-custom">
                 <label class="input-label" for="metode">Metode Pembayaran</label>
-                <select id="metode">
+                <select id="metode" onchange="togglePinBendahara()">
                     <option value="Tunai / Offline">Tunai / Offline (Bayar di Kantor)</option>
                     <option value="Online / Transfer">Online / Transfer Bank / QRIS</option>
                 </select>
+            </div>
+
+            <!-- Input Kode/PIN Bendahara khusus Offline -->
+            <div id="pinGroup" class="form-group-custom">
+                <label class="input-label" for="kodeBendahara" style="color: #be185d;">
+                    <i class="fa-solid fa-lock"></i> Masukkan Kode / PIN Bendahara
+                </label>
+                <input type="password" id="kodeBendahara" placeholder="Masukkan PIN khusus bendahara" autocomplete="current-password">
             </div>
 
             <!-- Pilihan Bulan Pembayaran -->
@@ -364,12 +358,7 @@
             </div>
 
             <button class="btn-bayar" onclick="prosesPembayaran()">
-                <i class="fa-solid fa-circle-check"></i> Proses Pembayaran & Buat Kolom
-            </button>
-
-            <!-- Tombol Kirim Kuitansi ke WhatsApp Wali Santri -->
-            <button class="btn-wa" id="btnWa" onclick="kirimWhatsApp()">
-                <i class="fa-brands fa-whatsapp"></i> Kirim Kuitansi ke WhatsApp Wali
+                <i class="fa-solid fa-circle-check"></i> Proses Pembayaran & Kirim Kuitansi WA
             </button>
         </div>
     </div>
@@ -385,7 +374,20 @@
 <script>
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwVEoquoZd9ojPxubLyHjUfGp6yDQm_Kqjw8gCFPiE9hJXRZyJeommvr-O_5XzJ1YRAEQ/exec";
 
+    // KODE BENDAHARA RESMI (Anda dapat mengganti PIN ini sesuai keinginan)
+    const PIN_BENDAHARA_VALID = "PPFHA2026"; 
+
     let santriCache = null;
+
+    function togglePinBendahara() {
+        var metode = document.getElementById("metode").value;
+        var pinGroup = document.getElementById("pinGroup");
+        if (metode === "Tunai / Offline") {
+            pinGroup.style.display = "block";
+        } else {
+            pinGroup.style.display = "none";
+        }
+    }
 
     function cekDataSantri() {
         var nis = document.getElementById("nis").value.trim();
@@ -402,18 +404,16 @@
         .then(data => {
             document.getElementById("loadingOverlay").style.display = "none";
             if (data && data.found) {
-                santriCache = data; // Simpan data lengkap termasuk riwayat bulan
-                
+                santriCache = data;
                 document.getElementById("txtNama").innerText = data.nama;
                 document.getElementById("txtKelas").innerText = data.kelas;
                 document.getElementById("txtWali").innerText = data.wali;
                 document.getElementById("txtTelp").innerText = data.telp;
                 
-                // Update status SPP berdasarkan bulan yang dipilih
                 updateStatusBulan();
+                togglePinBendahara(); // Cek status awal metode pembayaran
 
                 document.getElementById("resultSection").style.display = "block";
-                document.getElementById("btnWa").style.display = "none";
             } else {
                 alert("Santri dengan NIS " + nis + " tidak ditemukan!");
                 document.getElementById("resultSection").style.display = "none";
@@ -426,10 +426,8 @@
         });
     }
 
-    // Fungsi untuk memperbarui status LUNAS/BELUM LUNAS saat pilihan bulan diubah
     function updateStatusBulan() {
         if (!santriCache || !santriCache.pembayaran) return;
-        
         var bulanPilih = document.getElementById("bulan").value;
         var statusBulan = santriCache.pembayaran[bulanPilih] || "BELUM LUNAS";
         
@@ -450,13 +448,22 @@
 
         if (!nis) return;
 
+        // Validasi PIN Bendahara jika memilih pembayaran Offline / Tunai
+        if (metode === "Tunai / Offline") {
+            var inputPin = document.getElementById("kodeBendahara").value.trim();
+            if (inputPin !== PIN_BENDAHARA_VALID) {
+                alert("Akses Ditolak! Kode/PIN Bendahara yang Anda masukkan salah.");
+                return;
+            }
+        }
+
         var dataKirim = { 
             nis: nis, 
             bulan: bulan, 
             metode: metode 
         };
 
-        document.getElementById("loaderText").innerText = "Memproses pembayaran & membuat kolom...";
+        document.getElementById("loaderText").innerText = "Menyimpan data & menyiapkan kuitansi WA...";
         document.getElementById("loadingOverlay").style.display = "flex";
 
         fetch(WEB_APP_URL, {
@@ -467,16 +474,22 @@
         })
         .then(() => {
             document.getElementById("loadingOverlay").style.display = "none";
-            alert("Pembayaran (" + metode + ") bulan " + bulan + " berhasil dicatat! Status diperbarui menjadi LUNAS.");
             
-            // Perbarui cache lokal dan tampilan status menjadi LUNAS
+            // Perbarui status lokal menjadi LUNAS
             if (santriCache && santriCache.pembayaran) {
                 santriCache.pembayaran[bulan] = "LUNAS";
                 updateStatusBulan();
             }
 
-            // Munculkan tombol kirim kuitansi ke WhatsApp
-            document.getElementById("btnWa").style.display = "flex";
+            alert("Pembayaran bulan " + bulan + " berhasil dicatat dan status diperbarui menjadi LUNAS!");
+
+            // OTOMATIS KIRIM KUITANSI KE WHATSAPP TANPA DIKLIK MANUAL
+            kirimWhatsAppOtomatis();
+
+            // Reset form input PIN & NIS
+            document.getElementById("kodeBendahara").value = "";
+            document.getElementById("nis").value = "";
+            document.getElementById("resultSection").style.display = "none";
         })
         .catch(error => {
             document.getElementById("loadingOverlay").style.display = "none";
@@ -484,11 +497,8 @@
         });
     }
 
-    function kirimWhatsApp() {
-        if (!santriCache) {
-            alert("Data santri tidak ditemukan.");
-            return;
-        }
+    function kirimWhatsAppOtomatis() {
+        if (!santriCache) return;
 
         var nama = santriCache.nama;
         var nis = santriCache.nis || document.getElementById("nis").value;
@@ -521,6 +531,8 @@
 Terima kasih, pembayaran Anda telah tercatat sah di sistem database pesantren.`;
 
         let urlWa = `https://api.whatsapp.com/send?phone=${noWa}&text=${encodeURIComponent(pesan)}`;
+        
+        // Membuka tab WhatsApp secara otomatis untuk mengirim kuitansi
         window.open(urlWa, '_blank');
     }
 </script>
