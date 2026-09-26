@@ -350,6 +350,7 @@
             let nominal = parseInt(hasil.Nominal) || 0;
             
             let htmlInfo = `
+                NIS: <strong>${hasil.NIS}</strong><br>
                 Nama: <strong>${hasil['Nama Santri']}</strong><br>
                 Kelas: <strong>${hasil.Kelas}</strong><br>
                 Asrama: <strong>${hasil.Asrama}</strong><br>
@@ -403,7 +404,7 @@
         let listBulanStr = Array.from(checkedBulan).map(cb => cb.value).join(', ');
         let noHpWali = santriAktif['No Hp'] || "";
 
-        let pesan = `Assalamu'alaikum, konfirmasi pembayaran SPP Pondok Pesantren Fathul Huda Al-Qarobiyah:\n\n*Nama:* ${santriAktif['Nama Santri']}\n*NIS:* ${santriAktif.NIS}\n*Kelas:* ${santriAktif.Kelas}\n*Bulan:* ${listBulanStr}\n*Total:* Rp ${total.toLocaleString('id-ID')}\n*Status:* LUNAS (Tunai/Cash)\n\nTerima kasih.`;
+        let pesan = `Assalamu'alaikum, konfirmasi pembayaran SPP Pondok Pesantren Fathul Huda Al-Qarobiyah:\n\n*NIS:* ${santriAktif.NIS}\n*Nama:* ${santriAktif['Nama Santri']}\n*Kelas:* ${santriAktif.Kelas}\n*Bulan:* ${listBulanStr}\n*Total:* Rp ${total.toLocaleString('id-ID')}\n*Status:* LUNAS (Tunai/Cash)\n\nTerima kasih.`;
 
         let urlWa = `https://wa.me/62${noHpWali.replace(/^0+/, '')}?text=${encodeURIComponent(pesan)}`;
         window.open(urlWa, '_blank');
