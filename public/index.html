@@ -14,98 +14,150 @@
     body {
       background-color: #f4f7f6;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding: 20px 0;
     }
-    .card {
+    .card-main {
       border: none;
-      border-radius: 15px;
+      border-radius: 16px;
       box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+      background: #ffffff;
+      overflow: hidden;
     }
     .header-box {
-      background: linear-gradient(135deg, #198754, #157347);
+      background-color: #157347;
       color: white;
-      border-radius: 15px 15px 0 0;
-      padding: 25px;
-    }
-    .month-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-      gap: 10px;
-    }
-    .month-card {
-      border: 2px solid #dee2e6;
-      border-radius: 10px;
-      padding: 12px;
+      padding: 25px 20px;
       text-align: center;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      background: #fff;
+      border-radius: 16px 16px 0 0;
     }
-    .month-card:hover {
-      border-color: #198754;
-      background: #f8fff9;
+    .info-santri-box {
+      background-color: #f0fdf4;
+      border: 1px solid #dcfce7;
+      border-radius: 12px;
+      padding: 16px;
     }
-    .month-card.selected {
-      border-color: #198754;
-      background: #e8f5e9;
-      color: #198754;
-      font-weight: bold;
+    .btn-online {
+      background-color: #6366f1;
+      color: white;
+      border: none;
+    }
+    .btn-online:hover {
+      background-color: #4f46e5;
+      color: white;
+    }
+    .btn-tunai {
+      background-color: #d97706;
+      color: white;
+      border: none;
+    }
+    .btn-tunai:hover {
+      background-color: #b45309;
+      color: white;
+    }
+    .btn-wa {
+      background-color: #10b981;
+      color: white;
+      border: none;
+    }
+    .btn-wa:hover {
+      background-color: #059669;
+      color: white;
+    }
+    .action-btn {
+      border-radius: 12px;
+      padding: 12px;
+      font-weight: 600;
+      width: 100%;
+      margin-bottom: 12px;
+      transition: all 0.2s;
+    }
+    .action-btn:hover {
+      transform: translateY(-1px);
     }
   </style>
 </head>
 <body>
 
-  <div class="container py-5">
+  <div class="container">
     <div class="row justify-content-center">
-      <div class="col-md-8 col-lg-6">
-        <div class="card">
+      <div class="col-md-6 col-lg-5">
+        <div class="card card-main">
+          
           <!-- Header -->
-          <div class="header-box text-center">
-            <h4 class="mb-1 fw-bold">PP. Fathul Huda Al-Qarobiyah</h4>
-            <p class="mb-0 text-white-50">Portal Pembayaran SPP Santri (PPFHA)</p>
+          <div class="header-box">
+            <h3 class="fw-bold mb-1">PPFHA</h3>
+            <p class="mb-0 text-white-50 small">Pondok Pesantren Fathul Huda Al-Qarobiyah</p>
           </div>
 
           <div class="card-body p-4">
-            <!-- Form Cari NIS -->
-            <div class="mb-3">
-              <label class="form-label fw-semibold">Masukkan NIS Santri</label>
+            
+            <!-- Form Input NIS (Tampil di awal) -->
+            <div id="sectionCari" class="mb-3">
+              <label class="form-label fw-semibold small text-muted">MASUKKAN NIS SANTRI</label>
               <div class="input-group">
-                <input type="text" id="nisInput" class="form-control" placeholder="Contoh: 1001" required>
-                <button class="btn btn-success" type="button" id="btnCari" onclick="cariSantri()">
-                  <i class="fas fa-search"></i> Cari
-                </button>
+                <input type="text" id="nisInput" class="form-control" placeholder="Contoh: 20260000" required>
+                <button class="btn btn-success px-4" type="button" onclick="cariSantri()">Cari</button>
               </div>
             </div>
 
-            <!-- Informasi Santri (Hidden Default) -->
-            <div id="infoSantri" class="d-none">
-              <hr class="my-4">
-              <div class="bg-light p-3 rounded-3 mb-4">
-                <p class="mb-1"><strong>Nama:</strong> <span id="txtNama">-</span></p>
-                <p class="mb-1"><strong>Kelas:</strong> <span id="txtKelas">-</span></p>
-                <p class="mb-0"><strong>Asrama:</strong> <span id="txtAsrama">-</span></p>
+            <!-- Bagian Detail & Aksi (Muncul setelah NIS ditemukan) -->
+            <div id="sectionAksi" class="d-none">
+              
+              <!-- Kotak Informasi Santri -->
+              <div class="info-santri-box mb-4">
+                <span class="text-success fw-bold small text-uppercase" style="font-size: 11px;">Informasi Santri</span>
+                <h5 class="fw-bold text-dark mt-1 mb-2" id="txtNama">-</h5>
+                <p class="mb-1 small text-secondary">NIS: <span id="txtNis" class="fw-semibold text-dark">-</span></p>
+                <p class="mb-1 small text-secondary">Wali Santri: <span id="txtWali" class="fw-semibold text-dark">-</span></p>
+                <p class="mb-1 small text-secondary">No. WhatsApp Wali: <span id="txtWa" class="fw-semibold text-dark">-</span></p>
+                <p class="mb-0 small text-secondary">Status SPP: <span id="txtStatus" class="fw-bold text-danger">BELUM LUNAS</span></p>
               </div>
 
-              <!-- Pilihan Bulan -->
-              <label class="form-label fw-semibold mb-2">Pilih Bulan SPP yang Dibayar</label>
-              <div class="month-grid mb-4" id="bulanContainer">
-                <!-- Bulan digenerate otomatis -->
+              <!-- Pilihan Bulan & Nominal -->
+              <div class="row g-2 mb-4">
+                <div class="col-7">
+                  <label class="form-label small text-muted fw-semibold">Bulan</label>
+                  <select id="selectBulan" class="form-select">
+                    <option value="Juli">Juli</option>
+                    <option value="Agustus">Agustus</option>
+                    <option value="September" selected>September</option>
+                    <option value="Oktober">Oktober</option>
+                    <option value="November">November</option>
+                    <option value="Desember">Desember</option>
+                    <option value="Januari">Januari</option>
+                    <option value="Februari">Februari</option>
+                    <option value="Maret">Maret</option>
+                    <option value="April">April</option>
+                    <option value="Mei">Mei</option>
+                    <option value="Juni">Juni</option>
+                  </select>
+                </div>
+                <div class="col-5">
+                  <label class="form-label small text-muted fw-semibold">Nominal</label>
+                  <input type="text" id="txtNominal" class="form-control bg-light text-dark fw-bold" value="Rp 50.000" readonly>
+                </div>
               </div>
 
-              <!-- Total Tagihan -->
-              <div class="d-flex justify-content-between align-items-center mb-4 p-3 bg-success bg-opacity-10 rounded-3">
-                <span class="fw-bold text-success">Total Tagihan:</span>
-                <span class="fs-4 fw-bold text-success" id="txtTotal">Rp 0</span>
+              <!-- Ketiga Tombol Aksi Sesuai Keinginan -->
+              <button type="button" class="btn action-btn btn-online shadow-sm" onclick="prosesBayarOnline()">
+                Bayar Online (Mayar.id)
+              </button>
+
+              <button type="button" class="btn action-btn btn-tunai shadow-sm" onclick="prosesBayarTunai()">
+                Bayar Tunai / Offline (PIN Bendahara)
+              </button>
+
+              <button type="button" class="btn action-btn btn-wa shadow-sm" onclick="kirimWaManual()">
+                Kirim Kuitansi ke WhatsApp Wali
+              </button>
+
+              <!-- Tombol Kembali / Cari NIS Lain -->
+              <div class="text-center mt-3">
+                <a href="#" onclick="resetForm(event)" class="text-decoration-none text-muted small">
+                  &larr; Kembali / Cari NIS Lain
+                </a>
               </div>
 
-              <!-- Pilihan Metode Pembayaran -->
-              <div class="d-grid gap-2">
-                <button type="button" class="btn btn-success py-2 fw-bold" onclick="prosesBayarTunai()">
-                  <i class="fas fa-money-bill-wave me-2"></i> Bayar Tunai (Cash / Bendahara)
-                </button>
-                <button type="button" class="btn btn-outline-primary py-2 fw-bold" onclick="prosesBayarOnline()">
-                  <i class="fas fa-credit-card me-2"></i> Bayar Online (QRIS / Transfer Bank)
-                </button>
-              </div>
             </div>
 
           </div>
@@ -116,14 +168,7 @@
 
   <script>
     const scriptURL = "https://script.google.com/macros/s/AKfycbzYhVYm2zXGj6IvHAS6lDuvlYs3DupbEKB405nmoKxIj9W_40T0sO1u82VWQtBsQd0Apw/exec";
-    
-    const listBulan = [
-      "Juli", "Agustus", "September", "Oktober", "November", "Desember",
-      "Januari", "Februari", "Maret", "April", "Mei", "Juni"
-    ];
-    
-    let dataSantriGlobal = null;
-    let nominalSpp = 50000;
+    let globalDataSantri = null;
 
     function cariSantri() {
       let nis = document.getElementById('nisInput').value.trim();
@@ -145,71 +190,52 @@
           let santri = data.find(item => String(item.NIS || item.nis || '').trim() === nis);
           
           if(santri) {
-            dataSantriGlobal = santri;
-            document.getElementById('txtNama').innerText = santri['Nama Santri'] || santri['nama santri'] || santri['Nama'] || '-';
-            document.getElementById('txtKelas').innerText = santri['Kelas'] || santri['kelas'] || '-';
-            document.getElementById('txtAsrama').innerText = santri['Asrama'] || santri['asrama'] || '-';
+            globalDataSantri = santri;
             
-            if(santri['Nominal']) {
-              nominalSpp = parseInt(santri['Nominal']) || 50000;
-            }
+            let nama = santri['Nama Santri'] || santri['nama santri'] || santri['Nama'] || '-';
+            let wali = santri['Wali Santri'] || santri['wali santri'] || '-';
+            let wa = santri['No WhatsApp'] || santri['no whatsapp'] || santri['No. WhatsApp'] || '';
+            let nominal = santri['Nominal'] ? parseInt(santri['Nominal']) : 50000;
 
-            renderBulan(santri);
-            document.getElementById('infoSantri').classList.remove('d-none');
+            document.getElementById('txtNama').innerText = nama;
+            document.getElementById('txtNis').innerText = nis;
+            document.getElementById('txtWali').innerText = wali;
+            document.getElementById('txtWa').innerText = wa ? wa : '(Belum ada nomor HP di Sheets)';
+            document.getElementById('txtNominal').value = "Rp " + nominal.toLocaleString('id-ID');
+
+            cekStatusBulan();
+
+            document.getElementById('sectionCari').classList.add('d-none');
+            document.getElementById('sectionAksi').classList.remove('d-none');
           } else {
             Swal.fire('Tidak Ditemukan', 'Data santri dengan NIS tersebut tidak ditemukan.', 'error');
-            document.getElementById('infoSantri').classList.add('d-none');
           }
         })
         .catch(err => {
           Swal.close();
-          console.error(err);
           Swal.fire('Error', 'Gagal terhubung ke database server.', 'error');
         });
     }
 
-    function renderBulan(santri) {
-      let container = document.getElementById('bulanContainer');
-      container.innerHTML = '';
-      
-      listBulan.forEach(bulan => {
-        let status = String(santri[bulan] || "").trim();
-        let isLunas = (status.toUpperCase() === "LUNAS");
-        
-        let div = document.createElement('div');
-        div.className = `month-card ${isLunas ? 'bg-secondary bg-opacity-25 text-muted' : ''}`;
-        div.innerHTML = `
-          <div class="fw-semibold">${bulan}</div>
-          <small class="${isLunas ? 'text-danger fw-bold' : 'text-success'}">${isLunas ? 'LUNAS' : 'Belum'}</small>
-          <input type="checkbox" class="d-none chk-bulan" value="${bulan}" ${isLunas ? 'disabled' : ''}>
-        `;
-        
-        if(!isLunas) {
-          div.onclick = function() {
-            let chk = this.querySelector('input');
-            chk.checked = !chk.checked;
-            this.classList.toggle('selected', chk.checked);
-            hitungTotal();
-          };
-        }
-        container.appendChild(div);
-      });
-      hitungTotal();
-    }
+    document.getElementById('selectBulan').addEventListener('change', cekStatusBulan);
 
-    function hitungTotal() {
-      let checkboxes = document.querySelectorAll('.chk-bulan:checked');
-      let total = checkboxes.length * nominalSpp;
-      document.getElementById('txtTotal').innerText = "Rp " + total.toLocaleString('id-ID');
-      return total;
+    function cekStatusBulan() {
+      if(!globalDataSantri) return;
+      let bulanPilihan = document.getElementById('selectBulan').value;
+      let statusBulan = String(globalDataSantri[bulanPilihan] || "").trim().toUpperCase();
+      
+      let elStatus = document.getElementById('txtStatus');
+      if(statusBulan === "LUNAS") {
+        elStatus.innerText = "LUNAS";
+        elStatus.className = "fw-bold text-success";
+      } else {
+        elStatus.innerText = "BELUM LUNAS";
+        elStatus.className = "fw-bold text-danger";
+      }
     }
 
     async function prosesBayarTunai() {
-      let checkboxes = document.querySelectorAll('.chk-bulan:checked');
-      if(checkboxes.length === 0) {
-        Swal.fire('Peringatan', 'Pilih minimal satu bulan yang ingin dibayar!', 'warning');
-        return;
-      }
+      if(!globalDataSantri) return;
 
       const { value: pin } = await Swal.fire({
         title: 'Proteksi Bendahara',
@@ -222,14 +248,12 @@
       });
 
       if (pin !== "123456") {
-        if(pin !== undefined) {
-          Swal.fire('Gagal', 'PIN Bendahara salah!', 'error');
-        }
+        if(pin !== undefined) Swal.fire('Gagal', 'PIN Bendahara salah!', 'error');
         return;
       }
 
-      let bulanTerpilih = Array.from(checkboxes).map(cb => cb.value);
       let nis = document.getElementById('nisInput').value.trim();
+      let bulanTarget = document.getElementById('selectBulan').value;
 
       Swal.fire({
         title: 'Memproses Pembayaran...',
@@ -237,83 +261,84 @@
         didOpen: () => { Swal.showLoading(); }
       });
 
-      let successCount = 0;
-      let lastResponseData = null;
+      let payload = { nis: nis, bulan: bulanTarget };
 
-      for (let i = 0; i < bulanTerpilih.length; i++) {
-        let payload = { nis: nis, bulan: bulanTerpilih[i] };
-        try {
-          let response = await fetch(scriptURL, { method: 'POST', body: JSON.stringify(payload) });
-          let result = await response.json();
+      fetch(scriptURL, { method: 'POST', body: JSON.stringify(payload) })
+        .then(res => res.json())
+        .then(result => {
+          Swal.close();
           if(result.status === "success") {
-            successCount++;
-            lastResponseData = result;
+            globalDataSantri[bulanTarget] = "LUNAS";
+            cekStatusBulan();
+            Swal.fire('Berhasil!', 'Pembayaran Tunai tercatat dan status di Google Sheets diperbarui.', 'success');
+          } else {
+            Swal.fire('Gagal', 'Terjadi kesalahan pada server.', 'error');
           }
-        } catch (e) {
-          console.error(e);
-        }
-      }
-
-      Swal.close();
-
-      if(successCount > 0 && lastResponseData) {
-        let listBulanStr = bulanTerpilih.join(", ");
-        let pesan = `*KUITANSI PEMBAYARAN SPP*%0A` +
-                    `*PP. Fathul Huda Al-Qarobiyah*%0A%0A` +
-                    `-----------------------------------%0A` +
-                    `NIS : *${nis}*%0A` +
-                    `Nama : *${lastResponseData.nama}*%0A` +
-                    `Kelas : *${lastResponseData.kelas}*%0A` +
-                    `Bulan : *${listBulanStr}*%0A` +
-                    `Status : *LUNAS (Tunai/Cash)*%0A%0A` +
-                    `Terima kasih, pembayaran telah diterima oleh Bendahara Pondok.`;
-
-        let urlWa = `https://wa.me/${lastResponseData.noWa}?text=${pesan}`;
-
-        Swal.fire({
-          title: 'Pembayaran Berhasil!',
-          html: `Status di Google Sheets berhasil diperbarui.<br><br>` +
-                `<a href="${urlWa}" target="_blank" class="btn btn-success w-100 py-2 fw-bold text-white" style="background:#25d366; text-decoration:none; border-radius:8px; display:block;">` +
-                `<i class="fab fa-whatsapp me-2"></i> Kirim Kuitansi ke WhatsApp Wali Santri` +
-                `</a>`,
-          icon: 'success',
-          confirmButtonText: 'Selesai'
-        }).then(() => {
-          cariSantri();
+        })
+        .catch(err => {
+          Swal.close();
+          Swal.fire('Error', 'Gagal koneksi ke server.', 'error');
         });
-      } else {
-        Swal.fire('Gagal', 'Terjadi kesalahan saat memperbarui database.', 'error');
-      }
     }
 
     function prosesBayarOnline() {
-      let checkboxes = document.querySelectorAll('.chk-bulan:checked');
-      if(checkboxes.length === 0) {
-        Swal.fire('Peringatan', 'Pilih minimal satu bulan yang ingin dibayar!', 'warning');
-        return;
-      }
-
-      let total = hitungTotal();
       let nis = document.getElementById('nisInput').value.trim();
       let nama = document.getElementById('txtNama').innerText;
-      let bulanTerpilih = Array.from(checkboxes).map(cb => cb.value).join(", ");
+      let bulanTarget = document.getElementById('selectBulan').value;
+      let nominalStr = document.getElementById('txtNominal').value.replace(/[^0-9]/g, '');
 
-      // Arahkan ke link payment gateway (misal Mayar.id atau tautan pembayaran online Anda)
-      // Anda bisa menyambungkan URL payment gateway dinamis di sini
-      let linkPayment = `https://mayar.id/@ppfha/spp?nis=${nis}&nama=${encodeURIComponent(nama)}&amount=${total}&bulan=${encodeURIComponent(bulanTerpilih)}`;
+      let linkPayment = `https://mayar.id/@ppfha/spp?nis=${nis}&nama=${encodeURIComponent(nama)}&amount=${nominalStr}&bulan=${encodeURIComponent(bulanTarget)}`;
 
       Swal.fire({
-        title: 'Konfirmasi Pembayaran Online',
-        text: `Anda akan diarahkan ke halaman pembayaran online untuk total tagihan Rp ${total.toLocaleString('id-ID')}.`,
+        title: 'Pembayaran Online',
+        text: `Anda akan diarahkan ke Mayar.id untuk pembayaran bulan ${bulanTarget}.`,
         icon: 'info',
         showCancelButton: true,
-        confirmButtonText: 'Lanjut ke Pembayaran',
+        confirmButtonText: 'Lanjut',
         cancelButtonText: 'Batal'
-      }).then((result) => {
-        if (result.isConfirmed) {
+      }).then((res) => {
+        if(res.isConfirmed) {
           window.open(linkPayment, '_blank');
         }
       });
+    }
+
+    function kirimWaManual() {
+      if(!globalDataSantri) return;
+      let nis = document.getElementById('nisInput').value.trim();
+      let nama = document.getElementById('txtNama').innerText;
+      let bulanTarget = document.getElementById('selectBulan').value;
+      let statusBulan = String(globalDataSantri[bulanTarget] || "BELUM LUNAS").trim();
+      
+      let rawWa = String(globalDataSantri['No WhatsApp'] || globalDataSantri['no whatsapp'] || globalDataSantri['No. WhatsApp'] || '').trim().replace(/[^0-9]/g, "");
+      if(rawWa.startsWith("0")) {
+        rawWa = "62" + rawWa.substring(1);
+      }
+
+      if(!rawWa) {
+        Swal.fire('Peringatan', 'Nomor WhatsApp wali santri tidak ditemukan di Google Sheets!', 'warning');
+        return;
+      }
+
+      let pesan = `*KUITANSI PEMBAYARAN SPP*%0A` +
+                  `*PP. Fathul Huda Al-Qarobiyah*%0A%0A` +
+                  `-----------------------------------%0A` +
+                  `NIS : *${nis}*%0A` +
+                  `Nama : *${nama}*%0A` +
+                  `Bulan : *${bulanTarget}*%0A` +
+                  `Status : *${statusBulan}*%0A%0A` +
+                  `Terima kasih.`;
+
+      let urlWa = `https://wa.me/${rawWa}?text=${pesan}`;
+      window.open(urlWa, '_blank');
+    }
+
+    function resetForm(e) {
+      e.preventDefault();
+      document.getElementById('nisInput').value = '';
+      document.getElementById('sectionCari').classList.remove('d-none');
+      document.getElementById('sectionAksi').classList.add('d-none');
+      globalDataSantri = null;
     }
   </script>
 </body>
