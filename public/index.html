@@ -15,11 +15,7 @@
             --card-bg: #ffffff;
             --text-main: #0f172a;
             --text-muted: #64748b;
-            --border-color: #cbd5e1;
-            --success-bg: #d1fae5;
-            --success-text: #065f46;
-            --warning-bg: #fef3c7;
-            --warning-text: #b45309;
+            --border-color: #e2e8f0;
         }
 
         * {
@@ -136,7 +132,7 @@
             background: #1d4ed8;
         }
 
-        /* Bagian Informasi & Pilihan */
+        /* Bagian Informasi & Aksi */
         .result-section {
             margin-top: 16px;
             padding-top: 14px;
@@ -144,19 +140,53 @@
             display: none;
         }
 
-        .santri-info-box {
-            background: #f8fafc;
-            border-radius: 10px;
-            padding: 12px;
-            margin-bottom: 14px;
-            border: 1px solid var(--border-color);
+        /* Desain Header Nama Santri & Status ala Gambar */
+        .santri-header-box {
+            display: flex;
+            flex-direction: column;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 12px;
         }
+
+        .nama-top-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .nama-label-small {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 2px;
+        }
+
+        .nama-value-big {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .badge-status {
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+        .badge-lunas { background: #d1fae5; color: #065f46; }
+        .badge-belum { background: #fee2e2; color: #991b1b; }
 
         .info-row {
             display: flex;
             justify-content: space-between;
             font-size: 13px;
-            padding: 5px 0;
+            padding: 6px 0;
         }
 
         .info-label {
@@ -170,33 +200,7 @@
             text-align: right;
         }
 
-        .status-badge-box {
-            background: var(--success-bg);
-            border: 1px solid #a7f3d0;
-            border-radius: 10px;
-            padding: 10px 14px;
-            margin-bottom: 14px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .status-badge-box.belum {
-            background: var(--warning-bg);
-            border-color: #fde68a;
-        }
-
-        .status-text {
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--success-text);
-        }
-
-        .status-badge-box.belum .status-text {
-            color: var(--warning-text);
-        }
-
-        /* Layout Bulan & Nominal Sejajar Sesuai Gambar */
+        /* Layout Bulan & Nominal Sejajar */
         .form-row-2 {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -214,7 +218,7 @@
             margin-bottom: 12px;
         }
 
-        /* Tombol Aksi Sesuai Referensi */
+        /* Tombol Aksi */
         .btn-action {
             width: 100%;
             border: none;
@@ -234,9 +238,9 @@
 
         .btn-action:hover { opacity: 0.9; }
 
-        .btn-mayar { background: #6366f1; } /* Ungu sesuai referensi */
-        .btn-tunai { background: #d97706; } /* Oranye/Coklat sesuai referensi */
-        .btn-wa { background: #10b981; }    /* Hijau sesuai referensi */
+        .btn-mayar { background: #6366f1; } 
+        .btn-tunai { background: #d97706; } 
+        .btn-wa { background: #10b981; }    
 
         /* Loading Overlay */
         #loadingOverlay {
@@ -303,10 +307,21 @@
 
         <!-- Bagian Informasi & Aksi -->
         <div class="result-section" id="resultSection">
-            <div class="santri-info-box">
+            <!-- Kotak Nama & Status ala Gambar -->
+            <div class="santri-header-box">
+                <div class="nama-top-row">
+                    <div>
+                        <div class="nama-label-small">Nama Santri</div>
+                        <div class="nama-value-big" id="txtNama">-</div>
+                    </div>
+                    <div id="txtStatusBadge" class="badge-status badge-belum">BELUM LUNAS</div>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 14px;">
                 <div class="info-row">
-                    <span class="info-label">Nama Santri</span>
-                    <span class="info-value" id="txtNama">-</span>
+                    <span class="info-label">NIS</span>
+                    <span class="info-value" id="txtNis">-</span>
                 </div>
                 <div class="info-row">
                     <span class="info-label">Kelas</span>
@@ -322,29 +337,12 @@
                 </div>
             </div>
 
-            <!-- Status SPP di Atas Pilihan Bulan -->
-            <div id="statusBadgeContainer" class="status-badge-box">
-                <span style="font-size: 12px; font-weight: 600; color: var(--text-muted);">Status SPP</span>
-                <span id="txtStatusSpp" class="status-text">-</span>
-            </div>
-
             <!-- Bagian Bulan & Nominal Sejajar -->
             <div class="form-row-2">
                 <div>
-                    <label class="input-label" for="bulan">Bulan</label>
+                    <label class="input-label" for="bulan">Bulan SPP</label>
                     <select id="bulan" onchange="updateStatusBulan()">
-                        <option value="Juli">Juli</option>
-                        <option value="Agustus">Agustus</option>
-                        <option value="September" selected>September</option>
-                        <option value="Oktober">Oktober</option>
-                        <option value="November">November</option>
-                        <option value="Desember">Desember</option>
-                        <option value="Januari">Januari</option>
-                        <option value="Februari">Februari</option>
-                        <option value="Maret">Maret</option>
-                        <option value="April">April</option>
-                        <option value="Mei">Mei</option>
-                        <option value="Juni">Juni</option>
+                        <!-- Diisi otomatis oleh script -->
                     </select>
                 </div>
                 <div>
@@ -358,7 +356,7 @@
                 <label class="input-label" style="color: #be185d; margin-bottom: 4px;">
                     <i class="fa-solid fa-lock"></i> Masukkan PIN Bendahara
                 </label>
-                <input type="password" id="kodeBendahara" placeholder="PIN khusus bendahara" autocomplete="current-password">
+                <input type="password" id="kodeBendahara" placeholder="PIN khusus bendahara (123456)" autocomplete="current-password">
             </div>
 
             <!-- Tombol Aksi Sesuai Referensi Gambar -->
@@ -366,7 +364,7 @@
                 <i class="fa-solid fa-globe"></i> Bayar Online (Mayar.id)
             </button>
             <button class="btn-action btn-tunai" onclick="handleBayarTunaiClick()">
-                <i class="fa-solid fa-money-bill-wave"></i> Bayar Tunai / Offline (PIN Bendahara)
+                <i class="fa-solid fa-money-bill-wave"></i> Bayar Tunai / Offline (PIN)
             </button>
             <button class="btn-action btn-wa" onclick="kirimWhatsAppManual()">
                 <i class="fa-brands fa-whatsapp"></i> Kirim Kuitansi ke WhatsApp Wali
@@ -384,7 +382,8 @@
 
 <script>
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwVEoquoZd9ojPxubLyHjUfGp6yDQm_Kqjw8gCFPiE9hJXRZyJeommvr-O_5XzJ1YRAEQ/exec";
-    const PIN_BENDAHARA_VALID = "PPFHA2026"; 
+    const PIN_BENDAHARA_VALID = "123456"; // PIN baru yang lebih mudah
+    const daftarBulan = ["Juli", "Agustus", "September", "Oktober", "November", "Desember", "Januari", "Februari", "Maret", "April", "Mei", "Juni"];
 
     let santriCache = null;
 
@@ -405,11 +404,14 @@
             if (data && data.found) {
                 santriCache = data;
                 document.getElementById("txtNama").innerText = data.nama;
+                document.getElementById("txtNis").innerText = data.nis || nis;
                 document.getElementById("txtKelas").innerText = data.kelas;
                 document.getElementById("txtWali").innerText = data.wali;
                 document.getElementById("txtTelp").innerText = data.telp;
                 
+                populateDropdownBulan();
                 updateStatusBulan();
+                
                 document.getElementById("pinContainer").style.display = "none";
                 document.getElementById("resultSection").style.display = "block";
             } else {
@@ -424,22 +426,49 @@
         });
     }
 
+    function populateDropdownBulan() {
+        if (!santriCache || !santriCache.pembayaran) return;
+        var pembayaranData = santriCache.pembayaran;
+        var selectBulan = document.getElementById("bulan");
+        selectBulan.innerHTML = "";
+
+        daftarBulan.forEach(bulan => {
+            var status = (pembayaranData[bulan] || "BELUM LUNAS").toUpperCase();
+            var option = document.createElement("option");
+            option.value = bulan;
+            
+            if (status === "LUNAS") {
+                option.text = bulan + " (LUNAS)";
+                option.disabled = true; // Mengunci agar bulan yang sudah lunas tidak bisa dipilih
+            } else {
+                option.text = bulan;
+            }
+            selectBulan.appendChild(option);
+        });
+
+        // Pilih otomatis bulan pertama yang belum lunas
+        for (let i = 0; i < selectBulan.options.length; i++) {
+            if (!selectBulan.options[i].disabled) {
+                selectBulan.selectedIndex = i;
+                break;
+            }
+        }
+    }
+
     function updateStatusBulan() {
         if (!santriCache || !santriCache.pembayaran) return;
         var bulanPilih = document.getElementById("bulan").value;
-        var statusBulan = santriCache.pembayaran[bulanPilih] || "BELUM LUNAS";
+        if (!bulanPilih) return;
         
-        var elStatus = document.getElementById("txtStatusSpp");
-        var containerBadge = document.getElementById("statusBadgeContainer");
+        var statusBulan = (santriCache.pembayaran[bulanPilih] || "BELUM LUNAS").toUpperCase();
+        var badge = document.getElementById("txtStatusBadge");
         
-        elStatus.innerText = "LUNAS (" + bulanPilih + ")";
-        
-        if (statusBulan.toUpperCase() === "LUNAS") {
-            elStatus.innerText = "LUNAS (" + bulanPilih + ")";
-            containerBadge.className = "status-badge-box";
+        if (statusBulan === "LUNAS") {
+            badge.innerText = "LUNAS";
+            badge.className = "badge-status badge-lunas";
         } else {
-            elStatus.innerText = "BELUM LUNAS (" + bulanPilih + ")";
-            containerBadge.className = "status-badge-box belum";
+            badge.innerText = "BELUM LUNAS";
+            badge.className = "badge-status badge-belum";
         }
     }
 
@@ -457,7 +486,10 @@
         var nis = document.getElementById("nis").value.trim();
         var bulan = document.getElementById("bulan").value;
 
-        if (!nis) return;
+        if (!nis || !bulan) {
+            alert("Harap pilih bulan pembayaran terlebih dahulu!");
+            return;
+        }
 
         if (metode === "Tunai / Offline") {
             var inputPin = document.getElementById("kodeBendahara").value.trim();
@@ -487,12 +519,12 @@
             
             if (santriCache && santriCache.pembayaran) {
                 santriCache.pembayaran[bulan] = "LUNAS";
+                populateDropdownBulan();
                 updateStatusBulan();
             }
 
             alert("Pembayaran bulan " + bulan + " berhasil dicatat!");
 
-            // Otomatis Kirim WhatsApp tanpa diklik
             kirimWhatsAppOtomatis(bulan, metode);
 
             document.getElementById("kodeBendahara").value = "";
