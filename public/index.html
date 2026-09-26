@@ -1,32 +1,297 @@
-// Contoh cuplikan kode di JavaScript frontend setelah fetch sukses:
-fetch(scriptURL, { method: 'POST', body: JSON.stringify(payload) })
-  .then(response => response.json())
-  .then(data => {
-    if (data.status === "success") {
-      // Format pesan kuitansi
-      let pesan = `*KUITANSI PEMBAYARAN SPP*%0A` +
-                  `*PP. Fathul Huda Al-Qarobiyah*%0A%0A` +
-                  `-----------------------------------%0A` +
-                  `NIS : *${nis}*%0A` +
-                  `Nama : *${data.nama}*%0A` +
-                  `Kelas : *${data.kelas}*%0A` +
-                  `Bulan : *${bulanTarget}*%0A` +
-                  `Status : *LUNAS (Tunai/Cash)*%0A%0A` +
-                  `Terima kasih, pembayaran telah diterima oleh Bendahara Pondok.`;
-
-      let urlWa = `https://wa.me/${data.noWa}?text=${pesan}`;
-
-      // Tampilkan notifikasi dan tombol buka WhatsApp ke wali santri
-      Swal.fire({
-        title: 'Pembayaran Berhasil!',
-        html: `Status di Google Sheets sudah diperbarui.<br><br>` +
-              `<a href="${urlWa}" target="_blank" class="btn btn-success" style="background:#25d366; color:white; padding:10px 20px; text-decoration:none; border-radius:5px; font-weight:bold; display:inline-block;">` +
-              `<i class="fab fa-whatsapp"></i> Kirim Kuitansi ke WhatsApp Wali Santri` +
-              `</a>`,
-        icon: 'success',
-        showConfirmButton: true,
-        confirmButtonText: 'Tutup'
-      });
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal Pembayaran SPP - PPFHA</title>
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- FontAwesome untuk ikon -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- SweetAlert2 untuk Notifikasi Cantik -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    body {
+      background-color: #f4f7f6;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
-  })
-  .catch(error => console.error('Error!', error.message));
+    .card {
+      border: none;
+      border-radius: 15px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    }
+    .header-box {
+      background: linear-gradient(135deg, #198754, #157347);
+      color: white;
+      border-radius: 15px 15px 0 0;
+      padding: 25px;
+    }
+    .month-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 10px;
+    }
+    .month-card {
+      border: 2px solid #dee2e6;
+      border-radius: 10px;
+      padding: 12px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background: #fff;
+    }
+    .month-card:hover {
+      border-color: #198754;
+      background: #f8fff9;
+    }
+    .month-card input-check {
+      display: none;
+    }
+    .month-card.selected {
+      border-color: #198754;
+      background: #e8f5e9;
+      color: #198754;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container py-5">
+    <div class="row justify-content-center">
+      <div class="col-md-8 lg-6">
+        <div class="card">
+          <!-- Header -->
+          <div class="header-box text-center">
+            <h4 class="mb-1 fw-bold">PP. Fathul Huda Al-Qarobiyah</h4>
+            <p class="mb-0 text-white-50">Portal Pembayaran SPP Santri (PPFHA)</p>
+          </div>
+
+          <div class="card-body p-4">
+            <!-- Form Cari NIS -->
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Masukkan NIS Santri</label>
+              <div class="input-group">
+                <input type="text" id="nisInput" class="form-control" placeholder="Contoh: 1001" required>
+                <button class="btn btn-success" type="button" id="btnCari" onclick="cariSantri()">
+                  <i class="fas fa-search"></i> Cari
+                </button>
+              </div>
+            </div>
+
+            <!-- Informasi Santri (Hidden Default) -->
+            <div id="infoSantri" class="d-none">
+              <hr class="my-4">
+              <div class="bg-light p-3 rounded-3 mb-4">
+                <p class="mb-1"><strong>Nama:</strong> <span id="txtNama">-</span></p>
+                <p class="mb-1"><strong>Kelas:</strong> <span id="txtKelas">-</span></p>
+                <p class="mb-0"><strong>Asrama:</strong> <span id="txtAsrama">-</span></p>
+              </div>
+
+              <!-- Pilihan Bulan -->
+              <label class="form-label fw-semibold mb-2">Pilih Bulan SPP yang Dibayar</label>
+              <div class="month-grid mb-4" id="bulanContainer">
+                <!-- Bulan akan digenerate otomatis via JS -->
+              </div>
+
+              <!-- Total Tagihan -->
+              <div class="d-flex justify-content-between align-items-center mb-4 p-3 bg-success bg-opacity-10 rounded-3">
+                <span class="fw-bold text-success">Total Tagihan:</span>
+                <span class="fs-4 fw-bold text-success" id="txtTotal">Rp 0</span>
+              </div>
+
+              <!-- Tombol Bayar Tunai -->
+              <button type="button" class="btn btn-success w-100 py-2 fw-bold" onclick="prosesBayarTunai()">
+                <i class="fas fa-money-bill-wave me-2"></i> Bayar Tunai (Cash)
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // URL Web App dari Google Apps Script Anda (Ganti dengan URL Deployment Anda)
+    const scriptURL = "MASUKKAN_URL_WEB_APP_APPS_SCRIPT_DISINI";
+    
+    const listBulan = [
+      "Juli", "Agustus", "September", "Oktober", "November", "Desember",
+      "Januari", "Februari", "Maret", "April", "Mei", "Juni"
+    ];
+    
+    let dataSantriGlobal = null;
+    let nominalSpp = 50000; // Default nominal SPP per bulan (bisa disesuaikan)
+
+    function cariSantri() {
+      let nis = document.getElementById('nisInput').value.trim();
+      if(!nis) {
+        Swal.fire('Peringatan', 'Masukkan NIS terlebih dahulu!', 'warning');
+        return;
+      }
+
+      Swal.showLoading();
+
+      fetch(scriptURL)
+        .then(res => res.json())
+        .then(data => {
+          Swal.close();
+          let santri = data.find(item => String(item.NIS || item.nis).trim() === nis);
+          
+          if(santri) {
+            dataSantriGlobal = santri;
+            document.getElementById('txtNama').innerText = santri['Nama Santri'] || santri['nama santri'] || '-';
+            document.getElementById('txtKelas').innerText = santri['Kelas'] || santri['kelas'] || '-';
+            document.getElementById('txtAsrama').innerText = santri['Asrama'] || santri['asrama'] || '-';
+            
+            // Ambil nominal jika ada di data sheet, jika tidak default 50000
+            if(santri['Nominal']) nominalSpp = parseInt(santri['Nominal']) || 50000;
+
+            renderBulan(santri);
+            document.getElementById('infoSantri').classList.remove('d-none');
+          } else {
+            Swal.fire('Tidak Ditemukan', 'Data santri dengan NIS tersebut tidak ditemukan.', 'error');
+            document.getElementById('infoSantri').classList.add('d-none');
+          }
+        })
+        .catch(err => {
+          Swal.close();
+          Swal.fire('Error', 'Gagal terhubung ke database server.', 'error');
+        });
+    }
+
+    function renderBulan(santri) {
+      let container = document.getElementById('bulanContainer');
+      container.innerHTML = '';
+      
+      listBulan.forEach(bulan => {
+        let status = santri[bulan] || "";
+        let isLunas = (status.toUpperCase() === "LUNAS");
+        
+        let div = document.createElement('div');
+        div.className = `month-card ${isLunas ? 'bg-secondary bg-opacity-25 text-muted' : ''}`;
+        div.innerHTML = `
+          <div class="fw-semibold">${bulan}</div>
+          <small class="${isLunas ? 'text-danger fw-bold' : 'text-success'}">${isLunas ? 'LUNAS' : 'Belum'}</small>
+          <input type="checkbox" class="d-none chk-bulan" value="${bulan}" ${isLunas ? 'disabled' : ''}>
+        `;
+        
+        if(!isLunas) {
+          div.onclick = function() {
+            let chk = this.querySelector('input');
+            chk.checked = !chk.checked;
+            this.classList.toggle('selected', chk.checked);
+            hitungTotal();
+          };
+        }
+        container.appendChild(div);
+      });
+      hitungTotal();
+    }
+
+    function hitungTotal() {
+      let checkboxes = document.querySelectorAll('.chk-bulan:checked');
+      let total = checkboxes.length * nominalSpp;
+      document.getElementById('txtTotal').innerText = "Rp " + total.toLocaleString('id-ID');
+    }
+
+    async function prosesBayarTunai() {
+      let checkboxes = document.querySelectorAll('.chk-bulan:checked');
+      if(checkboxes.length === 0) {
+        Swal.fire('Peringatan', 'Pilih minimal satu bulan yang ingin dibayar!', 'warning');
+        return;
+      }
+
+      // Minta PIN Bendahara
+      const { value: pin } = await Swal.fire({
+        title: 'Proteksi Bendahara',
+        input: 'password',
+        inputLabel: 'Masukkan PIN Bendahara',
+        inputPlaceholder: 'Masukkan 6 digit PIN',
+        inputAttributes: {
+          maxlength: 10,
+          autocapitalize: 'off',
+          autocorrect: 'off'
+        },
+        showCancelButton: true,
+        confirmButtonText: 'Konfirmasi',
+        cancelButtonText: 'Batal'
+      });
+
+      if (pin !== "123456") {
+        if(pin) {
+          Swal.fire('Gagal', 'PIN Bendahara salah!', 'error');
+        }
+        return;
+      }
+
+      let bulanTerpilih = Array.from(checkboxes).map(cb => cb.value);
+      let nis = document.getElementById('nisInput').value.trim();
+
+      Swal.fire({
+        title: 'Memproses Pembayaran...',
+        allowOutsideClick: false,
+        didOpen: () => { Swal.showLoading(); }
+      });
+
+      // Kirim satu per satu atau sekaligus (di sini kita proses bulan pertama atau loop)
+      // Untuk sederhana, kita proses per item atau loop bulan terpilih ke backend
+      let successCount = 0;
+      let lastResponseData = null;
+
+      for (let i = 0; i < bulanTerpilih.length; i++) {
+        let payload = {
+          nis: nis,
+          bulan: bulanTerpilih[i]
+        };
+
+        try {
+          let response = await fetch(scriptURL, {
+            method: 'POST',
+            body: JSON.stringify(payload)
+          });
+          let result = await response.json();
+          if(result.status === "success") {
+            successCount++;
+            lastResponseData = result;
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
+      Swal.close();
+
+      if(successCount > 0 && lastResponseData) {
+        let listBulanStr = bulanTerpilih.join(", ");
+        let pesan = `*KUITANSI PEMBAYARAN SPP*%0A` +
+                    `*PP. Fathul Huda Al-Qarobiyah*%0A%0A` +
+                    `-----------------------------------%0A` +
+                    `NIS : *${nis}*%0A` +
+                    `Nama : *${lastResponseData.nama}*%0A` +
+                    `Kelas : *${lastResponseData.kelas}*%0A` +
+                    `Bulan : *${listBulanStr}*%0A` +
+                    `Status : *LUNAS (Tunai/Cash)*%0A%0A` +
+                    `Terima kasih, pembayaran telah diterima oleh Bendahara Pondok.`;
+
+        let urlWa = `https://wa.me/${lastResponseData.noWa}?text=${pesan}`;
+
+        Swal.fire({
+          title: 'Pembayaran Berhasil!',
+          html: `Status di Google Sheets berhasil diperbarui.<br><br>` +
+                `<a href="${urlWa}" target="_blank" class="btn btn-success w-100 py-2 fw-bold text-white" style="background:#25d366; text-decoration:none; border-radius:8px; display:block;">` +
+                `<i class="fab fa-whatsapp me-2"></i> Kirim Kuitansi ke WhatsApp Wali Santri` +
+                `</a>`,
+          icon: 'success',
+          confirmButtonText: 'Selesai'
+        }).then(() => {
+          cariSantri(); // Refresh data tampilan
+        });
+      } else {
+        Swal.fire('Gagal', 'Terjadi kesalahan saat memperbarui database.', 'error');
+      }
+    }
+  </script>
+</body>
+</html>
