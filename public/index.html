@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Portal Pembayaran SPP - PPFHA</title>
+  <title>Portal Pembayaran SPP - Pondok Pesantren Fathul Huda Al-Qarobiyah</title>
   <!-- Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <!-- FontAwesome untuk ikon -->
@@ -54,15 +54,6 @@
       background-color: #b45309;
       color: white;
     }
-    .btn-wa {
-      background-color: #10b981;
-      color: white;
-      border: none;
-    }
-    .btn-wa:hover {
-      background-color: #059669;
-      color: white;
-    }
     .action-btn {
       border-radius: 12px;
       padding: 12px;
@@ -83,10 +74,13 @@
       <div class="col-md-6 col-lg-5">
         <div class="card card-main">
           
-          <!-- Header -->
+          <!-- Header dengan Lambang Pondok & Nama Lengkap -->
           <div class="header-box">
-            <h3 class="fw-bold mb-1">PPFHA</h3>
-            <p class="mb-0 text-white-50 small">Pondok Pesantren Fathul Huda Al-Qarobiyah</p>
+            <div class="mb-2">
+              <i class="fas fa-mosque fa-2x text-white"></i>
+            </div>
+            <h5 class="fw-bold mb-1" style="font-size: 1.1rem;">Pondok Pesantren Fathul Huda Al-Qarobiyah</h5>
+            <p class="mb-0 text-white-50 small">Portal Pembayaran SPP Santri</p>
           </div>
 
           <div class="card-body p-4">
@@ -138,17 +132,13 @@
                 </div>
               </div>
 
-              <!-- Ketiga Tombol Aksi Sesuai Keinginan -->
+              <!-- Tombol Aksi (Tanpa tombol WhatsApp terpisah) -->
               <button type="button" class="btn action-btn btn-online shadow-sm" onclick="prosesBayarOnline()">
                 Bayar Online (Mayar.id)
               </button>
 
               <button type="button" class="btn action-btn btn-tunai shadow-sm" onclick="prosesBayarTunai()">
                 Bayar Tunai / Offline (PIN Bendahara)
-              </button>
-
-              <button type="button" class="btn action-btn btn-wa shadow-sm" onclick="kirimWaManual()">
-                Kirim Kuitansi ke WhatsApp Wali
               </button>
 
               <!-- Tombol Kembali / Cari NIS Lain -->
@@ -170,6 +160,18 @@
     const scriptURL = "https://script.google.com/macros/s/AKfycbzYhVYm2zXGj6IvHAS6lDuvlYs3DupbEKB405nmoKxIj9W_40T0sO1u82VWQtBsQd0Apw/exec";
     let globalDataSantri = null;
 
+    // Fungsi bantu untuk membaca berbagai variasi nama kolom dari Google Sheets
+    function getSheetValue(obj, keys) {
+      for (let key of keys) {
+        // Cari key secara case-insensitive atau persis
+        let foundKey = Object.keys(obj).find(k => k.trim().toLowerCase() === key.toLowerCase());
+        if (foundKey && obj[foundKey] !== undefined && obj[foundKey] !== "") {
+          return obj[foundKey];
+        }
+      }
+      return "";
+    }
+
     function cariSantri() {
       let nis = document.getElementById('nisInput').value.trim();
       if(!nis) {
@@ -187,20 +189,20 @@
         .then(res => res.json())
         .then(data => {
           Swal.close();
-          let santri = data.find(item => String(item.NIS || item.nis || '').trim() === nis);
+          let santri = data.find(item => String(getSheetValue(item, ['NIS', 'nis'])).trim() === nis);
           
           if(santri) {
             globalDataSantri = santri;
             
-            let nama = santri['Nama Santri'] || santri['nama santri'] || santri['Nama'] || '-';
-            let wali = santri['Wali Santri'] || santri['wali santri'] || '-';
-            let wa = santri['No WhatsApp'] || santri['no whatsapp'] || santri['No. WhatsApp'] || '';
-            let nominal = santri['Nominal'] ? parseInt(santri['Nominal']) : 50000;
+            let nama = getSheetValue(santri, ['Nama Santri', 'nama santri', 'Nama', 'nama']);
+            let wali = getSheetValue(santri, ['Wali Santri', 'wali santri', 'Wali', 'wali']);
+            let wa = getSheetValue(santri, ['No WhatsApp', 'no whatsapp', 'No. WhatsApp', 'No HP', 'no hp', 'Telepon', 'telepon', 'HP', 'hp']);
+            let nominal = parseInt(getSheetValue(santri, ['Nominal', 'nominal'])) || 50000;
 
-            document.getElementById('txtNama').innerText = nama;
+            document.getElementById('txtNama').innerText = nama || '-';
             document.getElementById('txtNis').innerText = nis;
-            document.getElementById('txtWali').innerText = wali;
-            document.getElementById('txtWa').innerText = wa ? wa : '(Belum ada nomor HP di Sheets)';
+            document.getElementById('txtWali').innerText = wali || '-';
+            document.getElementById('txtWa').innerText = wa ? wa : '(Nomor HP belum diisi di Sheets)';
             document.getElementById('txtNominal').value = "Rp " + nominal.toLocaleString('id-ID');
 
             cekStatusBulan();
@@ -222,7 +224,7 @@
     function cekStatusBulan() {
       if(!globalDataSantri) return;
       let bulanPilihan = document.getElementById('selectBulan').value;
-      let statusBulan = String(globalDataSantri[bulanPilihan] || "").trim().toUpperCase();
+      let statusBulan = String(getSheetValue(globalDataSantri, [bulanPilihan])).trim().toUpperCase();
       
       let elStatus = document.getElementById('txtStatus');
       if(statusBulan === "LUNAS") {
@@ -270,7 +272,11 @@
           if(result.status === "success") {
             globalDataSantri[bulanTarget] = "LUNAS";
             cekStatusBulan();
-            Swal.fire('Berhasil!', 'Pembayaran Tunai tercatat dan status di Google Sheets diperbarui.', 'success');
+
+            // Sukses bayar, langsung otomatis kirim kuitansi ke WhatsApp Wali Santri
+            kirimWaOtomatis(bulanTarget);
+
+            Swal.fire('Berhasil!', 'Pembayaran Tunai tercatat dan kuitansi dikirim ke WhatsApp.', 'success');
           } else {
             Swal.fire('Gagal', 'Terjadi kesalahan pada server.', 'error');
           }
@@ -279,6 +285,34 @@
           Swal.close();
           Swal.fire('Error', 'Gagal koneksi ke server.', 'error');
         });
+    }
+
+    function kirimWaOtomatis(bulanTarget) {
+      if(!globalDataSantri) return;
+      let nis = document.getElementById('nisInput').value.trim();
+      let nama = document.getElementById('txtNama').innerText;
+      
+      let rawWa = String(getSheetValue(globalDataSantri, ['No WhatsApp', 'no whatsapp', 'No. WhatsApp', 'No HP', 'no hp', 'Telepon', 'telepon', 'HP', 'hp'])).trim().replace(/[^0-9]/g, "");
+      if(rawWa.startsWith("0")) {
+        rawWa = "62" + rawWa.substring(1);
+      }
+
+      if(!rawWa) {
+        console.warn("Nomor WhatsApp wali santri tidak ditemukan.");
+        return;
+      }
+
+      let pesan = `*KUITANSI PEMBAYARAN SPP*%0A` +
+                  `*Pondok Pesantren Fathul Huda Al-Qarobiyah*%0A%0A` +
+                  `-----------------------------------%0A` +
+                  `NIS : *${nis}*%0A` +
+                  `Nama : *${nama}*%0A` +
+                  `Bulan : *${bulanTarget}*%0A` +
+                  `Status : *LUNAS*%0A%0A` +
+                  `Terima kasih. Pembayaran telah dikonfirmasi.`;
+
+      let urlWa = `https://wa.me/${rawWa}?text=${pesan}`;
+      window.open(urlWa, '_blank');
     }
 
     function prosesBayarOnline() {
@@ -301,36 +335,6 @@
           window.open(linkPayment, '_blank');
         }
       });
-    }
-
-    function kirimWaManual() {
-      if(!globalDataSantri) return;
-      let nis = document.getElementById('nisInput').value.trim();
-      let nama = document.getElementById('txtNama').innerText;
-      let bulanTarget = document.getElementById('selectBulan').value;
-      let statusBulan = String(globalDataSantri[bulanTarget] || "BELUM LUNAS").trim();
-      
-      let rawWa = String(globalDataSantri['No WhatsApp'] || globalDataSantri['no whatsapp'] || globalDataSantri['No. WhatsApp'] || '').trim().replace(/[^0-9]/g, "");
-      if(rawWa.startsWith("0")) {
-        rawWa = "62" + rawWa.substring(1);
-      }
-
-      if(!rawWa) {
-        Swal.fire('Peringatan', 'Nomor WhatsApp wali santri tidak ditemukan di Google Sheets!', 'warning');
-        return;
-      }
-
-      let pesan = `*KUITANSI PEMBAYARAN SPP*%0A` +
-                  `*PP. Fathul Huda Al-Qarobiyah*%0A%0A` +
-                  `-----------------------------------%0A` +
-                  `NIS : *${nis}*%0A` +
-                  `Nama : *${nama}*%0A` +
-                  `Bulan : *${bulanTarget}*%0A` +
-                  `Status : *${statusBulan}*%0A%0A` +
-                  `Terima kasih.`;
-
-      let urlWa = `https://wa.me/${rawWa}?text=${pesan}`;
-      window.open(urlWa, '_blank');
     }
 
     function resetForm(e) {
