@@ -76,7 +76,7 @@
             margin-bottom: 8px;
             color: #475569;
         }
-        input[type="text"] {
+        input[type="text"], input[type="password"] {
             width: 100%;
             padding: 12px 16px;
             font-size: 15px;
@@ -85,7 +85,7 @@
             outline: none;
             transition: all 0.2s;
         }
-        input[type="text"]:focus {
+        input[type="text"]:focus, input[type="password"]:focus {
             border-color: #0d9488;
             box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.15);
         }
@@ -164,9 +164,32 @@
         }
         .btn-offline {
             background-color: #16a34a;
+            display: none; /* Disembunyikan secara default, hanya muncul jika bendahara login */
         }
         .btn-offline:hover {
             background-color: #15803d;
+        }
+        .bendahara-section {
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid #e2e8f0;
+            text-align: right;
+        }
+        .bendahara-toggle {
+            font-size: 12px;
+            color: #0d9488;
+            background: none;
+            border: none;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        .bendahara-login-box {
+            margin-top: 10px;
+            display: none;
+            background: #f8fafc;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
         }
         .error-msg {
             color: #ef4444;
@@ -192,7 +215,7 @@
                 <img src="https://raw.githubusercontent.com/Spp-pesantren/Spp-pesantren/main/IMG_20260925_232356.png" alt="Logo Pesantren">
             </div>
             <h1>PP. Fathul Huda Al-Qarobiyah</h1>
-            <p>Portal Pembayaran SPP Santri Online & Offline</p>
+            <p>Portal Pembayaran SPP Santri</p>
         </div>
 
         <div class="content">
@@ -229,7 +252,20 @@
 
                 <div class="button-group">
                     <button class="btn btn-online" onclick="bayarOnline()">Bayar Online (Mayar.id / QRIS)</button>
-                    <button class="btn btn-offline" onclick="bayarOffline()">Catat Bayar Tunai (Cash ke Bendahara)</button>
+                    <!-- Tombol ini terkunci dan hanya muncul jika bendahara sudah login -->
+                    <button id="btnOffline" class="btn btn-offline" onclick="bayarOffline()">Catat Bayar Tunai (Cash ke Bendahara)</button>
+                </div>
+            </div>
+
+            <!-- Tombol khusus akses login Bendahara -->
+            <div class="bendahara-section">
+                <button class="bendahara-toggle" onclick="toggleBendaharaLogin()">Login Khusus Bendahara (Cash)</button>
+                <div id="bendaharaLoginBox" class="bendahara-login-box">
+                    <label style="font-size: 11px; margin-bottom: 4px;">Masukkan Password Bendahara:</label>
+                    <div style="display: flex; gap: 6px;">
+                        <input type="password" id="passwordBendahara" placeholder="PIN Bendahara">
+                        <button class="btn" style="width: 80px; padding: 8px; font-size: 13px;" onclick="loginBendahara()">Masuk</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -248,6 +284,7 @@
         };
 
         let santriDataAktif = null;
+        let isBendaharaLoggedIn = false;
 
         function cariSantri() {
             const nis = document.getElementById('nisInput').value.trim();
@@ -297,7 +334,31 @@
             window.location.href = `https://mayar.to/spp-pesantren?amount=${total}&notes=SPP_${santriDataAktif.nama}_Bulan_${bulanList}`;
         }
 
+        function toggleBendaharaLogin() {
+            const box = document.getElementById('bendaharaLoginBox');
+            box.style.display = box.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function loginBendahara() {
+            const pass = document.getElementById('passwordBendahara').value;
+            // Password sandi bendahara (bisa diganti sesuai keinginan, contoh: "bendahara123")
+            if (pass === "bendahara123") {
+                isBendaharaLoggedIn = true;
+                document.getElementById('btnOffline').style.display = 'block';
+                document.getElementById('bendaharaLoginBox').style.display = 'none';
+                document.getElementById('passwordBendahara').value = '';
+                alert('Berhasil Login sebagai Bendahara! Tombol pencatatan tunai (cash) sekarang telah diaktifkan.');
+            } else {
+                alert('Password bendahara salah!');
+            }
+        }
+
         function bayarOffline() {
+            if (!isBendaharaLoggedIn) {
+                alert('Akses ditolak! Fitur ini khusus untuk bendahara.');
+                return;
+            }
+
             const checkedMonths = document.querySelectorAll('.month-checkbox input:checked');
             if (checkedMonths.length === 0) {
                 alert('Pilih minimal satu bulan pembayaran terlebih dahulu.');
@@ -309,7 +370,7 @@
             const konfirmasi = confirm(`Konfirmasi Pembayaran Tunai (Cash):\n\nNama: ${santriDataAktif.nama}\nKelas: ${santriDataAktif.kelas}\nBulan: ${bulanList}\nTotal: Rp ${total.toLocaleString('id-ID')}\n\nCatat pembayaran tunai ini?`);
             
             if (konfirmasi) {
-                alert('Pembayaran tunai berhasil dicatat oleh Bendahara! Silakan berikan kwitansi fisik kepada wali santri.');
+                alert('Pembayaran tunai berhasil dicatat oleh Bendahara!');
                 document.querySelectorAll('.month-checkbox input').forEach(cb => cb.checked = false);
                 document.getElementById('totalNominal').innerText = 'Rp 0';
             }
