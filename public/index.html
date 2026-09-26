@@ -160,17 +160,15 @@
     const scriptURL = "https://script.google.com/macros/s/AKfycbzYhVYm2zXGj6IvHAS6lDuvlYs3DupbEKB405nmoKxIj9W_40T0sO1u82VWQtBsQd0Apw/exec";
     let globalDataSantri = null;
 
-    // Fungsi pintar untuk mencari nilai properti meskipun ada perbedaan spasi, huruf besar/kecil, atau simbol
-    function cariNilaiKolom(obj, targetKeywords) {
+    // Fungsi khusus mencari kolom nomor telepon/HP dengan aman agar tidak tertukar dengan nama wali
+    function ambilNomorTelepon(obj) {
       for (let key in obj) {
-        let cleanKey = key.toLowerCase().replace(/[^a-z0-9]/g, '');
-        for (let keyword of targetKeywords) {
-          let cleanKeyword = keyword.toLowerCase().replace(/[^a-z0-9]/g, '');
-          if (cleanKey.includes(cleanKeyword)) {
-            let val = obj[key];
-            if (val !== undefined && val !== null && String(val).trim() !== "") {
-              return val;
-            }
+        let k = key.toLowerCase();
+        // Hanya ambil kolom yang mengandung kata hp, wa, whatsapp, atau telepon, DAN pastikan TIDAK mengandung kata 'nama'
+        if ((k.includes('hp') || k.includes('wa') || k.includes('whatsapp') || k.includes('telp') || k.includes('telepon')) && !k.includes('nama')) {
+          let val = obj[key];
+          if (val !== undefined && val !== null && String(val).trim() !== "") {
+            return String(val).trim();
           }
         }
       }
@@ -195,25 +193,22 @@
         .then(data => {
           Swal.close();
           let santri = data.find(item => {
-            let valNis = cariNilaiKolom(item, ['nis']);
+            let valNis = item.NIS || item.nis || '';
             return String(valNis).trim() === nis;
           });
           
           if(santri) {
             globalDataSantri = santri;
             
-            let nama = cariNilaiKolom(santri, ['namasantri', 'nama']);
-            let wali = cariNilaiKolom(santri, ['walisantri', 'wali']);
-            
-            // Pencarian fleksibel untuk nomor WhatsApp (mendeteksi kata whatsapp, wa, hp, telepon)
-            let wa = cariNilaiKolom(santri, ['whatsapp', 'wa', 'nohp', 'telepon', 'hp']);
-            
-            let nominal = parseInt(cariNilaiKolom(santri, ['nominal'])) || 50000;
+            let nama = santri['Nama Santri'] || santri['nama santri'] || santri['Nama'] || '-';
+            let wali = santri['Wali Santri'] || santri['wali santri'] || '-';
+            let wa = ambilNomorTelepon(santri);
+            let nominal = parseInt(santri['Nominal'] || santri['nominal']) || 50000;
 
-            document.getElementById('txtNama').innerText = nama || '-';
+            document.getElementById('txtNama').innerText = nama;
             document.getElementById('txtNis').innerText = nis;
-            document.getElementById('txtWali').innerText = wali || '-';
-            document.getElementById('txtWa').innerText = wa ? wa : '(Nomor WhatsApp tidak ditemukan)';
+            document.getElementById('txtWali').innerText = wali;
+            document.getElementById('txtWa').innerText = wa ? wa : '(Nomor HP belum diisi)';
             document.getElementById('txtNominal').value = "Rp " + nominal.toLocaleString('id-ID');
 
             cekStatusBulan();
@@ -235,7 +230,7 @@
     function cekStatusBulan() {
       if(!globalDataSantri) return;
       let bulanPilihan = document.getElementById('selectBulan').value;
-      let statusBulan = String(cariNilaiKolom(globalDataSantri, [bulanPilihan])).trim().toUpperCase();
+      let statusBulan = String(globalDataSantri[bulanPilihan] || "").trim().toUpperCase();
       
       let elStatus = document.getElementById('txtStatus');
       if(statusBulan === "LUNAS") {
@@ -281,15 +276,9 @@
         .then(result => {
           Swal.close();
           if(result.status === "success") {
-            // Update status lokal
-            for(let key in globalDataSantri) {
-              if(key.toLowerCase().includes(bulanTarget.toLowerCase())) {
-                globalDataSantri[key] = "LUNAS";
-              }
-            }
+            globalDataSantri[bulanTarget] = "LUNAS";
             cekStatusBulan();
 
-            // Otomatis langsung buka WhatsApp Wali Santri
             kirimWaOtomatis(bulanTarget);
 
             Swal.fire('Berhasil!', 'Pembayaran Tunai tercatat dan kuitansi dikirim ke WhatsApp.', 'success');
@@ -308,14 +297,14 @@
       let nis = document.getElementById('nisInput').value.trim();
       let nama = document.getElementById('txtNama').innerText;
       
-      let rawWa = String(cariNilaiKolom(globalDataSantri, ['whatsapp', 'wa', 'nohp', 'telepon', 'hp'])).trim().replace(/[^0-9]/g, "");
+      let rawWa = ambilNomorTelepon(globalDataSantri).replace(/[^0-9]/g, "");
 
       if(rawWa.startsWith("0")) {
         rawWa = "62" + rawWa.substring(1);
       }
 
       if(!rawWa) {
-        Swal.fire('Perhatian', 'Nomor WhatsApp wali santri kosong atau tidak terbaca dari Sheets.', 'warning');
+        Swal.fire('Perhatian', 'Nomor HP wali santri kosong atau tidak terbaca.', 'warning');
         return;
       }
 
