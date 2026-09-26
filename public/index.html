@@ -187,10 +187,7 @@
             
             let nama = santri['Nama Santri'] || santri['nama santri'] || santri['Nama'] || '-';
             let wali = santri['Wali Santri'] || santri['wali santri'] || '-';
-            
-            // Mengambil langsung dari pelacak khusus NoTeleponAktif yang mendeteksi nomor telepon asli
             let wa = santri['NoTeleponAktif'] || '';
-            
             let nominal = parseInt(santri['Nominal'] || santri['nominal']) || 50000;
 
             document.getElementById('txtNama').innerText = nama;
@@ -284,6 +281,8 @@
       if(!globalDataSantri) return;
       let nis = document.getElementById('nisInput').value.trim();
       let nama = document.getElementById('txtNama').innerText;
+      let wali = document.getElementById('txtWali').innerText;
+      let kelas = globalDataSantri['Kelas'] || globalDataSantri['kelas'] || '-';
       
       let rawWa = String(globalDataSantri['NoTeleponAktif'] || '').trim().replace(/[^0-9]/g, "");
 
@@ -301,6 +300,8 @@
                   `-----------------------------------%0A` +
                   `NIS : *${nis}*%0A` +
                   `Nama : *${nama}*%0A` +
+                  `Kelas : *${kelas}*%0A` +
+                  `Wali Santri : *${wali}*%0A` +
                   `Bulan : *${bulanTarget}*%0A` +
                   `Status : *LUNAS*%0A%0A` +
                   `Terima kasih. Pembayaran telah dikonfirmasi oleh Bendahara.`;
