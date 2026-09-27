@@ -598,3 +598,37 @@
         var kelas = santriCache.kelas;
         var wali = santriCache.wali;
         var telp = santriCache.telp;
+        var tanggal = new Date().toLocaleDateString("id-ID", { day: 'numeric', month: 'long', year: 'numeric' });
+
+        let noWa = telp.trim();
+        if (noWa.startsWith('0')) {
+            noWa = '62' + noWa.substring(1);
+        }
+
+        let pesan = `*KUITANSI PEMBAYARAN SPP*
+*Pondok Pesantren Fathul Huda Al-Qarobiyah*
+---------------------------------------
+📅 *Tanggal:* ${tanggal}
+💳 *Metode:* ${metode}
+---------------------------------------
+👤 *Nama Santri:* ${nama}
+🆔 *NIS:* ${nis}
+🏫 *Kelas:* ${kelas}
+👨‍👩‍👦 *Wali Santri:* ${wali}
+---------------------------------------
+📌 *Untuk Pembayaran SPP Bulan:* *${bulan}*
+✅ *Status:* LUNAS
+---------------------------------------
+Terima kasih, pembayaran Anda telah tercatat sah di sistem database pesantren.`;
+
+        let urlWa = `https://api.whatsapp.com/send?phone=${noWa}&text=${encodeURIComponent(pesan)}`;
+        
+        document.getElementById("kodeBendahara").value = "";
+        document.getElementById("pinContainer").style.display = "none";
+
+        window.location.href = urlWa;
+    }
+</script>
+
+</body>
+</html>
