@@ -508,8 +508,6 @@
             var status = (santriCache.pembayaran[bulan] || "BELUM LUNAS").toUpperCase();
             var option = document.createElement("option");
             option.value = bulan;
-            
-            // Nama bulan ditampilkan bersih tanpa tanda kurung status di sampingnya
             option.text = bulan;
             
             if (status === "LUNAS") {
@@ -520,9 +518,11 @@
 
         var txtStatusGlobal = document.getElementById("txtStatusGlobal");
         if (jumlahLunas === daftarBulan.length) {
-            txtStatusGlobal.innerHTML = "<span style='color: #00663b;'>Lunas Semua (12/12 Bulan)</span>";
+            txtStatusGlobal.innerHTML = "<span style='color: #00663b;'>Lunas Semua</span>";
+        } else if (jumlahLunas > 0) {
+            txtStatusGlobal.innerHTML = "<span style='color: #008953;'>Sebagian Lunas</span>";
         } else {
-            txtStatusGlobal.innerHTML = "<span style='color: #d97706;'>Belum Lunas (" + jumlahLunas + "/12 Bulan)</span>";
+            txtStatusGlobal.innerHTML = "<span style='color: #d97706;'>Belum Lunas</span>";
         }
 
         selectBulan.selectedIndex = 0;
@@ -544,14 +544,12 @@
         if (statusBulan === "LUNAS") {
             txtStatusBulanInfo.innerHTML = "<span style='color: #00663b;'>LUNAS</span>";
             
-            // Tombol dikunci (disabled) agar tidak bisa diklik jika sudah lunas
             btnOnline.disabled = true;
             btnTunai.disabled = true;
             pinContainer.style.display = "none";
         } else {
             txtStatusBulanInfo.innerHTML = "<span style='color: #991b1b;'>BELUM LUNAS</span>";
             
-            // Tombol dibuka kembali jika belum lunas
             btnOnline.disabled = false;
             btnTunai.disabled = false;
         }
@@ -600,37 +598,3 @@
         var kelas = santriCache.kelas;
         var wali = santriCache.wali;
         var telp = santriCache.telp;
-        var tanggal = new Date().toLocaleDateString("id-ID", { day: 'numeric', month: 'long', year: 'numeric' });
-
-        let noWa = telp.trim();
-        if (noWa.startsWith('0')) {
-            noWa = '62' + noWa.substring(1);
-        }
-
-        let pesan = `*KUITANSI PEMBAYARAN SPP*
-*Pondok Pesantren Fathul Huda Al-Qarobiyah*
----------------------------------------
-📅 *Tanggal:* ${tanggal}
-💳 *Metode:* ${metode}
----------------------------------------
-👤 *Nama Santri:* ${nama}
-🆔 *NIS:* ${nis}
-🏫 *Kelas:* ${kelas}
-👨‍👩‍👦 *Wali Santri:* ${wali}
----------------------------------------
-📌 *Untuk Pembayaran SPP Bulan:* *${bulan}*
-✅ *Status:* LUNAS
----------------------------------------
-Terima kasih, pembayaran Anda telah tercatat sah di sistem database pesantren.`;
-
-        let urlWa = `https://api.whatsapp.com/send?phone=${noWa}&text=${encodeURIComponent(pesan)}`;
-        
-        document.getElementById("kodeBendahara").value = "";
-        document.getElementById("pinContainer").style.display = "none";
-
-        window.location.href = urlWa;
-    }
-</script>
-
-</body>
-</html>
