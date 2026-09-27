@@ -73,7 +73,7 @@
             letter-spacing: 0.5px;
         }
 
-        .search-card {
+        .search-card, .bendahara-card {
             background: var(--card-bg);
             width: 100%;
             max-width: 420px;
@@ -81,6 +81,11 @@
             border-radius: 18px;
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
             margin-bottom: 20px;
+        }
+
+        .bendahara-card {
+            border-top: 4px solid #d97706;
+            margin-top: 5px;
         }
 
         .input-label {
@@ -369,7 +374,6 @@
         .btn-mayar { background: #6366f1; } 
         .btn-tunai { background: #d97706; } 
 
-        /* Kotak Tambahan Upload Bukti Transfer Online */
         .upload-box {
             background: #f8fafc;
             border: 2px dashed #008953;
@@ -476,7 +480,7 @@
                 </button>
             </div>
 
-            <!-- Panel Upload Bukti Transfer Online (Ditambahkan di sini) -->
+            <!-- Panel Upload Bukti Transfer Online -->
             <div id="panelUploadOnline" class="upload-box">
                 <h6 style="color: var(--primary); font-size: 13px; font-weight: 700; margin-bottom: 6px;">
                     <i class="fa-solid fa-file-invoice-dollar"></i> Konfirmasi Transfer Manual
@@ -495,6 +499,34 @@
                 </div>
             </div>
 
+        </div>
+    </div>
+
+    <!-- Panel Khusus Bendahara (Verifikasi Pembayaran PENDING via PIN) -->
+    <div class="bendahara-card">
+        <h6 style="font-size: 14px; font-weight: 700; color: #d97706; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+            <i class="fa-solid fa-user-shield"></i> Panel Verifikasi Bendahara
+        </h6>
+        <p style="font-size: 11.5px; color: var(--text-muted); margin-bottom: 10px;">
+            Masukkan PIN Bendahara untuk menyetujui transfer online yang masuk.
+        </p>
+        
+        <div id="formLoginBendahara">
+            <div class="input-group">
+                <input type="password" id="pinPanelBendahara" placeholder="Masukkan 6 digit PIN..." autocomplete="current-password">
+                <button class="btn-cek" style="background: #d97706;" onclick="bukaPanelVerifikasi()">Buka</button>
+            </div>
+        </div>
+
+        <div id="kontenVerifikasiBendahara" style="display: none; margin-top: 10px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <span style="font-size: 11.5px; font-weight: 700; color: #475569;">Daftar Pending Konfirmasi:</span>
+                <button onclick="muatDataPending()" style="background: none; border: none; color: #2563eb; font-size: 11px; cursor: pointer; font-weight: 600;"><i class="fa-solid fa-rotate"></i> Muat Ulang</button>
+            </div>
+            <div id="listPendingContainer" style="max-height: 180px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 8px; padding: 8px; background: #f8fafc; font-size: 12px;">
+                <span style="color: var(--text-muted);">Memuat data pending...</span>
+            </div>
+            <button onclick="tutupPanelVerifikasi()" style="margin-top: 8px; width: 100%; background: #64748b; color: white; border: none; padding: 6px; border-radius: 6px; font-size: 11px; cursor: pointer;">Tutup Panel Bendahara</button>
         </div>
     </div>
 
@@ -612,6 +644,12 @@
             if (bulanTerpilihSet.has(bulanNama)) {
                 bulanTerpilihSet.delete(bulanNama);
             }
+        } else if (statusBulan === "PENDING") {
+            txtStatusBulanInfo.innerText = "MENUNGGU VERIFIKASI";
+            txtStatusBulanInfo.style.color = "#d97706";
+            if (bulanTerpilihSet.has(bulanNama)) {
+                bulanTerpilihSet.delete(bulanNama);
+            }
         } else {
             txtStatusBulanInfo.innerText = "BELUM LUNAS";
             txtStatusBulanInfo.style.color = "#991b1b"; 
@@ -715,7 +753,7 @@
             var payload = {
                 action: "uploadBukti",
                 nis: santriCache.nis,
-                bulan: listBulanDipilih, // Bisa menampung array bulan
+                bulan: listBulanDipilih,
                 fileData: base64Data,
                 fileName: file.name,
                 mimeType: file.type
@@ -731,7 +769,7 @@
                 if(resJson.status === "success") {
                     alert("Bukti transfer berhasil dikirim! Menunggu verifikasi bendahara.");
                     tutupPanelUpload();
-                    cekDataSantri(); // Refresh data
+                    cekDataSantri(); 
                 } else {
                     alert("Gagal mengunggah: " + (resJson.message || "Terjadi kesalahan"));
                 }
@@ -818,23 +856,8 @@
             noWa = '62' + noWa.substring(1);
         }
 
-        let pesan = `*KUITANSI PEMBAYARAN SPP*
-*Pondok Pesantren Fathul Huda Al-Qarobiyah*
----------------------------------------
-📅 *Tanggal:* ${tanggal}
-💳 *Metode:* ${metode}
----------------------------------------
-👤 *Nama Santri:* ${nama}
-🆔 *NIS:* ${nis}
-🏫 *Kelas:* ${kelas}
-👨‍👩‍👦 *Wali Santri:* ${wali}
----------------------------------------
-📌 *Untuk Pembayaran Bulan:* 
-*${listBulanDipilih.join(", ")}*
-💰 *Total Dibayar:* Rp ${totalBayar.toLocaleString("id-ID")}
-✅ *Status:* LUNAS
----------------------------------------
-Terima kasih, pembayaran Anda telah tercatat sah di sistem database pesantren.`;
+        // Kuitansi lengkap dengan emoji ikon persis seperti gambar Anda
+        let pesan = `*KUITANSI PEMBAYARAN SPP*\n\n*Pondok Pesantren Fathul Huda Al-Qarobiyah*\n---------------------------------------\n📅 *Tanggal:* ${tanggal}\n💳 *Metode:* ${metode}\n---------------------------------------\n👤 *Nama Santri:* ${nama}\n🆔 *NIS:* ${nis}\n🏫 *Kelas:* ${kelas}\n👨‍👩‍👦 *Wali Santri:* ${wali}\n---------------------------------------\n📌 *Untuk Pembayaran Bulan:* \n*${listBulanDipilih.join(", ")}*\n\n💰 *Total Dibayar:* Rp ${totalBayar.toLocaleString("id-ID")}\n✅ *Status:* LUNAS\n---------------------------------------\nTerima kasih, pembayaran Anda telah tercatat sah di sistem database pesantren.`;
 
         let urlWa = `https://api.whatsapp.com/send?phone=${noWa}&text=${encodeURIComponent(pesan)}`;
         
@@ -842,6 +865,71 @@ Terima kasih, pembayaran Anda telah tercatat sah di sistem database pesantren.`;
         document.getElementById("pinContainer").style.display = "none";
 
         window.location.href = urlWa;
+    }
+
+    // Fungsi Panel Bendahara Verifikasi via PIN
+    function bukaPanelVerifikasi() {
+        var pin = document.getElementById("pinPanelBendahara").value.trim();
+        if (pin !== PIN_BENDAHARA_VALID) {
+            alert("PIN Bendahara salah!");
+            return;
+        }
+        document.getElementById("formLoginBendahara").style.display = "none";
+        document.getElementById("kontenVerifikasiBendahara").style.display = "block";
+        muatDataPending();
+    }
+
+    function tutupPanelVerifikasi() {
+        document.getElementById("kontenVerifikasiBendahara").style.display = "none";
+        document.getElementById("formLoginBendahara").style.display = "block";
+        document.getElementById("pinPanelBendahara").value = "";
+    }
+
+    async function muatDataPending() {
+        var container = document.getElementById("listPendingContainer");
+        container.innerHTML = "Memeriksa data pending...";
+        
+        try {
+            let response = await fetch(urlWebApps + "?action=getPending");
+            let res = await response.json();
+            
+            if (res.status === "success" && res.data.length > 0) {
+                let html = "";
+                res.data.forEach(item => {
+                    html += `<div style="background:white; padding:8px; border-radius:6px; margin-bottom:6px; border:1px solid #e2e8f0;">
+                        <strong>${item.nama}</strong> (NIS: ${item.nis})<br>
+                        Bulan: <b>${item.bulan}</b><br>
+                        <a href="${item.buktiUrl}" target="_blank" style="color:#2563eb; font-weight:600;"><i class="fa-solid fa-image"></i> Lihat Bukti Transfer</a><br>
+                        <button onclick="setujuiPembayaran('${item.nis}', '${item.bulan}')" style="margin-top:4px; background:var(--primary); color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:11px;">Setujui (Lunas)</button>
+                    </div>`;
+                });
+                container.innerHTML = html;
+            } else {
+                container.innerHTML = "<span style='color:var(--text-muted);'>Tidak ada pembayaran pending saat ini.</span>";
+            }
+        } catch(e) {
+            container.innerHTML = "<span style='color:red;'>Gagal memuat data pending.</span>";
+        }
+    }
+
+    async function setujuiPembayaran(nis, bulan) {
+        if (!confirm("Setujui pembayaran bulan " + bulan + " untuk NIS " + nis + "?")) return;
+        
+        try {
+            let response = await fetch(urlWebApps, {
+                method: "POST",
+                body: JSON.stringify({ action: "approve", nis: nis, bulan: bulan })
+            });
+            let res = await response.json();
+            if (res.status === "success") {
+                alert("Pembayaran berhasil disetujui dan status berubah jadi LUNAS!");
+                muatDataPending();
+            } else {
+                alert("Gagal menyetujui.");
+            }
+        } catch(e) {
+            alert("Kesalahan koneksi.");
+        }
     }
 
     window.onload = function() {
