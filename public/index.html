@@ -109,7 +109,6 @@
 
     <!-- JavaScript Logika Portal -->
     <script>
-        // URL Web App Google Apps Script Terbaru Anda
         const urlWebApps = "https://script.google.com/macros/s/AKfycbxG6cbpaExML4Sx4b5ohSXS-mYfVVugyNbTU9KHok9CV_TU_rJzC5NY6SUsFd0kVRjURg/exec";
         let santriAktif = null;
         let databaseSantri = [];
@@ -123,11 +122,15 @@
 
             document.getElementById('loading-status').classList.remove('hidden');
             try {
-                const response = await fetch(`${urlWebApps}?action=getSantri`);
+                const response = await fetch(`${urlWebApps}?action=getSantri`, {
+                    method: 'GET',
+                    redirect: 'follow'
+                });
+                
                 databaseSantri = await response.json();
+                document.getElementById('loading-status').classList.add('hidden');
                 
                 const santri = databaseSantri.find(s => s.nis === nis);
-                document.getElementById('loading-status').classList.add('hidden');
 
                 if (santri) {
                     santriAktif = santri;
@@ -137,7 +140,7 @@
                 }
             } catch (err) {
                 document.getElementById('loading-status').classList.add('hidden');
-                alert("Gagal terhubung ke database. Coba beberapa saat lagi.");
+                alert("Gagal terhubung ke database. Pastikan URL Web App sudah benar dan deploy akses 'Anyone'.");
             }
         }
 
@@ -221,6 +224,7 @@
                 try {
                     const res = await fetch(urlWebApps, {
                         method: 'POST',
+                        redirect: 'follow',
                         body: JSON.stringify(payload)
                     });
                     const result = await res.json();
@@ -251,6 +255,7 @@
             try {
                 const res = await fetch(urlWebApps, {
                     method: 'POST',
+                    redirect: 'follow',
                     body: JSON.stringify({ action: 'bayarTunai', nis: santriAktif.nis, bulan: bulan })
                 });
                 const result = await res.json();
@@ -275,7 +280,10 @@
             listContainer.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">Memuat data...</p>';
 
             try {
-                const res = await fetch(`${urlWebApps}?action=getPending`);
+                const res = await fetch(`${urlWebApps}?action=getPending`, {
+                    method: 'GET',
+                    redirect: 'follow'
+                });
                 const pending = await res.json();
 
                 listContainer.innerHTML = '';
@@ -312,6 +320,7 @@
             try {
                 const res = await fetch(urlWebApps, {
                     method: 'POST',
+                    redirect: 'follow',
                     body: JSON.stringify({ action: 'approve', nis: nis, bulan: bulan })
                 });
                 const result = await res.json();
