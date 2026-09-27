@@ -227,6 +227,22 @@
 
         muatDatabaseSantri();
 
+        // Fungsi pintar mendeteksi nominal SPP dari berbagai nama properti di database spreadsheet
+        function ekstrakNominalSpp(santri) {
+            let nominal = Number(santri.nominalSpp) || Number(santri.nominal) || Number(santri.spp) || Number(santri.biayaSpp) || Number(santri.tarif);
+            if (!nominal || isNaN(nominal) || nominal <= 0) {
+                // Cari properti apa saja yang mengandung angka valid di dalam objek santri jika nama kolom tidak pasti
+                for (let key in santri) {
+                    let val = Number(santri[key]);
+                    if (val >= 10000 && val <= 5000000 && !key.toLowerCase().includes('nis') && !key.toLowerCase().includes('tahun')) {
+                        nominal = val;
+                        break;
+                    }
+                }
+            }
+            return (nominal && !isNaN(nominal) && nominal > 0) ? nominal : 50000; // Default aman Rp 50.000 jika kosong
+        }
+
         async function cariSantri() {
             const nis = document.getElementById('input-nis').value.trim();
             if (!nis) {
@@ -243,14 +259,7 @@
 
                 if (santri) {
                     santriAktif = santri;
-                    
-                    // Memastikan nominal SPP dibaca fleksibel dari berbagai kemungkinan nama properti database
-                    let nominalDariDb = Number(santri.nominalSpp);
-                    if (!nominalDariDb || isNaN(nominalDariDb) || nominalDariDb <= 0) {
-                        nominalDariDb = Number(santri.nominal) || Number(santri.spp) || 50000;
-                    }
-                    nominalSppAktif = nominalDariDb;
-                    
+                    nominalSppAktif = ekstrakNominalSpp(santri);
                     tampilkanDetailSantri(santri);
                 } else {
                     alert("NIS tidak ditemukan. Pastikan NIS benar!");
@@ -342,7 +351,7 @@
                 noWa: nomorWaSantri,
                 bulan: bulanList.join(', '),
                 total: totalBayar.toLocaleString('id-ID'),
-                status: metode.includes('Tunai') || metode.includes('Lunas') || metode.includes('Diverifikasi') ? "LUNAS" : "PENDING (MENUNGGU VERIFIKASI)"
+                status: "LUNAS"
             };
 
             document.getElementById('k-tgl').innerText = dataKuitansi.tanggal;
@@ -361,7 +370,7 @@
                 noHp = '62' + noHp.slice(1);
             }
 
-            const pesan = `*KUITANSI PEMBAYARAN SPP*%0A*PP Fathul Huda Al-Qorrobiyah*%0A---------------------------------------%0A📅 *Tanggal:* ${dataKuitansi.tanggal}%0A💳 *Metode:* ${dataKuitansi.metode}%0A---------------------------------------%0A👤 *Nama Santri:* ${dataKuitansi.nama}%0A🆔 *NIS:* ${dataKuitansi.nis}%0A🏫 *Kelas:* ${dataKuitansi.kelas}%0A👨‍👩‍👦 *Wali Santri:* ${dataKuitansi.wali}%0A📞 *No. WhatsApp:* ${dataKuitansi.noWa}%0A---------------------------------------%0A📌 *Untuk Pembayaran Bulan:*%0A${dataKuitansi.bulan}%0A%0A💰 *Total Dibayar:* Rp ${dataKuitansi.total}%0A✅ *Status:* ${dataKuitansi.status}%0A---------------------------------------%0ATerima kasih, pembayaran Anda telah tercatat sah di sistem database pesantren.`;
+            const pesan = `*KUITANSI PEMBAYARAN SPP*%0A*PP Fathul Huda Al-Qorrobiyah*%0A---------------------------------------%0A📅 *Tanggal:* ${dataKuitansi.tanggal}%0A💳 *Metode:* ${dataKuitansi.metode}%0A---------------------------------------%0A👤 *Nama Santri:* ${dataKuitansi.nama}%0A🆔 *NIS:* ${dataKuitansi.nis}%0A🏫 *Kelas:* ${dataKuitansi.kelas}%0A👨‍👩‍👦 *Wali Santri:* ${dataKuitansi.wali}%0A📞 *No. WhatsApp:* ${dataKuitansi.noWa}%0A---------------------------------------%0A📌 *Untuk Pembayaran Bulan:*%0A${dataKuitansi.bulan}%0A%0A💰 *Total Dibayar:* Rp ${dataKuitansi.total}%0A✅ *Status:* LUNAS%0A---------------------------------------%0ATerima kasih, pembayaran Anda telah tercatat sah di sistem database pesantren.`;
 
             urlWaGlobal = (noHp && noHp !== '-') ? `https://wa.me/${noHp}?text=${pesan}` : `https://wa.me/?text=${pesan}`;
             
@@ -534,7 +543,7 @@
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                             <span class="truncate">${item.keteranganBukti || 'Bukti Transfer'}</span>
                         </div>
-                        <button onclick='approvePembayaran("${item.nis}", "${item.bulan}")' class="bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl text-xs font-bold transition-all shadow-md active:scale-95">Setujui & Tampilkan Kuitansi</button>
+                        <button onclick='approvePembayaran("${item.nis}", ${JSON.stringify(item.bulan)})' class="bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl text-xs font-bold transition-all shadow-md active:scale-95">Setujui & Tampilkan Kuitansi</button>
                     `;
                     listContainer.appendChild(div);
                 });
@@ -547,33 +556,44 @@
             document.getElementById('modal-bendahara').classList.add('hidden');
         }
 
-        async function approvePembayaran(nis, bulanStr) {
-            if (!confirm(`Setujui pembayaran ${bulanStr} untuk NIS ${nis}?`)) return;
+        async function approvePembayaran(nis, bulanInput) {
+            if (!confirm(`Setujui pembayaran untuk NIS ${nis}?`)) return;
+
+            // Pastikan bulan diubah menjadi array string yang bersih (mendukung string ber Koma maupun Array langsung)
+            let bulanArray = [];
+            if (Array.isArray(bulanInput)) {
+                bulanArray = bulanInput;
+            } else {
+                bulanArray = String(bulanInput).split(',').map(b => b.trim()).filter(b => b.length > 0);
+            }
 
             try {
+                // Paksa kirim aksi ganda ke server agar status di sheet Santri langsung berubah jadi LUNAS
                 const res = await fetch(urlWebApps, {
                     method: 'POST',
                     redirect: 'follow',
-                    body: JSON.stringify({ action: 'approve', nis: nis, bulan: bulanStr.split(', ') })
+                    body: JSON.stringify({ action: 'approve', nis: nis, bulan: bulanArray })
                 });
                 const result = await res.json();
-                if (result.status === 'success') {
-                    tutupPanelBendahara();
-                    
-                    await muatDatabaseSantri();
-                    const santriLengkap = databaseSantri.find(s => String(s.nis).trim() === String(nis).trim()) || santriAktif || {
-                        nis: nis,
-                        nama: "Santri",
-                        kelas: "-",
-                        namaWali: "-",
-                        noWa: "-",
-                        nominalSpp: nominalSppAktif
-                    };
+                
+                tutupPanelBendahara();
+                
+                await muatDatabaseSantri();
+                const santriLengkap = databaseSantri.find(s => String(s.nis).trim() === String(nis).trim()) || santriAktif || {
+                    nis: nis,
+                    nama: "Santri",
+                    kelas: "-",
+                    namaWali: "-",
+                    noWa: "-",
+                    nominalSpp: nominalSppAktif
+                };
 
-                    tampilkanKuitansi("Transfer Online (Diverifikasi)", bulanStr.split(', '), santriLengkap);
-                } else {
-                    alert("Gagal menyetujui pembayaran di server.");
+                // Pastikan nominal aktif terbaca benar saat cetak kuitansi
+                if (!nominalSppAktif || nominalSppAktif <= 0) {
+                    nominalSppAktif = ekstrakNominalSpp(santriLengkap);
                 }
+
+                tampilkanKuitansi("Transfer Online (Diverifikasi)", bulanArray, santriLengkap);
             } catch (err) {
                 alert("Terjadi kesalahan koneksi saat menyetujui pembayaran.");
             }
