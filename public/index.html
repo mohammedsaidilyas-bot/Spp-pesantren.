@@ -9,9 +9,9 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
-            --primary: #0d5c36;
+            --primary: #008953;
             --primary-light: #10b981;
-            --bg-gradient: linear-gradient(135deg, #0d5c36 0%, #06331e 100%);
+            --bg-gradient: linear-gradient(135deg, #008953 0%, #004d2e 100%);
             --card-bg: #ffffff;
             --text-main: #0f172a;
             --text-muted: #64748b;
@@ -112,7 +112,7 @@
         input:focus, select:focus {
             border-color: var(--primary);
             background: #ffffff;
-            box-shadow: 0 0 0 3px rgba(13, 92, 54, 0.08);
+            box-shadow: 0 0 0 3px rgba(0, 137, 83, 0.08);
         }
 
         .btn-cek {
@@ -179,7 +179,7 @@
             text-transform: uppercase;
             white-space: nowrap;
         }
-        .badge-lunas { background: #d1fae5; color: #065f46; }
+        .badge-lunas { background: #d1fae5; color: #00663b; }
         .badge-belum { background: #fee2e2; color: #991b1b; }
 
         .info-row {
@@ -277,7 +277,7 @@
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(6, 51, 30, 0.6);
+            background: rgba(0, 77, 46, 0.6);
             backdrop-filter: blur(4px);
             justify-content: center;
             align-items: center;
@@ -509,7 +509,7 @@
         // Perbarui status global di halaman depan
         var txtStatusGlobal = document.getElementById("txtStatusGlobal");
         if (jumlahLunas === daftarBulan.length) {
-            txtStatusGlobal.innerHTML = "<span style='color: #065f46;'>Lunas Semua (12/12 Bulan)</span>";
+            txtStatusGlobal.innerHTML = "<span style='color: #00663b;'>Lunas Semua (12/12 Bulan)</span>";
         } else {
             txtStatusGlobal.innerHTML = "<span style='color: #d97706;'>Belum Lunas (" + jumlahLunas + "/12 Bulan)</span>";
         }
@@ -595,39 +595,4 @@
         var kelas = santriCache.kelas;
         var wali = santriCache.wali;
         var telp = santriCache.telp;
-        var tanggal = new Date().toLocaleDateString("id-ID", { day: 'numeric', month: 'long', year: 'numeric' });
-
-        let noWa = telp.trim();
-        if (noWa.startsWith('0')) {
-            noWa = '62' + noWa.substring(1);
-        }
-
-        let pesan = `*KUITANSI PEMBAYARAN SPP*
-*Pondok Pesantren Fathul Huda Al-Qarobiyah*
----------------------------------------
-📅 *Tanggal:* ${tanggal}
-💳 *Metode:* ${metode}
----------------------------------------
-👤 *Nama Santri:* ${nama}
-🆔 *NIS:* ${nis}
-🏫 *Kelas:* ${kelas}
-👨‍👩‍👦 *Wali Santri:* ${wali}
----------------------------------------
-📌 *Untuk Pembayaran SPP Bulan:* *${bulan}*
-✅ *Status:* LUNAS
----------------------------------------
-Terima kasih, pembayaran Anda telah tercatat sah di sistem database pesantren.`;
-
-        let urlWa = `https://api.whatsapp.com/send?phone=${noWa}&text=${encodeURIComponent(pesan)}`;
-        
-        // 3. Reset form PIN
-        document.getElementById("kodeBendahara").value = "";
-        document.getElementById("pinContainer").style.display = "none";
-
-        // 4. Langsung buka WhatsApp secara instan
-        window.location.href = urlWa;
-    }
-</script>
-
-</body>
-</html>
+        var tanggal = new Date().toLocaleDateString("id-ID", { day: 'numeric', month: 'long', year: 'nume
