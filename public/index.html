@@ -237,9 +237,9 @@
             margin-left: 4px;
         }
 
-        /* Kotak Menu Pilihan Bulan (Awalnya Disembunyikan) */
+        /* Kotak Menu Pilihan Bulan (Tersembunyi di Awal) */
         .bulan-dropdown-content {
-            display: none; /* Disembunyikan sampai diklik */
+            display: none; 
             width: 100%;
             background: #f8fafc;
             border: 1.5px solid var(--border-color);
@@ -441,16 +441,16 @@
                     <span class="info-label">No. Telepon</span>
                     <span class="info-value" id="txtTelp">082219644442</span>
                 </div>
-                <!-- Status Pembayaran SPP -->
+                <!-- Status Pembayaran SPP (Dinamis) -->
                 <div class="info-row" style="border-top: 1px dashed var(--border-color); margin-top: 6px; padding-top: 6px;">
                     <span class="info-label" id="txtLabelBulanIni">Status Pembayaran SPP</span>
-                    <span class="info-value" id="txtStatusBulanInfo" style="font-weight: 700;">SILAHKAN PILIH BULAN</span>
+                    <span class="info-value" id="txtStatusBulanInfo" style="font-weight: 700; color: var(--text-muted);">SILAHKAN PILIH BULAN</span>
                 </div>
             </div>
 
             <!-- Tata Letak Bersampingan (Pilih Bulan & Total Tagihan) -->
             <div class="form-row-side">
-                <!-- Info Status Pilihan Bulan (Bisa Diklik untuk Membuka Dropdown) -->
+                <!-- Info Status Pilihan Bulan -->
                 <div>
                     <label class="input-label">Bulan Dipilih</label>
                     <div class="dropdown-toggle-box" onclick="toggleBulanDropdown()">
@@ -561,7 +561,6 @@
             document.getElementById("btnTunai").disabled = true;
             document.getElementById("pinContainer").style.display = "none";
             
-            // Sembunyikan dropdown kembali setelah cek data
             document.getElementById("bulanDropdownContent").style.display = "none";
             document.getElementById("dropdownIcon").style.transform = "rotate(0deg)";
         } else {
@@ -610,44 +609,8 @@
         });
     }
 
-    function pilihBulanPill(bulanNam, statusBulan) {
+    function pilihBulanPill(bulanNama, statusBulan) {
         var txtInfoPilihan = document.getElementById("txtInfoPilihanBulan");
-        
-        updateStatusBulanDilihat(bulanNama, statusBulan);
-
-        if (statusBulan === "LUNAS") {
-            bulanTerpilihSet.clear();
-            renderBulanGrid();
-            
-            txtInfoPilihan.innerText = bulanNama + " (LUNAS)";
-            txtInfoPilihan.style.color = "#0284c7";
-            
-            document.getElementById("txtTotalTagihan").innerText = "Rp 0";
-            document.getElementById("btnOnline").disabled = true;
-            document.getElementById("btnTunai").disabled = true;
-            document.getElementById("pinContainer").style.display = "none";
-            return;
-        }
-
-        if (bulanTerpilihSet.has(bulanNama)) {
-            bulanTerpilihSet.delete(bulanNama);
-            if (bulanTerpilihSet.size === 0) {
-                document.getElementById("txtLabelBulanIni").innerText = "Status Pembayaran SPP";
-                let statusInfo = document.getElementById("txtStatusBulanInfo");
-                statusInfo.innerText = "SILAHKAN PILIH BULAN";
-                statusInfo.style.color = "var(--text-muted)";
-            }
-        } else {
-            bulanTerpilihSet.add(bulanNama);
-        }
-
-        renderBulanGrid();
-        hitungTotalNominal();
-    }
-
-    function updateStatusBulanDilihat(namaBulan, statusBulan) {
-        document.getElementById("txtLabelBulanIni").innerText = "Status Bulan (" + namaBulan + ")";
-        var txtStatusBulanInfo = document.getElementById("txtStatusBulanInfo");
 
         if (statusBulan === "LUNAS") {
             txtStatusBulanInfo.innerText = "LUNAS";
@@ -656,6 +619,27 @@
             txtStatusBulanInfo.innerText = "BELUM LUNAS";
             txtStatusBulanInfo.style.color = "#991b1b";
         }
+
+        // Jika bulan tersebut sudah lunas, cegah agar tidak bisa dipilih untuk dibayar ulang
+        if (statusBulan === "LUNAS") {
+            alert("Bulan " + bulanNama + " sudah lunas!");
+            return;
+        }
+
+        // Logika pilih / batal pilih bulan pembayaran
+        if (bulanTerpilihSet.has(bulanNama)) {
+            bulanTerpilihSet.delete(bulanNama);
+            if (bulanTerpilihSet.size === 0) {
+                document.getElementById("txtLabelBulanIni").innerText = "Status Pembayaran SPP";
+                txtStatusBulanInfo.innerText = "SILAHKAN PILIH BULAN";
+                txtStatusBulanInfo.style.color = "var(--text-muted)";
+            }
+        } else {
+            bulanTerpilihSet.add(bulanNama);
+        }
+
+        renderBulanGrid();
+        hitungTotalNominal();
     }
 
     function hitungTotalNominal() {
@@ -668,10 +652,8 @@
             txtInfoPilihan.innerText = listBulan.join(", ");
             txtInfoPilihan.style.color = "var(--primary)";
         } else {
-            if (!txtInfoPilihan.innerText.includes("(LUNAS)")) {
-                txtInfoPilihan.innerText = "Pilih bulan...";
-                txtInfoPilihan.style.color = "var(--text-muted)";
-            }
+            txtInfoPilihan.innerText = "Pilih bulan...";
+            txtInfoPilihan.style.color = "var(--text-muted)";
         }
 
         document.getElementById("txtTotalTagihan").innerText = "Rp " + total.toLocaleString("id-ID");
@@ -735,7 +717,6 @@
 
         hitungTotalNominal();
 
-        // Sembunyikan kembali dropdown setelah pembayaran berhasil
         document.getElementById("bulanDropdownContent").style.display = "none";
         document.getElementById("dropdownIcon").style.transform = "rotate(0deg)";
 
@@ -784,4 +765,4 @@ Terima kasih, pembayaran Anda telah tercatat sah di sistem database pesantren.`;
 </script>
 
 </body>
-</html>
+</html>  
