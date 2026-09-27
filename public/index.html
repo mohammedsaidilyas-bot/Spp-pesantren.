@@ -8,12 +8,18 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        @media print {
+            body * { visibility: hidden; }
+            #area-kuitansi, #area-kuitansi * { visibility: visible; }
+            #area-kuitansi { position: absolute; left: 0; top: 0; width: 100%; border: none; box-shadow: none; }
+            .no-print { display: none; }
+        }
     </style>
 </head>
 <body class="bg-emerald-950 min-h-screen flex flex-col items-center justify-center p-4 text-slate-800">
 
     <!-- Container Utama -->
-    <div class="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden border border-emerald-100 my-auto">
+    <div class="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden border border-emerald-100 my-auto no-print">
         
         <!-- Header -->
         <div class="bg-emerald-800 p-6 text-white text-center relative overflow-hidden">
@@ -102,14 +108,14 @@
     </div>
 
     <!-- Panel Verifikasi Bendahara (Minimalis di Bawah) -->
-    <div class="w-full max-w-md mt-4 flex justify-center">
+    <div class="w-full max-w-md mt-4 flex justify-center no-print">
         <button onclick="bukaPanelBendahara()" class="text-emerald-200/70 hover:text-white text-xs font-medium tracking-wide flex items-center gap-1.5 bg-emerald-900/40 hover:bg-emerald-900/70 px-4 py-2 rounded-full border border-emerald-700/30 transition-all backdrop-blur-sm">
             <span>🔒 Panel Bendahara Pesantren</span>
         </button>
     </div>
 
     <!-- Modal Upload Bukti Transfer -->
-    <div id="modal-online" class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+    <div id="modal-online" class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4 z-50 no-print">
         <div class="bg-white rounded-3xl p-6 w-full max-w-sm space-y-4 shadow-2xl border border-slate-100">
             <h3 class="font-bold text-slate-800 text-base">Unggah Bukti Transfer</h3>
             <p class="text-xs text-slate-500 leading-relaxed">Silakan transfer ke Rekening Pesantren, lalu unggah foto struk atau bukti transfer di bawah ini.</p>
@@ -125,9 +131,9 @@
         </div>
     </div>
 
-    <!-- Modal Kuitansi Buku Struk -->
+    <!-- Modal Kuitansi Buku Struk / Format PDF -->
     <div id="modal-kuitansi" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-        <div class="bg-amber-50/95 rounded-3xl p-6 w-full max-w-sm space-y-3 shadow-2xl border-4 border-emerald-800 font-mono text-xs text-slate-900 relative">
+        <div id="area-kuitansi" class="bg-amber-50 rounded-3xl p-6 w-full max-w-sm space-y-3 shadow-2xl border-4 border-emerald-800 font-mono text-xs text-slate-900 relative">
             <div class="text-center border-b-2 border-dashed border-emerald-800 pb-3">
                 <p class="font-bold text-sm tracking-wide text-emerald-950">KUITANSI PEMBAYARAN SPP</p>
                 <p class="font-bold text-[11px] text-emerald-800 mt-1">PP Fathul Huda Al-Qorrobiyah</p>
@@ -159,14 +165,15 @@
                 Terima kasih, pembayaran Anda telah tercatat sah di sistem database pesantren.
             </div>
 
-            <div class="pt-2">
-                <button onclick="tutupKuitansi()" class="w-full bg-emerald-800 hover:bg-emerald-900 text-white py-2.5 rounded-xl font-bold text-xs shadow">Tutup & Selesai</button>
+            <div class="flex gap-2 pt-2 no-print">
+                <button onclick="cetakPDF()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-xl font-bold text-xs shadow">🖨️ Cetak / Unduh PDF</button>
+                <button onclick="tutupKuitansi()" class="flex-1 bg-emerald-800 hover:bg-emerald-900 text-white py-2.5 rounded-xl font-bold text-xs shadow">Tutup</button>
             </div>
         </div>
     </div>
 
     <!-- Modal Bendahara -->
-    <div id="modal-bendahara" class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+    <div id="modal-bendahara" class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4 z-50 no-print">
         <div class="bg-white rounded-3xl p-6 w-full max-w-md max-h-[85vh] overflow-y-auto space-y-4 shadow-2xl border border-slate-100">
             <div class="flex justify-between items-center border-b border-slate-100 pb-3">
                 <div>
@@ -310,10 +317,13 @@
 
             document.getElementById('modal-kuitansi').classList.remove('hidden');
 
-            // Jika Tunai, langsung otomatis kirim ke WA saat itu juga. Jika Online, tidak otomatis kirim WA di sini (dikirim pas Approve).
             if (metode.includes('Tunai')) {
                 kirimOtomatisWA(dataKuitansi);
             }
+        }
+
+        function cetakPDF() {
+            window.print();
         }
 
         function kirimOtomatisWA(dataKuitansi) {
@@ -421,7 +431,11 @@
                 return;
             }
 
-            if (!confirm("Konfirmasi pembayaran tunai untuk bulan yang dipilih?")) return;
+            const pin = prompt("Masukkan PIN Bendahara untuk Pembayaran Tunai:");
+            if (pin !== "123456") {
+                if (pin !== null) alert("PIN Salah!");
+                return;
+            }
 
             try {
                 const res = await fetch(urlWebApps, {
@@ -500,7 +514,6 @@
                 if (result.status === 'success') {
                     alert("Pembayaran disetujui! Membuka WhatsApp untuk mengirim kuitansi...");
                     
-                    // Otomatis buka WhatsApp setelah disetujui bendahara
                     const now = new Date();
                     const tglStr = now.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
                     
@@ -523,3 +536,4 @@
     </script>
 </body>
 </html>
+                  
