@@ -140,7 +140,7 @@
             display: block;
         }
 
-        /* Desain Header Nama Santri & Status */
+        /* Desain Header Nama Santri */
         .santri-header-box {
             display: flex;
             flex-direction: column;
@@ -170,17 +170,6 @@
             font-weight: 700;
             color: var(--text-main);
         }
-
-        .badge-status {
-            padding: 3px 8px;
-            border-radius: 6px;
-            font-size: 10.5px;
-            font-weight: 700;
-            text-transform: uppercase;
-            white-space: nowrap;
-        }
-        .badge-lunas { background: #d1fae5; color: #00663b; }
-        .badge-belum { background: #fee2e2; color: #991b1b; }
 
         .info-row {
             display: flex;
@@ -344,14 +333,13 @@
 
         <!-- Bagian Informasi & Aksi -->
         <div class="result-section" id="resultSection">
-            <!-- Kotak Nama & Status -->
+            <!-- Kotak Nama Santri -->
             <div class="santri-header-box">
                 <div class="nama-top-row">
                     <div>
                         <div class="nama-label-small">Nama Santri</div>
                         <div class="nama-value-big" id="txtNama">-</div>
                     </div>
-                    <div id="txtStatusBadge" class="badge-status badge-belum">BELUM LUNAS</div>
                 </div>
             </div>
 
@@ -372,7 +360,11 @@
                     <span class="info-label">No. Telepon</span>
                     <span class="info-value" id="txtTelp">-</span>
                 </div>
-                <!-- Status keseluruhan pembayaran di halaman depan -->
+                <!-- Status Pembayaran Bulan Terpilih & Global -->
+                <div class="info-row">
+                    <span class="info-label">Status Bulan Ini</span>
+                    <span class="info-value" id="txtStatusBulanInfo" style="font-weight: 700;">-</span>
+                </div>
                 <div class="info-row" style="border-top: 1px dashed var(--border-color); margin-top: 6px; padding-top: 6px;">
                     <span class="info-label">Status Pembayaran</span>
                     <span class="info-value" id="txtStatusGlobal" style="font-weight: 700;">-</span>
@@ -517,12 +509,11 @@
             var option = document.createElement("option");
             option.value = bulan;
             
-            // Bulannya tetap bisa diklik/dipilih, status lunasnya ditaruh di luar (pada teks opsi dropdown)
+            // Nama bulan ditampilkan bersih tanpa tanda kurung status di sampingnya
+            option.text = bulan;
+            
             if (status === "LUNAS") {
-                option.text = bulan + " - (LUNAS)";
                 jumlahLunas++;
-            } else {
-                option.text = bulan + " - (Belum Lunas)";
             }
             selectBulan.appendChild(option);
         });
@@ -544,25 +535,23 @@
         if (!bulanPilih) return;
         
         var statusBulan = (santriCache.pembayaran[bulanPilih] || "BELUM LUNAS").toUpperCase();
-        var badge = document.getElementById("txtStatusBadge");
+        var txtStatusBulanInfo = document.getElementById("txtStatusBulanInfo");
         
         var btnOnline = document.getElementById("btnOnline");
         var btnTunai = document.getElementById("btnTunai");
         var pinContainer = document.getElementById("pinContainer");
 
         if (statusBulan === "LUNAS") {
-            badge.innerText = "LUNAS";
-            badge.className = "badge-status badge-lunas";
+            txtStatusBulanInfo.innerHTML = "<span style='color: #00663b;'>LUNAS</span>";
             
-            // Kunci tombol pembayaran jika bulan sudah lunas
+            // Tombol dikunci (disabled) agar tidak bisa diklik jika sudah lunas
             btnOnline.disabled = true;
             btnTunai.disabled = true;
             pinContainer.style.display = "none";
         } else {
-            badge.innerText = "BELUM LUNAS";
-            badge.className = "badge-status badge-belum";
+            txtStatusBulanInfo.innerHTML = "<span style='color: #991b1b;'>BELUM LUNAS</span>";
             
-            // Aktifkan kembali tombol pembayaran jika belum lunas
+            // Tombol dibuka kembali jika belum lunas
             btnOnline.disabled = false;
             btnTunai.disabled = false;
         }
