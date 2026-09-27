@@ -36,7 +36,7 @@
             padding: 24px 16px;
         }
 
-        /* Header Brand & Logo Dibuat Sangat Rapat */
+        /* Header Brand & Logo */
         .brand-container {
             text-align: center;
             margin-bottom: 16px;
@@ -192,52 +192,60 @@
             text-align: right;
         }
 
-        /* Layout Grid Pilihan Bulan Lebih Simpel & Kompak */
+        /* Layout Grid Bulan Model Simpel / Pill Minimalis */
         .bulan-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 6px;
-            background: #f8fafc;
-            border: 1.5px solid var(--border-color);
-            border-radius: 10px;
-            padding: 10px;
             margin-bottom: 12px;
         }
 
         .bulan-pill {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            background: #ffffff;
-            border: 1px solid var(--border-color);
-            padding: 6px 8px;
+            justify-content: center;
+            background: #f8fafc;
+            border: 1.5px solid var(--border-color);
+            padding: 8px 4px;
             border-radius: 8px;
-            font-size: 11.5px;
+            font-size: 12px;
             font-weight: 600;
+            color: var(--text-main);
             cursor: pointer;
-            transition: all 0.15s;
+            transition: all 0.15s ease;
+            user-select: none;
+        }
+
+        /* Sembunyikan checkbox asli agar tampil seperti tombol */
+        .bulan-pill input[type="checkbox"] {
+            display: none;
         }
 
         .bulan-pill:hover:not(.lunas) {
             border-color: var(--primary);
             background: #f0fdf4;
+            color: var(--primary);
         }
 
-        .bulan-pill input {
-            cursor: pointer;
-            width: auto;
-            margin: 0;
+        /* Jika dipilih (checked) */
+        .bulan-pill.selected {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: #ffffff;
+            box-shadow: 0 2px 4px rgba(0, 137, 83, 0.2);
         }
 
+        /* Jika statusnya sudah Lunas */
         .bulan-pill.lunas {
             background: #f1f5f9;
             color: #94a3b8;
             border-color: #e2e8f0;
             text-decoration: line-through;
             cursor: not-allowed;
+            opacity: 0.7;
         }
 
-        /* PIN Bendahara Lebih Halus & Minimalis */
+        /* PIN Bendahara */
         #pinContainer {
             display: none;
             background: #f8fafc;
@@ -270,7 +278,7 @@
             color: #d97706;
         }
 
-        /* Tombol Aksi yang Lebih Kecil, Ramping & Elegan */
+        /* Tombol Aksi */
         .action-buttons-group {
             display: flex;
             gap: 8px;
@@ -366,22 +374,22 @@
                 </div>
             </div>
 
-            <!-- Pilihan Bulan Model Kotak Grid Langsung (Hardcoded Aman) -->
+            <!-- Pilihan Bulan Model Simpel & Clean -->
             <div>
                 <label class="input-label">Pilih Bulan Pembayaran (Bisa > 1)</label>
                 <div class="bulan-grid" id="bulanCheckboxes">
-                    <label class="bulan-pill"><span>Jul</span><input type="checkbox" value="Juli" onchange="hitungTotalNominal()"></label>
-                    <label class="bulan-pill"><span>Ags</span><input type="checkbox" value="Agustus" onchange="hitungTotalNominal()"></label>
-                    <label class="bulan-pill"><span>Sep</span><input type="checkbox" value="September" onchange="hitungTotalNominal()"></label>
-                    <label class="bulan-pill"><span>Okt</span><input type="checkbox" value="Oktober" onchange="hitungTotalNominal()"></label>
-                    <label class="bulan-pill"><span>Nov</span><input type="checkbox" value="November" onchange="hitungTotalNominal()"></label>
-                    <label class="bulan-pill"><span>Des</span><input type="checkbox" value="Desember" onchange="hitungTotalNominal()"></label>
-                    <label class="bulan-pill"><span>Jan</span><input type="checkbox" value="Januari" onchange="hitungTotalNominal()"></label>
-                    <label class="bulan-pill"><span>Feb</span><input type="checkbox" value="Februari" onchange="hitungTotalNominal()"></label>
-                    <label class="bulan-pill"><span>Mar</span><input type="checkbox" value="Maret" onchange="hitungTotalNominal()"></label>
-                    <label class="bulan-pill"><span>Apr</span><input type="checkbox" value="April" onchange="hitungTotalNominal()"></label>
-                    <label class="bulan-pill"><span>Mei</span><input type="checkbox" value="Mei" onchange="hitungTotalNominal()"></label>
-                    <label class="bulan-pill"><span>Jun</span><input type="checkbox" value="Juni" onchange="hitungTotalNominal()"></label>
+                    <label class="bulan-pill" onclick="toggleBulan(this)"><input type="checkbox" value="Juli">Juli</label>
+                    <label class="bulan-pill" onclick="toggleBulan(this)"><input type="checkbox" value="Agustus">Agustus</label>
+                    <label class="bulan-pill" onclick="toggleBulan(this)"><input type="checkbox" value="September">September</label>
+                    <label class="bulan-pill" onclick="toggleBulan(this)"><input type="checkbox" value="Oktober">Oktober</label>
+                    <label class="bulan-pill" onclick="toggleBulan(this)"><input type="checkbox" value="November">November</label>
+                    <label class="bulan-pill" onclick="toggleBulan(this)"><input type="checkbox" value="Desember">Desember</label>
+                    <label class="bulan-pill" onclick="toggleBulan(this)"><input type="checkbox" value="Januari">Januari</label>
+                    <label class="bulan-pill" onclick="toggleBulan(this)"><input type="checkbox" value="Februari">Februari</label>
+                    <label class="bulan-pill" onclick="toggleBulan(this)"><input type="checkbox" value="Maret">Maret</label>
+                    <label class="bulan-pill" onclick="toggleBulan(this)"><input type="checkbox" value="April">April</label>
+                    <label class="bulan-pill" onclick="toggleBulan(this)"><input type="checkbox" value="Mei">Mei</label>
+                    <label class="bulan-pill" onclick="toggleBulan(this)"><input type="checkbox" value="Juni">Juni</label>
                 </div>
             </div>
 
@@ -393,7 +401,7 @@
                 </div>
             </div>
 
-            <!-- PIN Bendahara Lebih Halus & Minimalis -->
+            <!-- PIN Bendahara -->
             <div id="pinContainer">
                 <div class="pin-header">
                     <i class="fa-solid fa-shield-halved"></i> Autorisasi PIN Bendahara
@@ -401,7 +409,7 @@
                 <input type="password" id="kodeBendahara" placeholder="Masukkan 6 digit PIN..." autocomplete="current-password">
             </div>
 
-            <!-- Tombol Aksi Berjajar, Kecil, & Elegan -->
+            <!-- Tombol Aksi -->
             <div class="action-buttons-group">
                 <button id="btnOnline" class="btn-action btn-mayar" onclick="prosesPembayaran('Online / Mayar.id')" disabled>
                     <i class="fa-solid fa-globe"></i> Online
@@ -471,6 +479,21 @@
         }
     }
 
+    function toggleBulan(element) {
+        if (element.classList.contains("lunas")) return;
+        
+        var checkbox = element.querySelector("input[type='checkbox']");
+        checkbox.checked = !checkbox.checked;
+        
+        if (checkbox.checked) {
+            element.classList.add("selected");
+        } else {
+            element.classList.remove("selected");
+        }
+        
+        hitungTotalNominal();
+    }
+
     function updateStatusBulanGrid() {
         if (!santriCache || !santriCache.pembayaran) return;
         var labels = document.querySelectorAll("#bulanCheckboxes .bulan-pill");
@@ -480,10 +503,12 @@
             var status = (santriCache.pembayaran[bulan] || "BELUM LUNAS").toUpperCase();
             var checkbox = label.querySelector("input[type='checkbox']");
             
+            checkbox.checked = false;
+            label.classList.remove("selected");
+
             if (status === "LUNAS") {
                 label.classList.add("lunas");
                 checkbox.disabled = true;
-                checkbox.checked = false;
             } else {
                 label.classList.remove("lunas");
                 checkbox.disabled = false;
@@ -544,69 +569,4 @@
     function prosesPembayaran(metode) {
         var checkboxes = document.querySelectorAll("#bulanCheckboxes input[type='checkbox']:checked");
         if (checkboxes.length === 0) {
-            alert("Pilih minimal satu bulan pembayaran!");
-            return;
-        }
-
-        if (metode === "Tunai / Offline") {
-            var inputPin = document.getElementById("kodeBendahara").value.trim();
-            if (inputPin !== PIN_BENDAHARA_VALID) {
-                alert("Akses Ditolak! PIN Bendahara salah. (Gunakan PIN: 123456)");
-                return;
-            }
-        }
-
-        var bulanDipilih = [];
-        checkboxes.forEach(cb => {
-            bulanDipilih.push(cb.value);
-            if (santriCache && santriCache.pembayaran) {
-                santriCache.pembayaran[cb.value] = "LUNAS";
-            }
-        });
-
-        updateStatusBulanGrid();
-        updateStatusBulanPertama();
-        hitungTotalNominal();
-
-        var nama = santriCache.nama;
-        var nis = santriCache.nis;
-        var kelas = santriCache.kelas;
-        var wali = santriCache.wali;
-        var telp = santriCache.telp;
-        var tanggal = new Date().toLocaleDateString("id-ID", { day: 'numeric', month: 'long', year: 'numeric' });
-        var totalBayar = bulanDipilih.length * NOMINAL_PER_BULAN;
-
-        let noWa = telp.trim();
-        if (noWa.startsWith('0')) {
-            noWa = '62' + noWa.substring(1);
-        }
-
-        let pesan = `*KUITANSI PEMBAYARAN SPP*
-*Pondok Pesantren Fathul Huda Al-Qarobiyah*
----------------------------------------
-📅 *Tanggal:* ${tanggal}
-💳 *Metode:* ${metode}
----------------------------------------
-👤 *Nama Santri:* ${nama}
-🆔 *NIS:* ${nis}
-🏫 *Kelas:* ${kelas}
-👨‍👩‍👦 *Wali Santri:* ${wali}
----------------------------------------
-📌 *Untuk Pembayaran Bulan:* 
-*${bulanDipilih.join(", ")}*
-💰 *Total Dibayar:* Rp ${totalBayar.toLocaleString("id-ID")}
-✅ *Status:* LUNAS
----------------------------------------
-Terima kasih, pembayaran Anda telah tercatat sah di sistem database pesantren.`;
-
-        let urlWa = `https://api.whatsapp.com/send?phone=${noWa}&text=${encodeURIComponent(pesan)}`;
-        
-        document.getElementById("kodeBendahara").value = "";
-        document.getElementById("pinContainer").style.display = "none";
-
-        window.location.href = urlWa;
-    }
-</script>
-
-</body>
-</html>
+            alert("Pilih 
