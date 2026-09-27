@@ -36,7 +36,7 @@
             padding: 24px 16px;
         }
 
-        /* Header Brand */
+        /* Header Brand & Logo */
         .brand-container {
             text-align: center;
             margin-bottom: 20px;
@@ -44,17 +44,23 @@
         }
 
         .logo-circle {
-            width: 56px;
-            height: 56px;
+            width: 64px;
+            height: 64px;
             background: #ffffff;
-            color: var(--primary);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 22px;
-            margin: 0 auto 8px;
+            margin: 0 auto 10px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            border: 2px solid #ffffff;
+        }
+
+        .logo-circle img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .brand-container h1 {
@@ -312,10 +318,10 @@
 </head>
 <body>
 
-    <!-- Header Brand -->
+    <!-- Header Brand dengan Logo Pesantren dari Google Drive -->
     <div class="brand-container">
         <div class="logo-circle">
-            <i class="fa-solid fa-mosque"></i>
+            <img src="https://lh3.googleusercontent.com/d/1nisPkmO93MQycG2iEWxMduwWb6ZOh0kA" alt="Logo PP. Fathul Huda Al-Qarobiyah" onerror="this.onerror=null;this.src='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/svgs/solid/mosque.svg';">
         </div>
         <h1>PP. Fathul Huda Al-Qarobiyah</h1>
         <p>Portal Pembayaran SPP Santri</p>
@@ -440,7 +446,6 @@
 
     let santriCache = null;
 
-    // Jalankan pencarian otomatis saat halaman dimuat agar langsung tampil
     window.onload = function() {
         cekDataSantri();
     };
@@ -461,7 +466,6 @@
             if (databaseSantri[nisInput]) {
                 santriCache = databaseSantri[nisInput];
                 
-                // Pastikan elemen DOM diisi dengan benar
                 document.getElementById("txtNama").innerText = santriCache.nama;
                 document.getElementById("txtNis").innerText = santriCache.nis;
                 document.getElementById("txtKelas").innerText = santriCache.kelas;
