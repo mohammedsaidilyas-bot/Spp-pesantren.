@@ -3,1003 +3,325 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal Pembayaran SPP - PP. Fathul Huda Al-Qarobiyah</title>
-    <!-- Google Fonts & FontAwesome -->
+    <title>PPFHA - Portal Pembayaran SPP Pesantren</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        :root {
-            --primary: #008953;
-            --primary-light: #10b981;
-            --bg-gradient: linear-gradient(135deg, #008953 0%, #004d2e 100%);
-            --card-bg: #ffffff;
-            --text-main: #0f172a;
-            --text-muted: #64748b;
-            --border-color: #e2e8f0;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-        }
-
-        body {
-            background: var(--bg-gradient);
-            color: var(--text-main);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            padding: 24px 16px;
-        }
-
-        .brand-container {
-            text-align: center;
-            margin-bottom: 16px;
-            color: #ffffff;
-        }
-
-        .logo-wrapper {
-            width: 130px;
-            height: 130px;
-            margin: 0 auto;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .logo-wrapper img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.25));
-        }
-
-        .brand-container h1 {
-            font-size: 17px;
-            font-weight: 700;
-            margin-top: -6px;
-            margin-bottom: 2px;
-        }
-
-        .brand-container p {
-            font-size: 11px;
-            color: #a7f3d0;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .search-card {
-            background: var(--card-bg);
-            width: 100%;
-            max-width: 420px;
-            padding: 20px;
-            border-radius: 18px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
-            margin-bottom: 20px;
-        }
-
-        .input-label {
-            display: block;
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--text-muted);
-            margin-bottom: 5px;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-        }
-
-        .input-group {
-            display: flex;
-            gap: 8px;
-        }
-
-        input, select {
-            width: 100%;
-            padding: 10px 14px;
-            font-size: 13.5px;
-            border: 1.5px solid var(--border-color);
-            border-radius: 10px;
-            outline: none;
-            background: #f8fafc;
-            color: var(--text-main);
-            transition: all 0.2s;
-        }
-
-        input:focus, select:focus {
-            border-color: var(--primary);
-            background: #ffffff;
-            box-shadow: 0 0 0 3px rgba(0, 137, 83, 0.08);
-        }
-
-        .btn-cek {
-            background: #2563eb;
-            color: white;
-            border: none;
-            padding: 0 16px;
-            font-size: 13.5px;
-            font-weight: 600;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: background 0.2s;
-            white-space: nowrap;
-        }
-
-        .btn-cek:hover {
-            background: #1d4ed8;
-        }
-
-        .result-section {
-            display: none;
-            margin-top: 14px;
-            padding-top: 14px;
-            border-top: 1px solid var(--border-color);
-        }
-
-        .santri-header-box {
-            display: flex;
-            flex-direction: column;
-            padding-bottom: 10px;
-            border-bottom: 1px solid var(--border-color);
-            margin-bottom: 10px;
-        }
-
-        .nama-top-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 8px;
-        }
-
-        .nama-label-small {
-            font-size: 10px;
-            font-weight: 700;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 2px;
-        }
-
-        .nama-value-big {
-            font-size: 17px;
-            font-weight: 700;
-            color: var(--text-main);
-        }
-
-        .info-row {
-            display: flex;
-            justify-content: space-between;
-            font-size: 12.5px;
-            padding: 5px 0;
-        }
-
-        .info-label {
-            color: var(--text-muted);
-            font-weight: 500;
-        }
-
-        .info-value {
-            color: var(--text-main);
-            font-weight: 600;
-            text-align: right;
-        }
-
-        .form-row-side {
-            display: grid;
-            grid-template-columns: 1.3fr 1fr;
-            gap: 8px;
-            margin-bottom: 12px;
-        }
-
-        .dropdown-toggle-box {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #f8fafc;
-            border: 1.5px solid var(--border-color);
-            padding: 10px 10px;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.2s;
-            user-select: none;
-            height: 42px;
-            width: 100%;
-        }
-
-        .dropdown-toggle-box:hover {
-            border-color: var(--primary);
-            background: #ffffff;
-        }
-
-        .dropdown-toggle-box span {
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-main);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .dropdown-toggle-box i {
-            color: var(--text-muted);
-            font-size: 11px;
-            transition: transform 0.2s;
-            flex-shrink: 0;
-            margin-left: 4px;
-        }
-
-        .bulan-dropdown-content {
-            display: none; 
-            width: 100%;
-            background: #f8fafc;
-            border: 1.5px solid var(--border-color);
-            border-radius: 12px;
-            padding: 10px;
-            margin-top: 6px;
-            margin-bottom: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        }
-
-        .bulan-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 6px;
-        }
-
-        @media (max-width: 400px) {
-            .bulan-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
-        }
-
-        .bulan-pill {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #ffffff;
-            border: 1.5px solid var(--border-color);
-            padding: 10px 4px;
-            border-radius: 8px;
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--text-main);
-            cursor: pointer;
-            transition: all 0.15s ease;
-            user-select: none;
-            text-align: center;
-        }
-
-        .bulan-pill:hover {
-            border-color: var(--primary);
-            background: #f0fdf4;
-            color: var(--primary);
-        }
-
-        .bulan-pill.selected {
-            background: var(--primary);
-            border-color: var(--primary);
-            color: #ffffff;
-            box-shadow: 0 2px 4px rgba(0, 137, 83, 0.2);
-        }
-
-        .total-tagihan-box {
-            background: #f8fafc;
-            padding: 8px 10px;
-            border-radius: 10px;
-            border: 1.5px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            height: 42px;
-        }
-
-        .total-tagihan-value {
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--primary);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        #pinContainer {
-            display: none;
-            background: #f8fafc;
-            padding: 12px;
-            border-radius: 10px;
-            border: 1px solid #cbd5e1;
-            margin-bottom: 12px;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
-        }
-
-        .pin-header {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 11.5px;
-            font-weight: 700;
-            color: #475569;
-            margin-bottom: 6px;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-        }
-
-        .pin-header i {
-            color: #d97706;
-        }
-
-        .action-buttons-group {
-            display: flex;
-            gap: 8px;
-        }
-
-        .btn-action {
-            flex: 1;
-            border: none;
-            padding: 9px 10px;
-            font-size: 12.5px;
-            font-weight: 600;
-            border-radius: 9px;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            color: white;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.08);
-        }
-
-        .btn-action:hover:not(:disabled) { 
-            opacity: 0.92;
-            transform: translateY(-1px);
-        }
-
-        .btn-action:disabled {
-            background: #cbd5e1 !important;
-            cursor: not-allowed;
-            box-shadow: none;
-            color: #64748b;
-        }
-
-        .btn-mayar { background: #6366f1; } 
-        .btn-tunai { background: #d97706; } 
-
-        .upload-box {
-            background: #f8fafc;
-            border: 2px dashed #008953;
-            padding: 14px;
-            border-radius: 10px;
-            margin-top: 12px;
-            text-align: left;
-            display: none;
-        }
-
-        /* Tombol Minimalis Panel Bendahara di Bawah */
-        .bendahara-trigger-link {
-            text-align: center;
-            margin-top: 16px;
-            padding-top: 12px;
-            border-top: 1px dashed var(--border-color);
-        }
-
-        .bendahara-trigger-link a {
-            font-size: 11.5px;
-            color: var(--text-muted);
-            text-decoration: none;
-            font-weight: 600;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            transition: color 0.2s;
-        }
-
-        .bendahara-trigger-link a:hover {
-            color: #d97706;
-        }
-
-        #panelBendaharaInline {
-            display: none;
-            margin-top: 10px;
-            background: #fefce8;
-            border: 1.5px solid #fde047;
-            border-radius: 12px;
-            padding: 12px;
-            text-align: left;
-        }
-
-        /* Modal Kuitansi */
-        #kuitansiModal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6);
-            z-index: 999;
-            justify-content: center;
-            align-items: center;
-            padding: 16px;
-        }
-        .kuitansi-box {
-            background: #ffffff;
-            width: 100%;
-            max-width: 380px;
-            padding: 24px;
-            border-radius: 16px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            text-align: left;
-            position: relative;
-        }
-        .kuitansi-header {
-            text-align: center;
-            border-bottom: 2px dashed var(--border-color);
-            padding-bottom: 12px;
-            margin-bottom: 12px;
-        }
-        .kuitansi-header h3 {
-            font-size: 15px;
-            font-weight: 700;
-            color: var(--primary);
-        }
-        .kuitansi-header p {
-            font-size: 11px;
-            color: var(--text-muted);
-        }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
     </style>
 </head>
-<body>
+<body class="bg-emerald-900 min-h-screen flex flex-col items-center justify-between p-4 text-slate-800">
 
-    <div class="brand-container">
-        <div class="logo-wrapper">
-            <img src="https://lh3.googleusercontent.com/d/1nisPkmO93MQycG2iEWxMduwWb6ZOh0kA" alt="Logo PP. Fathul Huda Al-Qarobiyah">
+    <!-- Container Utama -->
+    <div class="w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden my-auto">
+        
+        <!-- Header -->
+        <div class="bg-emerald-800 p-6 text-white text-center">
+            <div class="w-16 h-16 mx-auto mb-3 bg-white/10 rounded-full flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-emerald-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+            </div>
+            <h1 class="text-lg font-bold tracking-wide">PP. Fathul Huda Al-Qarobiyah</h1>
+            <p class="text-xs text-emerald-200 mt-1">PORTAL PEMBAYARAN SPP SANTRI</p>
         </div>
-        <h1>PP. Fathul Huda Al-Qarobiyah</h1>
-        <p>Portal Pembayaran SPP Santri</p>
+
+        <!-- Form Pencarian NIS -->
+        <div class="p-6" id="section-login">
+            <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Nomor Induk Santri (NIS)</label>
+            <div class="flex gap-2">
+                <input type="text" id="input-nis" placeholder="Contoh: 20260001" class="flex-1 bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-600 font-medium">
+                <button onclick="cariSantri()" id="btn-cek" class="bg-emerald-700 hover:bg-emerald-800 text-white px-6 py-3 rounded-xl text-sm font-semibold transition-all shadow-md">Cek</button>
+            </div>
+            <div id="loading-status" class="hidden text-center py-4 text-sm text-slate-500">Memuat data santri...</div>
+        </div>
+
+        <!-- Detail & Tagihan Santri (Hidden Default) -->
+        <div id="section-detail" class="hidden p-6 pt-0 space-y-4">
+            <div class="bg-emerald-50 border border-emerald-100 rounded-xl p-4">
+                <h2 id="view-nama" class="font-bold text-emerald-900 text-base"></h2>
+                <div class="grid grid-cols-2 gap-2 mt-2 text-xs text-slate-600">
+                    <div>NIS: <span id="view-nis" class="font-semibold text-slate-800"></span></div>
+                    <div>Kelas: <span id="view-kelas" class="font-semibold text-slate-800"></span></div>
+                    <div>Kamar: <span id="view-kamar" class="font-semibold text-slate-800"></span></div>
+                    <div>Wali: <span id="view-wali" class="font-semibold text-slate-800"></span></div>
+                </div>
+            </div>
+
+            <div>
+                <h3 class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Pilih Bulan Tagihan</h3>
+                <div id="grid-bulan" class="grid grid-cols-3 gap-2 max-h-48 overflow-y-auto p-1 border border-slate-200 rounded-xl">
+                    <!-- Dinamis oleh JavaScript -->
+                </div>
+            </div>
+
+            <!-- Tombol Aksi Pembayaran -->
+            <div class="space-y-2 pt-2">
+                <button onclick="bukaModalOnline()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl text-sm font-semibold transition-all shadow-md flex items-center justify-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                    Bayar Online (Upload Bukti)
+                </button>
+                <button onclick="prosesBayarTunai()" class="w-full bg-amber-600 hover:bg-amber-700 text-white py-3 rounded-xl text-sm font-semibold transition-all shadow-md">
+                    Bayar Tunai ke Bendahara (Datang ke Kantor)
+                </button>
+            </div>
+            <button onclick="resetPencarian()" class="w-full text-center text-xs text-slate-500 hover:text-slate-700 py-1">Cari Santri Lain</button>
+        </div>
     </div>
 
-    <div class="search-card">
-        <div style="margin-bottom: 0px;">
-            <label class="input-label" for="nis">Nomor Induk Santri (NIS)</label>
-            <div class="input-group">
-                <input type="text" id="nis" placeholder="Contoh: 20260001" autocomplete="off">
-                <button class="btn-cek" onclick="cekDataSantri()">Cek</button>
+    <!-- Panel Verifikasi Bendahara -->
+    <div class="w-full max-w-md bg-white/10 backdrop-blur-md rounded-2xl p-4 text-white text-xs mt-4">
+        <div class="flex justify-between items-center mb-2">
+            <span class="font-bold">Panel Bendahara Pesantren</span>
+            <button onclick="bukaPanelBendahara()" class="bg-emerald-600 hover:bg-emerald-500 px-3 py-1.5 rounded-lg font-semibold transition-all">Buka Verifikasi</button>
+        </div>
+    </div>
+
+    <!-- Modal Upload Bukti Transfer -->
+    <div id="modal-online" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-sm space-y-4 shadow-2xl">
+            <h3 class="font-bold text-slate-800 text-base">Unggah Bukti Transfer</h3>
+            <p class="text-xs text-slate-500">Silakan transfer ke Rekening Pesantren, lalu unggah foto struk/bukti transfer di bawah ini.</p>
+            
+            <div class="border-2 border-dashed border-slate-300 rounded-xl p-4 text-center">
+                <input type="file" id="file-bukti" accept="image/*" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100">
+            </div>
+
+            <div class="flex gap-2 pt-2">
+                <button onclick="tutupModalOnline()" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 py-2.5 rounded-xl text-xs font-semibold">Batal</button>
+                <button onclick="kirimBuktiOnline()" id="btn-kirim-bukti" class="flex-1 bg-emerald-700 hover:bg-emerald-800 text-white py-2.5 rounded-xl text-xs font-semibold">Kirim Bukti</button>
             </div>
         </div>
+    </div>
 
-        <div class="result-section" id="resultSection">
-            <div class="santri-header-box">
-                <div class="nama-top-row">
-                    <div>
-                        <div class="nama-label-small">Nama Santri</div>
-                        <div class="nama-value-big" id="txtNama">-</div>
-                    </div>
-                </div>
+    <!-- Modal Bendahara -->
+    <div id="modal-bendahara" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-md max-h-[80vh] overflow-y-auto space-y-4 shadow-2xl">
+            <div class="flex justify-between items-center">
+                <h3 class="font-bold text-slate-800 text-base">Verifikasi Pembayaran Pending</h3>
+                <button onclick="tutupPanelBendahara()" class="text-slate-400 hover:text-slate-600 font-bold text-lg">✕</button>
             </div>
-
-            <div style="margin-bottom: 10px;">
-                <div class="info-row">
-                    <span class="info-label">NIS</span>
-                    <span class="info-value" id="txtNis">-</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">Kelas</span>
-                    <span class="info-value" id="txtKelas">-</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">Asrama</span>
-                    <span class="info-value" id="txtAsrama">-</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">Wali Santri</span>
-                    <span class="info-value" id="txtWali">-</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">No. Telepon / WA</span>
-                    <span class="info-value" id="txtTelp">-</span>
-                </div>
-                <div class="info-row" style="border-top: 1px dashed var(--border-color); margin-top: 6px; padding-top: 6px;">
-                    <span class="info-label" id="txtLabelBulanIni">Status Pembayaran SPP</span>
-                    <span class="info-value" id="txtStatusBulanInfo" style="font-weight: 700; color: var(--text-muted);">PILIH BULAN DI BAWAH</span>
-                </div>
+            <div id="list-pending" class="space-y-3">
+                <p class="text-xs text-slate-500 text-center py-4">Memuat data pending...</p>
             </div>
+        </div>
+    </div>
 
-            <div class="form-row-side">
-                <div>
-                    <label class="input-label">Bulan Dipilih</label>
-                    <div class="dropdown-toggle-box" onclick="toggleBulanDropdown()">
-                        <span id="txtInfoPilihanBulan" style="color: var(--text-muted);">Pilih bulan...</span>
-                        <i class="fa-solid fa-chevron-down" id="dropdownIcon"></i>
-                    </div>
-                </div>
+    <!-- JavaScript Logika Portal -->
+    <script>
+        const urlWebApps = "https://script.google.com/macros/s/AKfycbzqthrOD_azpJ9W_nQxt6d_99Ew0_4dmH1Oxko2yt4WMXitIBRAhOait_GnGbZMfUBYcQ/exec";
+        let santriAktif = null;
+        let databaseSantri = [];
 
-                <div>
-                    <label class="input-label">Total Tagihan</label>
-                    <div class="total-tagihan-box">
-                        <div class="total-tagihan-value" id="txtTotalTagihan">Rp 0</div>
-                    </div>
-                </div>
-            </div>
+        async function cariSantri() {
+            const nis = document.getElementById('input-nis').value.trim();
+            if (!nis) {
+                alert("Masukkan Nomor Induk Santri (NIS) terlebih dahulu!");
+                return;
+            }
 
-            <div class="bulan-dropdown-content" id="bulanDropdownContent">
-                <label class="input-label" style="margin-bottom: 8px;">Pilih Bulan Pembayaran:</label>
-                <div class="bulan-grid" id="bulanCheckboxes"></div>
-            </div>
-
-            <div id="pinContainer">
-                <div class="pin-header">
-                    <i class="fa-solid fa-shield-halved"></i> Autorisasi PIN Bendahara
-                </div>
-                <input type="password" id="kodeBendahara" placeholder="Masukkan 6 digit PIN..." autocomplete="current-password">
-            </div>
-
-            <div class="action-buttons-group">
-                <button id="btnOnline" class="btn-action btn-mayar" onclick="bukaPanelUploadOnline()" disabled>
-                    <i class="fa-solid fa-cloud-arrow-up"></i> Online (Upload)
-                </button>
-                <button id="btnTunai" class="btn-action btn-tunai" onclick="handleBayarTunaiClick()" disabled>
-                    <i class="fa-solid fa-money-bill-wave"></i> Tunai (PIN)
-                </button>
-            </div>
-
-            <!-- Panel Upload Bukti Transfer Online -->
-            <div id="panelUploadOnline" class="upload-box">
-                <h6 style="color: var(--primary); font-size: 13px; font-weight: 700; margin-bottom: 6px;">
-                    <i class="fa-solid fa-file-invoice-dollar"></i> Konfirmasi Transfer Manual
-                </h6>
-                <p style="font-size: 11.5px; color: var(--text-muted); margin-bottom: 8px;">
-                    Silakan transfer ke Rekening Pesantren:<br>
-                    <strong>BSI: 1234-5678-9012 (a.n PP Fathul Huda)</strong>
-                </p>
-                <div style="margin-bottom: 8px;">
-                    <label class="input-label" for="fileBukti">Upload Foto Bukti Transfer</label>
-                    <input type="file" id="fileBukti" accept="image/*" style="font-size: 12px; padding: 6px;">
-                </div>
-                <div style="display: flex; gap: 6px;">
-                    <button class="btn-cek" style="background: var(--primary); font-size: 12px; padding: 6px 12px;" onclick="kirimBuktiTransfer()" id="btnKirimBukti">Kirim Bukti</button>
-                    <button class="btn-cek" style="background: #64748b; font-size: 12px; padding: 6px 12px;" onclick="tutupPanelUpload()">Batal</button>
-                </div>
-            </div>
-
-            <!-- Panel Verifikasi Bendahara Minimalis di Bawah -->
-            <div class="bendahara-trigger-link">
-                <a onclick="togglePanelBendaharaMinimalis()"><i class="fa-solid fa-lock"></i> Panel Verifikasi Bendahara</a>
+            document.getElementById('loading-status').classList.remove('hidden');
+            try {
+                const response = await fetch(`${urlWebApps}?action=getSantri`);
+                databaseSantri = await response.json();
                 
-                <div id="panelBendaharaInline">
-                    <p style="font-size: 11.5px; font-weight: 700; color: #854d0e; margin-bottom: 6px;"><i class="fa-solid fa-user-shield"></i> Masukkan PIN Bendahara</p>
-                    <div id="formLoginBendahara">
-                        <div class="input-group">
-                            <input type="password" id="pinPanelBendahara" placeholder="6 digit PIN..." autocomplete="current-password" style="background: #ffffff;">
-                            <button class="btn-cek" style="background: #d97706;" onclick="bukaPanelVerifikasi()">Buka</button>
-                        </div>
-                    </div>
+                const santri = databaseSantri.find(s => s.nis === nis);
+                document.getElementById('loading-status').classList.add('hidden');
 
-                    <div id="kontenVerifikasiBendahara" style="display: none; margin-top: 8px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                            <span style="font-size: 11px; font-weight: 700; color: #475569;">Daftar Pending Konfirmasi:</span>
-                            <button onclick="muatDataPending()" style="background: none; border: none; color: #2563eb; font-size: 11px; cursor: pointer; font-weight: 600;"><i class="fa-solid fa-rotate"></i> Muat Ulang</button>
-                        </div>
-                        <div id="listPendingContainer" style="max-height: 160px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 8px; padding: 6px; background: #ffffff; font-size: 11.5px; text-align: left;">
-                            <span style="color: var(--text-muted);">Memuat data...</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    </div>
-
-    <!-- MODAL KUITANSI PEMBAYARAN DIGITAL -->
-    <div id="kuitansiModal">
-        <div class="kuitansi-box">
-                <i class="fa-solid fa-circle-check" style="font-size: 28px; color: var(--primary); margin-bottom: 4px;"></i>
-                <h3>BUKTI PEMBAYARAN SPP</h3>
-                <p>PP. Fathul Huda Al-Qarobiyah</p>
-            </div>
-            <div style="font-size: 12px; margin-bottom: 12px;">
-                <div class="info-row"><span class="info-label">Tanggal</span><span class="info-value" id="kuiTanggal">-</span></div>
-                <div class="info-row"><span class="info-label">Nama Santri</span><span class="info-value" id="kuiNama">-</span></div>
-                <div class="info-row"><span class="info-label">NIS</span><span class="info-value" id="kuiNis">-</span></div>
-                <div class="info-row"><span class="info-label">Bulan Dibayar</span><span class="info-value" id="kuiBulan">-</span></div>
-                <div class="info-row" style="border-top: 1px dashed var(--border-color); margin-top: 6px; padding-top: 6px;">
-                    <span class="info-label" style="font-weight:700; color:var(--text-main);">Total Bayar</span>
-                    <span class="info-value" style="font-weight:700; color:var(--primary); font-size:14px;" id="kuiTotal">-</span>
-                </div>
-            </div>
-            <div style="display: flex; gap: 6px;">
-                <button onclick="kirimNotaWhatsApp()" class="btn-cek" style="flex:1; background: #25d366; font-size: 12px; padding: 8px;"><i class="fa-brands fa-whatsapp"></i> Kirim ke WA</button>
-                <button onclick="tutupKuitansi()" class="btn-cek" style="background: #64748b; font-size: 12px; padding: 8px;">Tutup</button>
-            </div>
-        </div>
-    </div>
-
-<script>
-    let databaseSantri = {};
-    let santriCache = null;
-    let bulanTerpilihSet = new Set();
-    let detailTransaksiTerakhir = null;
-
-    const PIN_BENDAHARA_VALID = "123456";
-    const daftarBulan = ["September", "Oktober", "November", "Desember", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus"];
-    const urlWebApps = "https://script.google.com/macros/s/AKfycbzqthrOD_azpJ9W_nQxt6d_99Ew0_4dmH1Oxko2yt4WMXitIBRAhOait_GnGbZMfUBYcQ/exec
-";
-
-    async function ambilDataDariSheets() {
-        try {
-            let response = await fetch(urlWebApps);
-            databaseSantri = await response.json();
-        } catch (error) {
-            console.error("Gagal memuat database:", error);
-        }
-    }
-
-    async function cekDataSantri() {
-        var nisInput = document.getElementById("nis").value.trim();
-        if (!nisInput) {
-            alert("Harap masukkan Nomor Induk Santri (NIS) terlebih dahulu!");
-            return;
+                if (santri) {
+                    santriAktif = santri;
+                    tampilkanDetailSantri(santri);
+                } else {
+                    alert("NIS tidak ditemukan. Pastikan NIS benar!");
+                }
+            } catch (err) {
+                document.getElementById('loading-status').classList.add('hidden');
+                alert("Gagal terhubung ke database. Coba beberapa saat lagi.");
+            }
         }
 
-        await ambilDataDariSheets();
+        function tampilkanDetailSantri(santri) {
+            document.getElementById('section-login').classList.add('hidden');
+            document.getElementById('section-detail').classList.remove('hidden');
 
-        if (databaseSantri[nisInput]) {
-            santriCache = databaseSantri[nisInput];
-            
-            document.getElementById("txtNama").innerText = santriCache.nama;
-            document.getElementById("txtNis").innerText = santriCache.nis;
-            document.getElementById("txtKelas").innerText = santriCache.kelas;
-            document.getElementById("txtAsrama").innerText = santriCache.asrama;
-            document.getElementById("txtWali").innerText = santriCache.wali;
-            document.getElementById("txtTelp").innerText = santriCache.telp;
-            
-            bulanTerpilihSet.clear();
-            renderBulanGrid();
-            tutupPanelUpload();
-            
-            // Reset panel verifikasi bendahara saat cek NIS baru
-            document.getElementById("panelBendaharaInline").style.display = "none";
-            document.getElementById("formLoginBendahara").style.display = "block";
-            document.getElementById("kontenVerifikasiBendahara").style.display = "none";
-            document.getElementById("pinPanelBendahara").value = "";
+            document.getElementById('view-nama').innerText = santri.nama;
+            document.getElementById('view-nis').innerText = santri.nis;
+            document.getElementById('view-kelas').innerText = santri.kelas;
+            document.getElementById('view-kamar').innerText = santri.kamar;
+            document.getElementById('view-wali').innerText = santri.namaWali;
 
-            document.getElementById("txtLabelBulanIni").innerText = "Status Pembayaran SPP";
-            let statusInfo = document.getElementById("txtStatusBulanInfo");
-            statusInfo.innerText = "PILIH BULAN DI BAWAH";
-            statusInfo.style.color = "var(--text-muted)";
+            const gridBulan = document.getElementById('grid-bulan');
+            gridBulan.innerHTML = '';
 
-            document.getElementById("txtInfoPilihanBulan").innerText = "Pilih bulan...";
-            document.getElementById("txtInfoPilihanBulan").style.color = "var(--text-muted)";
-            document.getElementById("txtTotalTagihan").innerText = "Rp 0";
-            
-            document.getElementById("btnOnline").disabled = true;
-            document.getElementById("btnTunai").disabled = true;
-            document.getElementById("pinContainer").style.display = "none";
-            document.getElementById("bulanDropdownContent").style.display = "none";
-            document.getElementById("dropdownIcon").style.transform = "rotate(0deg)";
+            for (const [bulan, status] of Object.entries(santri.pembayaran)) {
+                const isLunas = status.includes("LUNAS");
+                const isPending = status.includes("PENDING");
 
-            document.getElementById("resultSection").style.display = "block";
-        } else {
-            alert("Santri dengan NIS " + nisInput + " tidak ditemukan!");
-            document.getElementById("resultSection").style.display = "none";
+                const div = document.createElement('div');
+                div.className = `p-2 rounded-xl border text-xs flex flex-col justify-between ${isLunas ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : isPending ? 'bg-amber-50 border-amber-200 text-amber-800' : 'bg-slate-50 border-slate-200 text-slate-700'}`;
+                
+                div.innerHTML = `
+                    <span class="font-bold">${bulan}</span>
+                    <span class="text-[10px] mt-1 font-semibold">${status || 'BELUM'}</span>
+                    ${!isLunas && !isPending ? `<input type="checkbox" value="${bulan}" class="checkbox-bulan mt-2 accent-emerald-600">` : ''}
+                `;
+                gridBulan.appendChild(div);
+            }
         }
-    }
 
-    function toggleBulanDropdown() {
-        var dropdown = document.getElementById("bulanDropdownContent");
-        var icon = document.getElementById("dropdownIcon");
-        if (dropdown.style.display === "block") {
-            dropdown.style.display = "none";
-            icon.style.transform = "rotate(0deg)";
-        } else {
-            dropdown.style.display = "block";
-            icon.style.transform = "rotate(180deg)";
+        function resetPencarian() {
+            santriAktif = null;
+            document.getElementById('section-detail').classList.add('hidden');
+            document.getElementById('section-login').classList.remove('hidden');
+            document.getElementById('input-nis').value = '';
         }
-    }
 
-    function renderBulanGrid() {
-        var gridContainer = document.getElementById("bulanCheckboxes");
-        if (!gridContainer) return;
-        gridContainer.innerHTML = "";
+        function getBulanTerpilih() {
+            const checkboxes = document.querySelectorAll('.checkbox-bulan:checked');
+            return Array.from(checkboxes).map(cb => cb.value);
+        }
 
-        daftarBulan.forEach(bulan => {
-            var status = (santriCache.pembayaran[bulan] || "BELUM LUNAS").toUpperCase();
-            var isSelected = bulanTerpilihSet.has(bulan);
-            var pill = document.createElement("div");
-            pill.className = "bulan-pill";
-            
-            if (isSelected) pill.classList.add("selected");
-            
-            if (status === "LUNAS") {
-                pill.style.background = "#dcfce7";
-                pill.style.color = "#166534";
-                pill.style.borderColor = "#86efac";
-                pill.title = "Sudah Lunas";
-            } else if (status.startsWith("PENDING")) {
-                pill.style.background = "#fef3c7";
-                pill.style.color = "#92400e";
-                pill.style.borderColor = "#fde68a";
-                pill.title = "Menunggu Verifikasi";
+        function bukaModalOnline() {
+            const bulan = getBulanTerpilih();
+            if (bulan.length === 0) {
+                alert("Pilih minimal satu bulan tagihan yang ingin dibayar!");
+                return;
+            }
+            document.getElementById('modal-online').classList.remove('hidden');
+        }
+
+        function tutupModalOnline() {
+            document.getElementById('modal-online').classList.add('hidden');
+        }
+
+        async function kirimBuktiOnline() {
+            const fileInput = document.getElementById('file-bukti');
+            if (fileInput.files.length === 0) {
+                alert("Pilih foto bukti transfer terlebih dahulu!");
+                return;
             }
 
-            pill.innerText = bulan;
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+
+            document.getElementById('btn-kirim-bukti').innerText = "Mengirim...";
             
-            if (status === "BELUM LUNAS" || status === "") {
-                pill.onclick = function() { togglePilihBulan(bulan, pill); };
-            } else {
-                pill.style.cursor = "not-allowed";
-            }
-            gridContainer.appendChild(pill);
-        });
-    }
+            reader.onload = async function () {
+                const base64Data = reader.result.split(',')[1];
+                const payload = {
+                    action: 'uploadBukti',
+                    nis: santriAktif.nis,
+                    bulan: getBulanTerpilih(),
+                    fileName: file.name,
+                    mimeType: file.type,
+                    fileData: base64Data
+                };
 
-    function togglePilihBulan(bulan, element) {
-        if (bulanTerpilihSet.has(bulan)) {
-            bulanTerpilihSet.delete(bulan);
-            element.classList.remove("selected");
-        } else {
-            bulanTerpilihSet.add(bulan);
-            element.classList.add("selected");
-        }
-        updateRingkasanPilihan();
-    }
-
-    function updateRingkasanPilihan() {
-        let jumlah = bulanTerpilihSet.size;
-        let infoPilihan = document.getElementById("txtInfoPilihanBulan");
-        let totalTagihanEl = document.getElementById("txtTotalTagihan");
-        let btnOnline = document.getElementById("btnOnline");
-        let btnTunai = document.getElementById("btnTunai");
-        let pinContainer = document.getElementById("pinContainer");
-
-        if (jumlah > 0) {
-            let arrBulan = Array.from(bulanTerpilihSet);
-            infoPilihan.innerText = arrBulan.join(", ");
-            infoPilihan.style.color = "var(--text-main)";
-
-            let nominalPerBulan = parseInt(santriCache.nominal || 150000);
-            let total = jumlah * nominalPerBulan;
-            totalTagihanEl.innerText = formatRupiah(total);
-
-            btnOnline.disabled = false;
-            btnTunai.disabled = false;
-            pinContainer.style.display = "block";
-        } else {
-            infoPilihan.innerText = "Pilih bulan...";
-            infoPilihan.style.color = "var(--text-muted)";
-            totalTagihanEl.innerText = "Rp 0";
-            btnOnline.disabled = true;
-            btnTunai.disabled = true;
-            pinContainer.style.display = "none";
-        }
-    }
-
-    function formatRupiah(angka) {
-        return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(angka);
-    }
-
-    function bukaPanelUploadOnline() {
-        if (bulanTerpilihSet.size === 0) return;
-        document.getElementById("panelUploadOnline").style.display = "block";
-    }
-
-    function tutupPanelUpload() {
-        document.getElementById("panelUploadOnline").style.display = "none";
-        let fileInput = document.getElementById("fileBukti");
-        if (fileInput) fileInput.value = "";
-    }
-
-    async function kirimBuktiTransfer() {
-        let fileInput = document.getElementById("fileBukti");
-        if (fileInput.files.length === 0) {
-            alert("Harap pilih foto bukti transfer terlebih dahulu!");
-            return;
-        }
-
-        let file = fileInput.files[0];
-        let btnKirim = document.getElementById("btnKirimBukti");
-        btnKirim.innerText = "Mengirim...";
-        btnKirim.disabled = true;
-
-        let reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = async function() {
-            let base64Data = reader.result.split(',')[1];
-            let bulanArr = Array.from(bulanTerpilihSet);
-            let payload = {
-                action: "uploadBukti",
-                nis: santriCache.nis,
-                bulan: bulanArr,
-                fileName: file.name,
-                mimeType: file.type,
-                fileData: base64Data
+                try {
+                    const res = await fetch(urlWebApps, {
+                        method: 'POST',
+                        body: JSON.stringify(payload)
+                    });
+                    const result = await res.json();
+                    if (result.status === 'success') {
+                        alert("Bukti berhasil dikirim! Menunggu verifikasi bendahara.");
+                        tutupModalOnline();
+                        resetPencarian();
+                    } else {
+                        alert("Gagal mengunggah bukti.");
+                    }
+                } catch (err) {
+                    alert("Terjadi kesalahan koneksi.");
+                }
+                document.getElementById('btn-kirim-bukti').innerText = "Kirim Bukti";
             };
+            reader.readAsDataURL(file);
+        }
+
+        async function prosesBayarTunai() {
+            const bulan = getBulanTerpilih();
+            if (bulan.length === 0) {
+                alert("Pilih minimal satu bulan tagihan!");
+                return;
+            }
+
+            if (!confirm("Konfirmasi pembayaran tunai untuk bulan yang dipilih?")) return;
 
             try {
-                let response = await fetch(urlWebApps, { method: "POST", body: JSON.stringify(payload) });
-                let result = await response.json();
-                
-                if (result.status === "success") {
-                    alert("Bukti transfer berhasil diunggah! Menunggu verifikasi bendahara.");
-                    tutupPanelUpload();
-                    cekDataSantri();
-                } else {
-                    alert("Gagal mengunggah: " + result.message);
-                }
-            } catch (error) {
-                alert("Terjadi kesalahan saat mengirim data.");
-            } finally {
-                btnKirim.innerText = "Kirim Bukti";
-                btnKirim.disabled = false;
-            }
-        };
-    }
-
-    async function handleBayarTunaiClick() {
-        let pin = document.getElementById("kodeBendahara").value.trim();
-        if (pin !== PIN_BENDAHARA_VALID) {
-            alert("PIN Bendahara salah!");
-            return;
-        }
-
-        if (bulanTerpilihSet.size === 0) return;
-        if (!confirm("Konfirmasi pembayaran tunai untuk bulan yang dipilih?")) return;
-
-        let bulanArr = Array.from(bulanTerpilihSet);
-        let totalNominal = bulanArr.length * parseInt(santriCache.nominal || 150000);
-        let currentSantri = santriCache;
-
-        let payload = {
-            nis: currentSantri.nis,
-            bulan: bulanArr
-        };
-
-        try {
-            let response = await fetch(urlWebApps, { method: "POST", body: JSON.stringify(payload) });
-            let result = await response.json();
-
-            if (result.status === "success") {
-                detailTransaksiTerakhir = {
-                    tanggal: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
-                    nama: currentSantri.nama,
-                    nis: currentSantri.nis,
-                    telp: currentSantri.telp,
-                    bulan: bulanArr.join(", "),
-                    total: formatRupiah(totalNominal)
-                };
-                
-                tampilkanKuitansi(detailTransaksiTerakhir);
-                document.getElementById("kodeBendahara").value = "";
-                cekDataSantri();
-            } else {
-                alert("Gagal mencatat pembayaran.");
-            }
-        } catch (error) {
-            alert("Kesalahan koneksi.");
-        }
-    }
-
-    function tampilkanKuitansi(data) {
-        document.getElementById("kuiTanggal").innerText = data.tanggal;
-        document.getElementById("kuiNama").innerText = data.nama;
-        document.getElementById("kuiNis").innerText = data.nis;
-        document.getElementById("kuiBulan").innerText = data.bulan;
-        document.getElementById("kuiTotal").innerText = data.total;
-        document.getElementById("kuitansiModal").style.display = "flex";
-    }
-
-    function tutupKuitansi() {
-        document.getElementById("kuitansiModal").style.display = "none";
-    }
-
-    function kirimNotaWhatsApp() {
-        if (!detailTransaksiTerakhir) return;
-        let noTelp = detailTransaksiTerakhir.telp || "";
-        
-        if (noTelp.startsWith("0")) {
-            noTelp = "62" + noTelp.slice(1);
-        }
-
-        let pesan = `*KUITANSI PEMBAYARAN SPP PPFHA*%0A` +
-                    `----------------------------------%0A` +
-                    `Tanggal: ${detailTransaksiTerakhir.tanggal}%0A` +
-                    `Nama: ${detailTransaksiTerakhir.nama}%0A` +
-                    `NIS: ${detailTransaksiTerakhir.nis}%0A` +
-                    `Bulan: ${detailTransaksiTerakhir.bulan}%0A` +
-                    `Total: ${detailTransaksiTerakhir.total}%0A` +
-                    `Status: *LUNAS (TUNAI)*%0A` +
-                    `----------------------------------%0A` +
-                    `Terima kasih, pembayaran telah dicatat resmi oleh sistem PP. Fathul Huda Al-Qarobiyah.`;
-
-        let waUrl = `https://api.whatsapp.com/send?phone=${noTelp}&text=${pesan}`;
-        window.open(waUrl, '_blank');
-    }
-
-    function togglePanelBendaharaMinimalis() {
-        let panel = document.getElementById("panelBendaharaInline");
-        if (panel.style.display === "block") {
-            panel.style.display = "none";
-        } else {
-            panel.style.display = "block";
-        }
-    }
-
-    function bukaPanelVerifikasi() {
-        let pin = document.getElementById("pinPanelBendahara").value.trim();
-        if (pin !== PIN_BENDAHARA_VALID) {
-            alert("PIN Bendahara salah!");
-            return;
-        }
-        document.getElementById("formLoginBendahara").style.display = "none";
-        document.getElementById("kontenVerifikasiBendahara").style.display = "block";
-        muatDataPending();
-    }
-
-    async function muatDataPending() {
-        let container = document.getElementById("listPendingContainer");
-        container.innerHTML = "Memeriksa data pending...";
-        
-        try {
-            let response = await fetch(urlWebApps + "?action=getPending");
-            let res = await response.json();
-            
-            if (res.status === "success" && res.data.length > 0) {
-                let html = "";
-                res.data.forEach(item => {
-                    html += `<div style="background:#f8fafc; padding:8px; border-radius:6px; margin-bottom:6px; border:1px solid #e2e8f0;">
-                        <strong>${item.nama}</strong> (NIS: ${item.nis})<br>
-                        Bulan: <b>${item.bulan}</b><br>
-                        <a href="${item.buktiUrl}" target="_blank" style="color:#2563eb; font-weight:600;"><i class="fa-solid fa-image"></i> Lihat Bukti Transfer</a><br>
-                        <button onclick="setujuiPembayaran('${item.nis}', '${item.nama}', '${item.bulan}')" style="margin-top:4px; background:var(--primary); color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:11px;">Setujui (Lunas)</button>
-                    </div>`;
+                const res = await fetch(urlWebApps, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'bayarTunai', nis: santriAktif.nis, bulan: bulan })
                 });
-                container.innerHTML = html;
-            } else {
-                container.innerHTML = "<span style='color:var::text-muted;'>Tidak ada pembayaran pending saat ini.</span>";
+                const result = await res.json();
+                if (result.status === 'success') {
+                    alert("Pembayaran tunai berhasil dicatat.");
+                    resetPencarian();
+                }
+            } catch (err) {
+                alert("Gagal memproses pembayaran.");
             }
-        } catch(e) {
-            container.innerHTML = "<span style='color:red;'>Gagal memuat data pending.</span>";
         }
-    }
 
-    async function setujuiPembayaran(nis, namaSantri, bulan) {
-        if (!confirm("Setujui pembayaran bulan " + bulan + " untuk NIS " + nis + "?")) return;
-        
-        try {
-            let response = await fetch(urlWebApps, {
-                method: "POST",
-                body: JSON.stringify({ action: "approve", nis: nis, bulan: bulan })
-            });
-            let res = await response.json();
-            if (res.status === "success") {
-                alert("Pembayaran berhasil disetujui!");
-                
-                let noHpWali = (santriCache && santriCache.nis === nis) ? santriCache.telp : "";
-                
-                detailTransaksiTerakhir = {
-                    tanggal: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
-                    nama: namaSantri,
-                    nis: nis,
-                    telp: noHpWali,
-                    bulan: bulan,
-                    total: formatRupiah(150000)
-                };
-                tampilkanKuitansi(detailTransaksiTerakhir);
-                muatDataPending();
-            } else {
-                alert("Gagal menyetujui.");
+        async function bukaPanelBendahara() {
+            const pin = prompt("Masukkan PIN Bendahara:");
+            if (pin !== "123456") {
+                if (pin !== null) alert("PIN Salah!");
+                return;
             }
-        } catch(e) {
-            alert("Kesalahan koneksi.");
+
+            document.getElementById('modal-bendahara').classList.remove('hidden');
+            const listContainer = document.getElementById('list-pending');
+            listContainer.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">Memuat data...</p>';
+
+            try {
+                const res = await fetch(`${urlWebApps}?action=getPending`);
+                const pending = await res.json();
+
+                listContainer.innerHTML = '';
+                if (pending.length === 0) {
+                    listContainer.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">Tidak ada pembayaran pending.</p>';
+                    return;
+                }
+
+                pending.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = "bg-slate-50 border border-slate-200 rounded-xl p-3 flex flex-col gap-2";
+                    div.innerHTML = `
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="font-bold text-slate-800">${item.nama} (${item.nis})</span>
+                            <span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-semibold">${item.bulan}</span>
+                        </div>
+                        <a href="${item.buktiUrl}" target="_blank" class="text-blue-600 underline text-xs font-medium">Lihat Bukti Foto Transfer</a>
+                        <button onclick="approvePembayaran('${item.nis}', '${item.bulan}')" class="bg-emerald-600 hover:bg-emerald-700 text-white py-2 rounded-lg text-xs font-semibold transition-all">Setujui (Lunas)</button>
+                    `;
+                    listContainer.appendChild(div);
+                });
+            } catch (err) {
+                listContainer.innerHTML = '<p class="text-xs text-red-500 text-center py-4">Gagal memuat data pending.</p>';
+            }
         }
-    }
 
-    window.onload = function() {
-        ambilDataDariSheets();
-    };
-</script>
+        function tutupPanelBendahara() {
+            document.getElementById('modal-bendahara').classList.add('hidden');
+        }
 
+        async function approvePembayaran(nis, bulan) {
+            if (!confirm(`Setujui pembayaran ${bulan} untuk NIS ${nis}?`)) return;
+
+            try {
+                const res = await fetch(urlWebApps, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'approve', nis: nis, bulan: bulan })
+                });
+                const result = await res.json();
+                if (result.status === 'success') {
+                    alert("Pembayaran disetujui!");
+                    bukaPanelBendahara();
+                }
+            } catch (err) {
+                alert("Gagal menyetujui pembayaran.");
+            }
+        }
+    </script>
 </body>
 </html>
