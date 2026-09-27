@@ -137,7 +137,7 @@
             margin-top: 14px;
             padding-top: 14px;
             border-top: 1px solid var(--border-color);
-            display: none;
+            display: block; /* Default tampil langsung */
         }
 
         /* Desain Header Nama Santri & Status */
@@ -365,7 +365,7 @@
                     <span class="info-label">No. Telepon</span>
                     <span class="info-value" id="txtTelp">-</span>
                 </div>
-                <!-- Tambahan status keseluruhan pembayaran di halaman depan -->
+                <!-- Status keseluruhan pembayaran di halaman depan -->
                 <div class="info-row" style="border-top: 1px dashed var(--border-color); margin-top: 6px; padding-top: 6px;">
                     <span class="info-label">Status Pembayaran</span>
                     <span class="info-value" id="txtStatusGlobal" style="font-weight: 700;">-</span>
@@ -445,9 +445,26 @@
 
     let santriCache = null;
 
+    // Langsung muat data santri default saat halaman dibuka
     window.onload = function() {
-        cekDataSantri();
+        muatDataDefault();
     };
+
+    function muatDataDefault() {
+        var nis = "20260000";
+        if (databaseSantri[nis]) {
+            santriCache = databaseSantri[nis];
+            document.getElementById("txtNama").innerText = santriCache.nama;
+            document.getElementById("txtNis").innerText = santriCache.nis;
+            document.getElementById("txtKelas").innerText = santriCache.kelas;
+            document.getElementById("txtWali").innerText = santriCache.wali;
+            document.getElementById("txtTelp").innerText = santriCache.telp;
+            
+            populateDropdownBulan();
+            updateStatusBulan();
+            document.getElementById("resultSection").style.display = "block";
+        }
+    }
 
     function cekDataSantri() {
         var nis = document.getElementById("nis").value.trim();
@@ -497,7 +514,7 @@
             
             if (status === "LUNAS") {
                 option.text = bulan + " (LUNAS)";
-                option.disabled = true; // Mengunci bulan yang sudah lunas
+                option.disabled = true;
                 jumlahLunas++;
             } else {
                 option.text = bulan;
@@ -506,7 +523,6 @@
             selectBulan.appendChild(option);
         });
 
-        // Perbarui status global di halaman depan
         var txtStatusGlobal = document.getElementById("txtStatusGlobal");
         if (jumlahLunas === daftarBulan.length) {
             txtStatusGlobal.innerHTML = "<span style='color: #00663b;'>Lunas Semua (12/12 Bulan)</span>";
@@ -514,7 +530,6 @@
             txtStatusGlobal.innerHTML = "<span style='color: #d97706;'>Belum Lunas (" + jumlahLunas + "/12 Bulan)</span>";
         }
 
-        // Jika semua bulan sudah lunas
         if (!adaBulanBelumLunas) {
             var option = document.createElement("option");
             option.text = "Semua Bulan Sudah Lunas";
@@ -522,7 +537,6 @@
             selectBulan.appendChild(option);
             selectBulan.selectedIndex = selectBulan.options.length - 1;
         } else {
-            // Arahkan ke bulan aktif pertama yang belum lunas
             for (let i = 0; i < selectBulan.options.length; i++) {
                 if (!selectBulan.options[i].disabled) {
                     selectBulan.selectedIndex = i;
@@ -582,17 +596,48 @@
             }
         }
 
-        // 1. Ubah status lokal di memori jadi LUNAS
         if (santriCache && santriCache.pembayaran) {
             santriCache.pembayaran[bulan] = "LUNAS";
-            populateDropdownBulan(); // Memperbarui dropdown & status global
+            populateDropdownBulan();
             updateStatusBulan();
         }
 
-        // 2. Siapkan data WhatsApp
         var nama = santriCache.nama;
         var nis = santriCache.nis;
         var kelas = santriCache.kelas;
         var wali = santriCache.wali;
         var telp = santriCache.telp;
-        var tanggal = new Date().toLocaleDateString("id-ID", { day: 'numeric', month: 'long', year: 'nume
+        var tanggal = new Date().toLocaleDateString("id-ID", { day: 'numeric', month: 'long', year: 'numeric' });
+
+        let noWa = telp.trim();
+        if (noWa.startsWith('0')) {
+            noWa = '62' + noWa.substring(1);
+        }
+
+        let pesan = `*KUITANSI PEMBAYARAN SPP*
+*Pondok Pesantren Fathul Huda Al-Qarobiyah*
+---------------------------------------
+📅 *Tanggal:* ${tanggal}
+💳 *Metode:* ${metode}
+---------------------------------------
+👤 *Nama Santri:* ${nama}
+🆔 *NIS:* ${nis}
+🏫 *Kelas:* ${kelas}
+👨‍👩‍👦 *Wali Santri:* ${wali}
+---------------------------------------
+📌 *Untuk Pembayaran SPP Bulan:* *${bulan}*
+✅ *Status:* LUNAS
+---------------------------------------
+Terima kasih, pembayaran Anda telah tercatat sah di sistem database pesantren.`;
+
+        let urlWa = `https://api.whatsapp.com/send?phone=${noWa}&text=${encodeURIComponent(pesan)}`;
+        
+        document.getElementById("kodeBendahara").value = "";
+        document.getElementById("pinContainer").style.display = "none";
+
+        window.location.href = urlWa;
+    }
+</script>
+
+</body>
+</html>
