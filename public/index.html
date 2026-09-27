@@ -225,7 +225,6 @@
             }
         }
 
-        // Muat database di awal saat halaman dibuka
         muatDatabaseSantri();
 
         async function cariSantri() {
@@ -240,11 +239,18 @@
                 await muatDatabaseSantri();
                 document.getElementById('loading-status').classList.add('hidden');
                 
-                const santri = databaseSantri.find(s => s.nis === nis);
+                const santri = databaseSantri.find(s => String(s.nis).trim() === String(nis).trim());
 
                 if (santri) {
                     santriAktif = santri;
-                    nominalSppAktif = Number(santri.nominalSpp) || 50000;
+                    
+                    // Memastikan nominal SPP dibaca fleksibel dari berbagai kemungkinan nama properti database
+                    let nominalDariDb = Number(santri.nominalSpp);
+                    if (!nominalDariDb || isNaN(nominalDariDb) || nominalDariDb <= 0) {
+                        nominalDariDb = Number(santri.nominal) || Number(santri.spp) || 50000;
+                    }
+                    nominalSppAktif = nominalDariDb;
+                    
                     tampilkanDetailSantri(santri);
                 } else {
                     alert("NIS tidak ditemukan. Pastikan NIS benar!");
@@ -259,8 +265,8 @@
             document.getElementById('section-login').classList.add('hidden');
             document.getElementById('section-detail').classList.remove('hidden');
 
-            document.getElementById('view-nama').innerText = santri.nama;
-            document.getElementById('view-nis').innerText = santri.nis;
+            document.getElementById('view-nama').innerText = santri.nama || '-';
+            document.getElementById('view-nis').innerText = santri.nis || '-';
             document.getElementById('view-kelas').innerText = santri.kelas || '-';
             document.getElementById('view-kamar').innerText = santri.kamar || '-';
             document.getElementById('view-wali').innerText = santri.namaWali || '-';
@@ -270,9 +276,10 @@
             const gridBulan = document.getElementById('grid-bulan');
             gridBulan.innerHTML = '';
 
-            for (const [bulan, status] of Object.entries(santri.pembayaran)) {
-                const isLunas = status.includes("LUNAS");
-                const isPending = status.includes("PENDING");
+            for (const [bulan, status] of Object.entries(santri.pembayaran || {})) {
+                const statusStr = String(status || "").toUpperCase();
+                const isLunas = statusStr.includes("LUNAS");
+                const isPending = statusStr.includes("PENDING");
 
                 const div = document.createElement('div');
                 div.className = `p-2 rounded-xl border text-xs flex flex-col justify-between ${isLunas ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : isPending ? 'bg-amber-50 border-amber-200 text-amber-800' : 'bg-white border-slate-200 text-slate-700'}`;
@@ -322,22 +329,20 @@
             const now = new Date();
             const tglStr = now.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
             
-            // Membaca nominal SPP secara akurat dari objek database santri (fallback ke 50000 jika kosong)
-            const nominalSantri = Number(santriObj.nominalSpp) || 50000;
-            const totalBayar = bulanList.length * nominalSantri;
+            const totalBayar = bulanList.length * nominalSppAktif;
             const nomorWaSantri = santriObj.noWa || santriObj.noHp || "-";
 
             const dataKuitansi = {
                 tanggal: tglStr,
                 metode: metode,
-                nama: santriObj.nama,
-                nis: santriObj.nis,
+                nama: santriObj.nama || '-',
+                nis: santriObj.nis || '-',
                 kelas: santriObj.kelas || '-',
                 wali: santriObj.namaWali || '-',
                 noWa: nomorWaSantri,
                 bulan: bulanList.join(', '),
                 total: totalBayar.toLocaleString('id-ID'),
-                status: metode.includes('Tunai') || metode.includes('Lunas') ? "LUNAS" : "PENDING (MENUNGGU VERIFIKASI)"
+                status: metode.includes('Tunai') || metode.includes('Lunas') || metode.includes('Diverifikasi') ? "LUNAS" : "PENDING (MENUNGGU VERIFIKASI)"
             };
 
             document.getElementById('k-tgl').innerText = dataKuitansi.tanggal;
@@ -555,15 +560,14 @@
                 if (result.status === 'success') {
                     tutupPanelBendahara();
                     
-                    // Ambil data santri secara presisi dari database agar nominalSpp, noWa, dll sesuai database
                     await muatDatabaseSantri();
-                    const santriLengkap = databaseSantri.find(s => s.nis === nis) || {
+                    const santriLengkap = databaseSantri.find(s => String(s.nis).trim() === String(nis).trim()) || santriAktif || {
                         nis: nis,
                         nama: "Santri",
                         kelas: "-",
                         namaWali: "-",
                         noWa: "-",
-                        nominalSpp: 50000
+                        nominalSpp: nominalSppAktif
                     };
 
                     tampilkanKuitansi("Transfer Online (Diverifikasi)", bulanStr.split(', '), santriLengkap);
