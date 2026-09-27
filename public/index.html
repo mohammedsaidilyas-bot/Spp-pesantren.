@@ -205,21 +205,21 @@
             background: #f8fafc;
             border: 1.5px solid var(--border-color);
             border-radius: 10px;
-            padding: 10px;
+            padding: 8px 10px;
             max-height: 140px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 4px;
         }
 
         .bulan-item {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            font-size: 12.5px;
+            font-size: 12px;
             cursor: pointer;
-            padding: 4px 6px;
+            padding: 3px 4px;
             border-radius: 6px;
             transition: background 0.15s;
         }
@@ -429,10 +429,10 @@
 
             <!-- Tombol Aksi Berjajar, Kecil, & Elegan -->
             <div class="action-buttons-group">
-                <button id="btnOnline" class="btn-action btn-mayar" onclick="prosesPembayaran('Online / Mayar.id')">
+                <button id="btnOnline" class="btn-action btn-mayar" onclick="prosesPembayaran('Online / Mayar.id')" disabled>
                     <i class="fa-solid fa-globe"></i> Online
                 </button>
-                <button id="btnTunai" class="btn-action btn-tunai" onclick="handleBayarTunaiClick()">
+                <button id="btnTunai" class="btn-action btn-tunai" onclick="handleBayarTunaiClick()" disabled>
                     <i class="fa-solid fa-money-bill-wave"></i> Tunai (PIN)
                 </button>
             </div>
@@ -479,9 +479,10 @@
 
     let santriCache = null;
 
-    window.onload = function() {
+    // Jalankan pengecekan otomatis setelah halaman benar-benar siap
+    window.addEventListener('DOMContentLoaded', (event) => {
         cekDataSantri();
-    };
+    });
 
     function cekDataSantri() {
         var nisInput = document.getElementById("nis").value.trim();
@@ -612,8 +613,4 @@
         var wali = santriCache.wali;
         var telp = santriCache.telp;
         var tanggal = new Date().toLocaleDateString("id-ID", { day: 'numeric', month: 'long', year: 'numeric' });
-        var totalBayar = bulanDipilih.length * NOMINAL_PER_BULAN;
-
-        let noWa = telp.trim();
-        if (noWa.startsWith('0')) {
-            noWa = '62'
+        var totalBayar = bulanDipilih.le
