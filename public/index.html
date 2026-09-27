@@ -286,20 +286,6 @@
             box-shadow: 0 2px 4px rgba(0, 137, 83, 0.2);
         }
 
-        /* Styling khusus bulan yang sudah lunas (terkunci dan tidak bisa diklik, tanpa coret) */
-        .bulan-pill.lunas-pill {
-            background: #f1f5f9;
-            color: #94a3b8;
-            border-color: #e2e8f0;
-            cursor: not-allowed;
-            opacity: 0.7;
-        }
-        .bulan-pill.lunas-pill:hover {
-            background: #f1f5f9;
-            color: #94a3b8;
-            border-color: #e2e8f0;
-        }
-
         .total-tagihan-box {
             background: #f8fafc;
             padding: 8px 10px;
@@ -571,21 +557,16 @@
             var pill = document.createElement("div");
             pill.className = "bulan-pill";
             
-            if (status === "LUNAS") {
-                pill.classList.add("lunas-pill");
-            }
             if (isSelected) {
                 pill.classList.add("selected");
             }
             
             pill.innerText = bulan;
             
-            // Jika sudah LUNAS, tombol dikunci (tidak bisa diklik dan tidak memunculkan alert)
-            if (status !== "LUNAS") {
-                pill.onclick = function() {
-                    pilihBulanPill(bulan, status);
-                };
-            }
+            // Semua bulan bisa diklik untuk melihat statusnya di atas, tetapi fungsi pilih/tagihan dibatasi
+            pill.onclick = function() {
+                pilihBulanPill(bulan, status);
+            };
             
             gridContainer.appendChild(pill);
         });
@@ -597,21 +578,27 @@
 
         if (statusBulan === "LUNAS") {
             txtStatusBulanInfo.innerText = "LUNAS";
-            txtStatusBulanInfo.style.color = "#008953";
-        } else {
-            txtStatusBulanInfo.innerText = "BELUM LUNAS";
-            txtStatusBulanInfo.style.color = "#991b1b";
-        }
-
-        if (bulanTerpilihSet.has(bulanNama)) {
-            bulanTerpilihSet.delete(bulanNama);
-            if (bulanTerpilihSet.size === 0) {
-                document.getElementById("txtLabelBulanIni").innerText = "Status Pembayaran SPP";
-                txtStatusBulanInfo.innerText = "PILIH BULAN DI BAWAH";
-                txtStatusBulanInfo.style.color = "var(--text-muted)";
+            txtStatusBulanInfo.style.color = "#008953"; // Hijau
+            
+            // Jika sudah lunas, pastikan bulan tersebut tidak masuk ke antrean pilihan pembayaran
+            if (bulanTerpilihSet.has(bulanNama)) {
+                bulanTerpilihSet.delete(bulanNama);
             }
         } else {
-            bulanTerpilihSet.add(bulanNama);
+            txtStatusBulanInfo.innerText = "BELUM LUNAS";
+            txtStatusBulanInfo.style.color = "#991b1b"; // Merah
+
+            // Hanya bulan yang BELUM LUNAS yang bisa dipilih/dicentang untuk pembayaran
+            if (bulanTerpilihSet.has(bulanNama)) {
+                bulanTerpilihSet.delete(bulanNama);
+                if (bulanTerpilihSet.size === 0) {
+                    document.getElementById("txtLabelBulanIni").innerText = "Status Pembayaran SPP";
+                    txtStatusBulanInfo.innerText = "PILIH BULAN DI BAWAH";
+                    txtStatusBulanInfo.style.color = "var(--text-muted)";
+                }
+            } else {
+                bulanTerpilihSet.add(bulanNama);
+            }
         }
 
         renderBulanGrid();
