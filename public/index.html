@@ -200,6 +200,113 @@
             margin-bottom: 12px;
         }
 
+        .dropdown-toggle-box {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8fafc;
+            border: 1.5px solid var(--border-color);
+            padding: 10px 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+            height: 42px;
+            width: 100%;
+        }
+
+        .dropdown-toggle-box:hover {
+            border-color: var(--primary);
+            background: #ffffff;
+        }
+
+        .dropdown-toggle-box span {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-main);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .dropdown-toggle-box i {
+            color: var(--text-muted);
+            font-size: 11px;
+            transition: transform 0.2s;
+            flex-shrink: 0;
+            margin-left: 4px;
+        }
+
+        /* Kotak Menu Pilihan Bulan */
+        .bulan-dropdown-content {
+            display: none;
+            width: 100%;
+            background: #f8fafc;
+            border: 1.5px solid var(--border-color);
+            border-radius: 12px;
+            padding: 10px;
+            margin-top: 6px;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .bulan-dropdown-content.show {
+            display: block !important;
+        }
+
+        .bulan-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+        }
+
+        @media (max-width: 400px) {
+            .bulan-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        .bulan-pill {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #ffffff;
+            border: 1.5px solid var(--border-color);
+            padding: 8px 2px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-main);
+            cursor: pointer;
+            transition: all 0.15s ease;
+            user-select: none;
+        }
+
+        .bulan-pill:hover {
+            border-color: var(--primary);
+            background: #f0fdf4;
+            color: var(--primary);
+        }
+
+        .bulan-pill.selected {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: #ffffff;
+            box-shadow: 0 2px 4px rgba(0, 137, 83, 0.2);
+        }
+
+        .bulan-pill.lunas-pill {
+            background: #f1f5f9;
+            color: #64748b;
+            border-color: #cbd5e1;
+        }
+
+        .bulan-pill.lunas-pill.selected {
+            background: #0284c7; /* Warna biru untuk menandakan status lunas yang sedang dilihat */
+            border-color: #0284c7;
+            color: #ffffff;
+        }
+
         /* Box Total Tagihan Samping */
         .total-tagihan-box {
             background: #f8fafc;
@@ -346,12 +453,13 @@
 
             <!-- Tata Letak Bersampingan (Pilih Bulan & Total Tagihan) -->
             <div class="form-row-side">
-                <!-- Dropdown Pemilihan Bulan (Native Select yang Dijamin Pasti Muncul & Responsif) -->
+                <!-- Dropdown Pemilihan Bulan -->
                 <div>
-                    <label class="input-label" for="selectBulan">Bulan</label>
-                    <select id="selectBulan" onchange="pilihBulanDropdown(this)">
-                        <option value="" disabled selected>Pilih bulan...</option>
-                    </select>
+                    <label class="input-label">Bulan</label>
+                    <div class="dropdown-toggle-box" onclick="toggleDropdownBulan()">
+                        <span id="txtInfoPilihanBulan">Pilih bulan...</span>
+                        <i class="fa-solid fa-chevron-down" id="iconDropdown"></i>
+                    </div>
                 </div>
 
                 <!-- Total Tagihan Samping -->
@@ -360,6 +468,13 @@
                     <div class="total-tagihan-box">
                         <div class="total-tagihan-value" id="txtTotalTagihan">Rp 0</div>
                     </div>
+                </div>
+            </div>
+
+            <!-- Kotak Menu Pilihan Bulan (Grid Pill) -->
+            <div class="bulan-dropdown-content" id="bulanDropdownContent">
+                <div class="bulan-grid" id="bulanCheckboxes">
+                    <!-- Daftar bulan akan dirender otomatis melalui JavaScript -->
                 </div>
             </div>
 
@@ -414,7 +529,7 @@
     const daftarBulan = ["Juli", "Agustus", "September", "Oktober", "November", "Desember", "Januari", "Februari", "Maret", "April", "Mei", "Juni"];
 
     let santriCache = databaseSantri["20260000"];
-    let bulanTerpilihList = [];
+    let bulanTerpilihSet = new Set();
 
     function getBulanAktifSekarang() {
         const d = new Date();
@@ -438,196 +553,65 @@
             document.getElementById("txtWali").innerText = santriCache.wali;
             document.getElementById("txtTelp").innerText = santriCache.telp;
             
-            bulanTerpilihList = [];
-            buildSelectOptions();
+            bulanTerpilihSet.clear();
+            renderBulanGrid();
             updateStatusBulanBerjalan();
             hitungTotalNominal();
             
             document.getElementById("pinContainer").style.display = "none";
+            document.getElementById("bulanDropdownContent").classList.remove("show");
+            document.getElementById("iconDropdown").style.transform = "rotate(0deg)";
         } else {
             alert("Santri dengan NIS " + nisInput + " tidak ditemukan!");
         }
     }
 
-    function buildSelectOptions() {
-        var select = document.getElementById("selectBulan");
-        select.innerHTML = '<option value="" disabled selected>Pilih bulan...</option>';
+    function renderBulanGrid() {
+        var gridContainer = document.getElementById("bulanCheckboxes");
+        gridContainer.innerHTML = "";
 
         daftarBulan.forEach(bulan => {
             var status = (santriCache.pembayaran[bulan] || "BELUM LUNAS").toUpperCase();
-            var opt = document.createElement("option");
-            opt.value = bulan;
+            var isSelected = bulanTerpilihSet.has(bulan);
             
+            var pill = document.createElement("div");
+            pill.className = "bulan-pill";
             if (status === "LUNAS") {
-                opt.text = bulan + " (LUNAS)";
-                opt.style.color = "#64748b";
-            } else {
-                if (bulanTerpilihList.includes(bulan)) {
-                    opt.text = "✓ " + bulan + " (Dipilih)";
-                } else {
-                    opt.text = bulan;
-                }
+                pill.classList.add("lunas-pill");
             }
-            select.appendChild(opt);
-        });
-    }
-
-    function pilihBulanDropdown(selectElem) {
-        var bulanNama = selectElem.value;
-        if (!bulanNama) return;
-
-        var statusBulan = (santriCache.pembayaran[bulanNama] || "BELUM LUNAS").toUpperCase();
-        var btnOnline = document.getElementById("btnOnline");
-        var btnTunai = document.getElementById("btnTunai");
-
-        // Jika sudah lunas, kunci tombol pembayaran dan tampilkan informasi
-        if (statusBulan === "LUNAS") {
-            bulanTerpilihList = [];
-            btnOnline.disabled = true;
-            btnTunai.disabled = true;
-            document.getElementById("pinContainer").style.display = "none";
-            document.getElementById("txtTotalTagihan").innerText = "Rp 0";
+            if (isSelected) {
+                pill.classList.add("selected");
+            }
             
-            alert("Informasi Status: Bulan " + bulanNama + " sudah LUNAS dibayar. Tombol pembayaran dikunci.");
-            selectElem.selectedIndex = 0;
-            buildSelectOptions();
-            return;
-        }
-
-        // Toggle pilihan bulan (bisa pilih lebih dari satu atau batalkan jika sudah ada)
-        var index = bulanTerpilihList.indexOf(bulanNama);
-        if (index > -1) {
-            bulanTerpilihList.splice(index, 1);
-        } else {
-            bulanTerpilihList.push(bulanNama);
-        }
-
-        selectElem.selectedIndex = 0;
-        buildSelectOptions();
-        hitungTotalNominal();
-    }
-
-    function updateStatusBulanBerjalan() {
-        if (!santriCache || !santriCache.pembayaran) return;
-        var bulanIni = getBulanAktifSekarang();
-        var statusBulanIni = (santriCache.pembayaran[bulanIni] || "BELUM LUNAS").toUpperCase();
-        
-        document.getElementById("txtLabelBulanIni").innerText = "Status Bulan Ini (" + bulanIni + ")";
-        var txtStatusBulanInfo = document.getElementById("txtStatusBulanInfo");
-
-        if (statusBulanIni === "LUNAS") {
-            txtStatusBulanInfo.innerText = "LUNAS";
-            txtStatusBulanInfo.style.color = "#00663b";
-        } else {
-            txtStatusBulanInfo.innerText = "BELUM LUNAS";
-            txtStatusBulanInfo.style.color = "#991b1b";
-        }
-    }
-
-    function hitungTotalNominal() {
-        var jumlahPilih = bulanTerpilihList.length;
-        var total = jumlahPilih * NOMINAL_PER_BULAN;
-
-        document.getElementById("txtTotalTagihan").innerText = "Rp " + total.toLocaleString("id-ID");
-
-        var btnOnline = document.getElementById("btnOnline");
-        var btnTunai = document.getElementById("btnTunai");
-
-        if (jumlahPilih === 0) {
-            btnOnline.disabled = true;
-            btnTunai.disabled = true;
-            document.getElementById("pinContainer").style.display = "none";
-        } else {
-            btnOnline.disabled = false;
-            btnTunai.disabled = false;
-        }
-    }
-
-    function handleBayarTunaiClick() {
-        if (bulanTerpilihList.length === 0) {
-            alert("Pilih minimal satu bulan pembayaran terlebih dahulu!");
-            return;
-        }
-
-        var pinContainer = document.getElementById("pinContainer");
-        if (pinContainer.style.display === "none" || pinContainer.style.display === "") {
-            pinContainer.style.display = "block";
-            document.getElementById("kodeBendahara").focus();
-        } else {
-            prosesPembayaran("Tunai / Offline");
-        }
-    }
-
-    function prosesPembayaran(metode) {
-        if (bulanTerpilihList.length === 0) {
-            alert("Pilih minimal satu bulan pembayaran!");
-            return;
-        }
-
-        if (metode === "Tunai / Offline") {
-            var inputPin = document.getElementById("kodeBendahara").value.trim();
-            if (inputPin !== PIN_BENDAHARA_VALID) {
-                alert("Akses Ditolak! PIN Bendahara salah. (Gunakan PIN: 123456)");
-                return;
-            }
-        }
-
-        bulanTerpilihList.forEach(bulan => {
-            if (santriCache && santriCache.pembayaran) {
-                santriCache.pembayaran[bulan] = "LUNAS";
-            }
+            pill.innerText = bulan;
+            pill.onclick = function(e) {
+                e.stopPropagation();
+                pilihBulanPill(bulan, status);
+            };
+            
+            gridContainer.appendChild(pill);
         });
-
-        var bulanDipilihCopy = [...bulanTerpilihList];
-        bulanTerpilihList = [];
-        
-        buildSelectOptions();
-        updateStatusBulanBerjalan();
-        hitungTotalNominal();
-
-        var nama = santriCache.nama;
-        var nis = santriCache.nis;
-        var kelas = santriCache.kelas;
-        var wali = santriCache.wali;
-        var telp = santriCache.telp;
-        var tanggal = new Date().toLocaleDateString("id-ID", { day: 'numeric', month: 'long', year: 'numeric' });
-        var totalBayar = bulanDipilihCopy.length * NOMINAL_PER_BULAN;
-
-        let noWa = telp.trim();
-        if (noWa.startsWith('0')) {
-            noWa = '62' + noWa.substring(1);
-        }
-
-        let pesan = `*KUITANSI PEMBAYARAN SPP*
-*Pondok Pesantren Fathul Huda Al-Qarobiyah*
----------------------------------------
-📅 *Tanggal:* ${tanggal}
-💳 *Metode:* ${metode}
----------------------------------------
-👤 *Nama Santri:* ${nama}
-🆔 *NIS:* ${nis}
-🏫 *Kelas:* ${kelas}
-👨‍👩‍👦 *Wali Santri:* ${wali}
----------------------------------------
-📌 *Untuk Pembayaran Bulan:* 
-*${bulanDipilihCopy.join(", ")}*
-💰 *Total Dibayar:* Rp ${totalBayar.toLocaleString("id-ID")}
-✅ *Status:* LUNAS
----------------------------------------
-Terima kasih, pembayaran Anda telah tercatat sah di sistem database pesantren.`;
-
-        let urlWa = `https://api.whatsapp.com/send?phone=${noWa}&text=${encodeURIComponent(pesan)}`;
-        
-        document.getElementById("kodeBendahara").value = "";
-        document.getElementById("pinContainer").style.display = "none";
-
-        window.location.href = urlWa;
     }
 
-    window.onload = function() {
-        cekDataSantri();
-    };
-</script>
+    function toggleDropdownBulan() {
+        var content = document.getElementById("bulanDropdownContent");
+        var icon = document.getElementById("iconDropdown");
+        if (content.classList.contains("show")) {
+            content.classList.remove("show");
+            icon.style.transform = "rotate(0deg)";
+        } else {
+            content.classList.add("show");
+            icon.style.transform = "rotate(180deg)";
+        }
+    }
 
-</body>
-</html>
+    function pilihBulanPill(bulanNama, statusBulan) {
+        // Jika bulan sudah LUNAS, tetap bisa diklik untuk melihat statusnya, tapi tombol pembayaran dikunci
+        if (statusBulan === "LUNAS") {
+            bulanTerpilihSet.clear();
+            renderBulanGrid();
+            hitungTotalNominal();
+            
+            document.getElementById("txtInfoPilihanBulan").innerText = bulanNama + " (LUNAS)";
+            document.getElementById("txtInfoPilihanBulan").style.color = "#0284c7";
+            document.getElementById("pinContainer").style.display = "none
