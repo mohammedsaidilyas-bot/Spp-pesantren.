@@ -36,31 +36,27 @@
             padding: 24px 16px;
         }
 
-        /* Header Brand & Logo */
+        /* Header Brand & Logo Tanpa Background Putih */
         .brand-container {
             text-align: center;
             margin-bottom: 20px;
             color: #ffffff;
         }
 
-        .logo-circle {
-            width: 64px;
-            height: 64px;
-            background: #ffffff;
-            border-radius: 50%;
+        .logo-wrapper {
+            width: 72px;
+            height: 72px;
+            margin: 0 auto 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            overflow: hidden;
-            border: 2px solid #ffffff;
         }
 
-        .logo-circle img {
+        .logo-wrapper img {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
         }
 
         .brand-container h1 {
@@ -318,10 +314,10 @@
 </head>
 <body>
 
-    <!-- Header Brand dengan Logo Pesantren dari Google Drive -->
+    <!-- Header Brand dengan Logo Tanpa Background Putih -->
     <div class="brand-container">
-        <div class="logo-circle">
-            <img src="https://lh3.googleusercontent.com/d/1nisPkmO93MQycG2iEWxMduwWb6ZOh0kA" alt="Logo PP. Fathul Huda Al-Qarobiyah" onerror="this.onerror=null;this.src='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/svgs/solid/mosque.svg';">
+        <div class="logo-wrapper">
+            <img src="https://lh3.googleusercontent.com/d/1nisPkmO93MQycG2iEWxMduwWb6ZOh0kA" alt="Logo PP. Fathul Huda Al-Qarobiyah">
         </div>
         <h1>PP. Fathul Huda Al-Qarobiyah</h1>
         <p>Portal Pembayaran SPP Santri</p>
