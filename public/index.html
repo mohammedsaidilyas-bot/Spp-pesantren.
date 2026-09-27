@@ -140,7 +140,7 @@
             display: none;
         }
 
-        /* Desain Header Nama Santri & Status ala Gambar */
+        /* Desain Header Nama Santri & Status */
         .santri-header-box {
             display: flex;
             flex-direction: column;
@@ -300,14 +300,14 @@
         <div style="margin-bottom: 12px;">
             <label class="input-label" for="nis">Nomor Induk Santri (NIS)</label>
             <div class="input-group">
-                <input type="text" id="nis" placeholder="Contoh: 20260001" autocomplete="off">
+                <input type="text" id="nis" placeholder="Contoh: 20260000" autocomplete="off" value="20260000">
                 <button class="btn-cek" onclick="cekDataSantri()">Cek</button>
             </div>
         </div>
 
         <!-- Bagian Informasi & Aksi -->
         <div class="result-section" id="resultSection">
-            <!-- Kotak Nama & Status ala Gambar -->
+            <!-- Kotak Nama & Status -->
             <div class="santri-header-box">
                 <div class="nama-top-row">
                     <div>
@@ -359,8 +359,8 @@
                 <input type="password" id="kodeBendahara" placeholder="PIN: 123456" autocomplete="current-password">
             </div>
 
-            <!-- Tombol Aksi Sesuai Referensi Gambar -->
-            <button class="btn-action btn-mayar" onclick="prosesPembayaran('Online / Transfer')">
+            <!-- Tombol Aksi -->
+            <button class="btn-action btn-mayar" onclick="prosesPembayaran('Online / Mayar.id')">
                 <i class="fa-solid fa-globe"></i> Bayar Online (Mayar.id)
             </button>
             <button class="btn-action btn-tunai" onclick="handleBayarTunaiClick()">
@@ -381,12 +381,40 @@
     </div>
 
 <script>
-    // URL Web App Google Apps Script terbaru yang disinkronkan
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx4NQlH7CaaptPVu0O36rSR5XFrcIuzrTpCxz0XmRO9NMK49cG1LmYN8Sf58eHjKNkiTw/exec";
+    // Database Simulasi Sementara (Mock Data)
+    const databaseSantri = {
+        "20260000": {
+            nis: "20260000",
+            nama: "Mohammed Said Ilyas",
+            kelas: "Takhoss",
+            wali: "H. Ilyas Aly",
+            telp: "082219644442",
+            pembayaran: {
+                "Juli": "BELUM LUNAS",
+                "Agustus": "BELUM LUNAS",
+                "September": "BELUM LUNAS",
+                "Oktober": "BELUM LUNAS",
+                "November": "BELUM LUNAS",
+                "Desember": "BELUM LUNAS",
+                "Januari": "BELUM LUNAS",
+                "Februari": "BELUM LUNAS",
+                "Maret": "BELUM LUNAS",
+                "April": "BELUM LUNAS",
+                "Mei": "BELUM LUNAS",
+                "Juni": "BELUM LUNAS"
+            }
+        }
+    };
+
     const PIN_BENDAHARA_VALID = "123456";
     const daftarBulan = ["Juli", "Agustus", "September", "Oktober", "November", "Desember", "Januari", "Februari", "Maret", "April", "Mei", "Juni"];
 
     let santriCache = null;
+
+    // Otomatis cek saat halaman dimuat jika NIS sudah terisi
+    window.onload = function() {
+        cekDataSantri();
+    };
 
     function cekDataSantri() {
         var nis = document.getElementById("nis").value.trim();
@@ -398,17 +426,16 @@
         document.getElementById("loaderText").innerText = "Mencari data santri...";
         document.getElementById("loadingOverlay").style.display = "flex";
 
-        fetch(WEB_APP_URL + "?nis=" + encodeURIComponent(nis))
-        .then(response => response.json())
-        .then(data => {
+        setTimeout(() => {
             document.getElementById("loadingOverlay").style.display = "none";
-            if (data && data.found) {
-                santriCache = data;
-                document.getElementById("txtNama").innerText = data.nama;
-                document.getElementById("txtNis").innerText = data.nis || nis;
-                document.getElementById("txtKelas").innerText = data.kelas;
-                document.getElementById("txtWali").innerText = data.wali;
-                document.getElementById("txtTelp").innerText = data.telp;
+            
+            if (databaseSantri[nis]) {
+                santriCache = databaseSantri[nis];
+                document.getElementById("txtNama").innerText = santriCache.nama;
+                document.getElementById("txtNis").innerText = santriCache.nis;
+                document.getElementById("txtKelas").innerText = santriCache.kelas;
+                document.getElementById("txtWali").innerText = santriCache.wali;
+                document.getElementById("txtTelp").innerText = santriCache.telp;
                 
                 populateDropdownBulan();
                 updateStatusBulan();
@@ -416,25 +443,19 @@
                 document.getElementById("pinContainer").style.display = "none";
                 document.getElementById("resultSection").style.display = "block";
             } else {
-                alert("Santri dengan NIS " + nis + " tidak ditemukan!");
+                alert("Santri dengan NIS " + nis + " tidak ditemukan dalam data uji coba!");
                 document.getElementById("resultSection").style.display = "none";
             }
-        })
-        .catch(error => {
-            document.getElementById("loadingOverlay").style.display = "none";
-            console.error(error);
-            alert("Gagal terhubung ke database. Pastikan backend Google Apps Script sudah aktif.");
-        });
+        }, 400); // Simulasi jeda jaringan tipis agar natural
     }
 
     function populateDropdownBulan() {
         if (!santriCache || !santriCache.pembayaran) return;
-        var pembayaranData = santriCache.pembayaran;
         var selectBulan = document.getElementById("bulan");
         selectBulan.innerHTML = "";
 
         daftarBulan.forEach(bulan => {
-            var status = (pembayaranData[bulan] || "BELUM LUNAS").toUpperCase();
+            var status = (santriCache.pembayaran[bulan] || "BELUM LUNAS").toUpperCase();
             var option = document.createElement("option");
             option.value = bulan;
             
@@ -483,10 +504,9 @@
     }
 
     function prosesPembayaran(metode) {
-        var nis = document.getElementById("nis").value.trim();
         var bulan = document.getElementById("bulan").value;
 
-        if (!nis || !bulan) {
+        if (!bulan) {
             alert("Harap pilih bulan pembayaran terlebih dahulu!");
             return;
         }
@@ -494,54 +514,37 @@
         if (metode === "Tunai / Offline") {
             var inputPin = document.getElementById("kodeBendahara").value.trim();
             if (inputPin !== PIN_BENDAHARA_VALID) {
-                alert("Akses Ditolak! PIN Bendahara salah.");
+                alert("Akses Ditolak! PIN Bendahara salah. (Gunakan PIN: 123456)");
                 return;
             }
         }
 
-        var dataKirim = { 
-            nis: nis, 
-            bulan: bulan, 
-            metode: metode 
-        };
-
-        document.getElementById("loaderText").innerText = "Menyimpan pembayaran & mengirim kuitansi WA...";
+        document.getElementById("loaderText").innerText = "Memproses pembayaran...";
         document.getElementById("loadingOverlay").style.display = "flex";
 
-        fetch(WEB_APP_URL, {
-            method: "POST",
-            mode: "no-cors",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(dataKirim)
-        })
-        .then(() => {
+        setTimeout(() => {
             document.getElementById("loadingOverlay").style.display = "none";
             
+            // Ubah status lokal di memori
             if (santriCache && santriCache.pembayaran) {
                 santriCache.pembayaran[bulan] = "LUNAS";
                 populateDropdownBulan();
                 updateStatusBulan();
             }
 
-            alert("Pembayaran bulan " + bulan + " berhasil dicatat!");
+            alert("Pembayaran SPP bulan " + bulan + " berhasil dicatat!");
             kirimWhatsAppOtomatis(bulan, metode);
 
             document.getElementById("kodeBendahara").value = "";
             document.getElementById("pinContainer").style.display = "none";
-            document.getElementById("nis").value = "";
-            document.getElementById("resultSection").style.display = "none";
-        })
-        .catch(error => {
-            document.getElementById("loadingOverlay").style.display = "none";
-            alert("Terjadi kesalahan: " + error);
-        });
+        }, 500);
     }
 
     function kirimWhatsAppOtomatis(bulan, metode) {
         if (!santriCache) return;
 
         var nama = santriCache.nama;
-        var nis = santriCache.nis || document.getElementById("nis").value;
+        var nis = santriCache.nis;
         var kelas = santriCache.kelas;
         var wali = santriCache.wali;
         var telp = santriCache.telp;
