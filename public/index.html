@@ -213,6 +213,21 @@
         let nominalSppAktif = 0;
         let urlWaGlobal = "";
 
+        async function muatDatabaseSantri() {
+            try {
+                const response = await fetch(`${urlWebApps}?action=getSantri`, {
+                    method: 'GET',
+                    redirect: 'follow'
+                });
+                databaseSantri = await response.json();
+            } catch (err) {
+                console.error("Gagal memuat database santri:", err);
+            }
+        }
+
+        // Muat database di awal saat halaman dibuka
+        muatDatabaseSantri();
+
         async function cariSantri() {
             const nis = document.getElementById('input-nis').value.trim();
             if (!nis) {
@@ -222,12 +237,7 @@
 
             document.getElementById('loading-status').classList.remove('hidden');
             try {
-                const response = await fetch(`${urlWebApps}?action=getSantri`, {
-                    method: 'GET',
-                    redirect: 'follow'
-                });
-                
-                databaseSantri = await response.json();
+                await muatDatabaseSantri();
                 document.getElementById('loading-status').classList.add('hidden');
                 
                 const santri = databaseSantri.find(s => s.nis === nis);
@@ -254,7 +264,7 @@
             document.getElementById('view-kelas').innerText = santri.kelas || '-';
             document.getElementById('view-kamar').innerText = santri.kamar || '-';
             document.getElementById('view-wali').innerText = santri.namaWali || '-';
-            document.getElementById('view-notel').innerText = santri.noWa || '-';
+            document.getElementById('view-notel').innerText = santri.noWa || santri.noHp || '-';
             document.getElementById('view-nominal-spp').innerText = 'Rp ' + nominalSppAktif.toLocaleString('id-ID');
 
             const gridBulan = document.getElementById('grid-bulan');
@@ -308,20 +318,22 @@
             document.getElementById('modal-online').classList.add('hidden');
         }
 
-        function tampilkanKuitansi(metode, bulanList, santriObj = santriAktif) {
+        function tampilkanKuitansi(metode, bulanList, santriObj) {
             const now = new Date();
             const tglStr = now.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
             
-            const totalBayar = bulanList.length * (Number(santriObj.nominalSpp) || nominalSppAktif || 50000);
+            const nominalSantri = Number(santriObj.nominalSpp) || nominalSppAktif || 50000;
+            const totalBayar = bulanList.length * nominalSantri;
+            const nomorWaSantri = santriObj.noWa || santriObj.noHp || "-";
 
             const dataKuitansi = {
                 tanggal: tglStr,
                 metode: metode,
                 nama: santriObj.nama,
                 nis: santriObj.nis,
-                kelas: santriObj.kelas,
-                wali: santriObj.namaWali,
-                noWa: santriObj.noWa || "-",
+                kelas: santriObj.kelas || '-',
+                wali: santriObj.namaWali || '-',
+                noWa: nomorWaSantri,
                 bulan: bulanList.join(', '),
                 total: totalBayar.toLocaleString('id-ID'),
                 status: metode.includes('Tunai') || metode.includes('Lunas') ? "LUNAS" : "PENDING (MENUNGGU VERIFIKASI)"
@@ -338,14 +350,14 @@
             document.getElementById('k-total').innerText = dataKuitansi.total;
             document.getElementById('k-status').innerText = dataKuitansi.status;
 
-            let noHp = dataKuitansi.noWa || "";
+            let noHp = nomorWaSantri;
             if (noHp.startsWith('08')) {
                 noHp = '62' + noHp.slice(1);
             }
 
-            const pesan = `*KUITANSI PEMBAYARAN SPP*%0A*PP Fathul Huda Al-Qorrobiyah*%0A---------------------------------------%0A📅 *Tanggal:* ${dataKuitansi.tanggal}%0A💳 *Metode:* ${dataKuitansi.metode}%0A---------------------------------------%0A👤 *Nama Santri:* ${dataKuitansi.nama}%0A🆔 *NIS:* ${dataKuitansi.nis}%0A🏫 *Kelas:* ${dataKuitansi.kelas}%0A👨‍👩‍👦 *Wali Santri:* ${dataKuitansi.wali}%0A---------------------------------------%0A📌 *Untuk Pembayaran Bulan:*%0A${dataKuitansi.bulan}%0A%0A💰 *Total Dibayar:* Rp ${dataKuitansi.total}%0A✅ *Status:* ${dataKuitansi.status}%0A---------------------------------------%0ATerima kasih, pembayaran Anda telah tercatat sah di sistem database pesantren.`;
+            const pesan = `*KUITANSI PEMBAYARAN SPP*%0A*PP Fathul Huda Al-Qorrobiyah*%0A---------------------------------------%0A📅 *Tanggal:* ${dataKuitansi.tanggal}%0A💳 *Metode:* ${dataKuitansi.metode}%0A---------------------------------------%0A👤 *Nama Santri:* ${dataKuitansi.nama}%0A🆔 *NIS:* ${dataKuitansi.nis}%0A🏫 *Kelas:* ${dataKuitansi.kelas}%0A👨‍👩‍👦 *Wali Santri:* ${dataKuitansi.wali}%0A📞 *No. WhatsApp:* ${dataKuitansi.noWa}%0A---------------------------------------%0A📌 *Untuk Pembayaran Bulan:*%0A${dataKuitansi.bulan}%0A%0A💰 *Total Dibayar:* Rp ${dataKuitansi.total}%0A✅ *Status:* ${dataKuitansi.status}%0A---------------------------------------%0ATerima kasih, pembayaran Anda telah tercatat sah di sistem database pesantren.`;
 
-            urlWaGlobal = noHp ? `https://wa.me/${noHp}?text=${pesan}` : `https://wa.me/?text=${pesan}`;
+            urlWaGlobal = (noHp && noHp !== '-') ? `https://wa.me/${noHp}?text=${pesan}` : `https://wa.me/?text=${pesan}`;
             
             document.getElementById('modal-kuitansi').classList.remove('hidden');
         }
@@ -516,7 +528,7 @@
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                             <span class="truncate">${item.keteranganBukti || 'Bukti Transfer'}</span>
                         </div>
-                        <button onclick='approvePembayaran(${JSON.stringify(item)})' class="bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl text-xs font-bold transition-all shadow-md active:scale-95">Setujui & Tampilkan Kuitansi</button>
+                        <button onclick='approvePembayaran("${item.nis}", "${item.bulan}")' class="bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl text-xs font-bold transition-all shadow-md active:scale-95">Setujui & Tampilkan Kuitansi</button>
                     `;
                     listContainer.appendChild(div);
                 });
@@ -529,20 +541,31 @@
             document.getElementById('modal-bendahara').classList.add('hidden');
         }
 
-        async function approvePembayaran(item) {
-            if (!confirm(`Setujui pembayaran ${item.bulan} untuk NIS ${item.nis}?`)) return;
+        async function approvePembayaran(nis, bulanStr) {
+            if (!confirm(`Setujui pembayaran ${bulanStr} untuk NIS ${nis}?`)) return;
 
             try {
                 const res = await fetch(urlWebApps, {
                     method: 'POST',
                     redirect: 'follow',
-                    body: JSON.stringify({ action: 'approve', nis: item.nis, bulan: item.bulan })
+                    body: JSON.stringify({ action: 'approve', nis: nis, bulan: bulanStr.split(', ') })
                 });
                 const result = await res.json();
                 if (result.status === 'success') {
                     tutupPanelBendahara();
-                    // Mengirimkan data item lengkap agar nomor WhatsApp yang ditarik dari Google Sheets ikut terbawa ke kuitansi
-                    tampilkanKuitansi("Transfer Online (Diverifikasi)", item.bulan.split(', '), item);
+                    
+                    // Ambil data santri secara presisi dari database santri agar data lengkap (namaWali, kelas, noWa, nominalSpp)
+                    await muatDatabaseSantri();
+                    const santriLengkap = databaseSantri.find(s => s.nis === nis) || {
+                        nis: nis,
+                        nama: "Santri",
+                        kelas: "-",
+                        namaWali: "-",
+                        noWa: "-",
+                        nominalSpp: 50000
+                    };
+
+                    tampilkanKuitansi("Transfer Online (Diverifikasi)", bulanStr.split(', '), santriLengkap);
                 } else {
                     alert("Gagal menyetujui pembayaran di server.");
                 }
