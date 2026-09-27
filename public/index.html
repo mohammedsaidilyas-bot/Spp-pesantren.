@@ -39,7 +39,7 @@
         <label class="label">Nomor Induk Santri (NIS)</label>
         <div class="group">
             <input type="text" id="nis" value="20260000">
-            <button class="btn" onclick="cek()">Cek</button>
+            <button class="btn" onclick="cekData()">Cek</button>
         </div>
 
         <div class="info-box">
@@ -47,6 +47,7 @@
             <div class="row"><b>Kelas:</b> <span id="kelas">Takhoss</span></div>
             
             <label class="label" style="margin-top: 10px;">Pilih Bulan Pembayaran:</label>
+            <!-- DIV INI YANG MENAMPUNG NAMA BULAN -->
             <div class="grid" id="bulanGrid"></div>
 
             <div class="row" style="margin-top: 10px; font-weight: 700;">
@@ -67,72 +68,104 @@
     </div>
 
 <script>
-    const db = {
+    const database = {
         "20260000": {
-            nama: "Mohammed Said Ilyas", kelas: "Takhoss", telp: "6282219644442",
-            bayar: { Juli: "BELUM", Agustus: "BELUM", September: "LUNAS", Oktober: "BELUM", November: "BELUM", Desember: "BELUM", Januari: "BELUM", Februari: "BELUM", Maret: "BELUM", April: "BELUM", Mei: "BELUM", Juni: "BELUM" }
+            nama: "Mohammed Said Ilyas", 
+            kelas: "Takhoss", 
+            telp: "6282219644442",
+            bayar: { 
+                "Juli": "BELUM", "Agustus": "BELUM", "September": "LUNAS", 
+                "Oktober": "BELUM", "November": "BELUM", "Desember": "BELUM", 
+                "Januari": "BELUM", "Februari": "BELUM", "Maret": "BELUM", 
+                "April": "BELUM", "Mei": "BELUM", "Juni": "BELUM" 
+            }
         }
     };
-    const listBulan = ["Juli", "Agustus", "September", "Oktober", "November", "Desember", "Januari", "Februari", "Maret", "April", "Mei", "Juni"];
-    let selected = new Set();
-    let currentSantri = db["20260000"];
 
-    function cek() {
+    const daftarBulan = ["Juli", "Agustus", "September", "Oktober", "November", "Desember", "Januari", "Februari", "Maret", "April", "Mei", "Juni"];
+    let selectedBulan = new Set();
+    let santriAktif = database["20260000"];
+
+    function cekData() {
         let val = document.getElementById("nis").value.trim();
-        if(db[val]) {
-            currentSantri = db[val];
-            document.getElementById("nama").innerText = currentSantri.nama;
-            document.getElementById("kelas").innerText = currentSantri.kelas;
-            selected.clear();
-            render();
-        } else { alert("Data tidak ditemukan!"); }
+        if(database[val]) {
+            santriAktif = database[val];
+            document.getElementById("nama").innerText = santriAktif.nama;
+            document.getElementById("kelas").innerText = santriAktif.kelas;
+            selectedBulan.clear();
+            renderGridBulan();
+        } else { 
+            alert("Data santri tidak ditemukan!"); 
+        }
     }
 
-    function render() {
+    function renderGridBulan() {
         let grid = document.getElementById("bulanGrid");
+        if (!grid) return;
+        
         grid.innerHTML = "";
-        listBulan.forEach(b => {
-            let isLunas = currentSantri.bayar[b] === "LUNAS";
-            let isSel = selected.has(b);
+
+        daftarBulan.forEach(b => {
+            let isLunas = santriAktif.bayar[b] === "LUNAS";
+            let isSel = selectedBulan.has(b);
+            
             let div = document.createElement("div");
             div.className = `pill ${isLunas ? 'lunas' : ''} ${isSel ? 'selected' : ''}`;
             div.innerText = b;
-            div.onclick = () => {
-                if(isLunas) return alert(b + " sudah lunas!");
-                if(isSel) selected.delete(b); else selected.add(b);
-                render();
+            
+            div.onclick = function() {
+                if (isLunas) {
+                    alert("Bulan " + b + " sudah lunas!");
+                    return;
+                }
+                if (isSel) {
+                    selectedBulan.delete(b);
+                } else {
+                    selectedBulan.add(b);
+                }
+                renderGridBulan();
             };
+            
             grid.appendChild(div);
         });
 
-        let total = selected.size * 150000;
+        let total = selectedBulan.size * 150000;
         document.getElementById("total").innerText = "Rp " + total.toLocaleString("id-ID");
-        let active = selected.size > 0;
-        document.getElementById("btnOnline").disabled = !active;
-        document.getElementById("btnTunai").disabled = !active;
+        
+        let adaPilihan = selectedBulan.size > 0;
+        document.getElementById("btnOnline").disabled = !adaPilihan;
+        document.getElementById("btnTunai").disabled = !adaPilihan;
     }
 
     function bayarTunai() {
         let box = document.getElementById("pinBox");
-        if(box.style.display === "none") {
+        if(box.style.display === "none" || box.style.display === "") {
             box.style.display = "block";
             document.getElementById("pin").focus();
         } else {
-            if(document.getElementById("pin").value.trim() !== "123456") {
-                alert("PIN Salah!"); return;
+            let pinVal = document.getElementById("pin").value.trim();
+            if(pinVal !== "123456") {
+                alert("PIN Bendahara Salah!"); 
+                return;
             }
             bayar("Tunai / Offline");
         }
     }
 
     function bayar(metode) {
-        let bulans = Array.from(selected);
-        bulans.forEach(b => currentSantri.bayar[b] = "LUNAS");
-        let text = `*KUITANSI SPP*%0ANama: ${currentSantri.nama}%0ABulan: ${bulans.join(", ")}%0ATotal: Rp ${(bulans.length*150000).toLocaleString("id-ID")}%0AStatus: LUNAS (${metode})`;
-        window.location.href = `https://api.whatsapp.com/send?phone=${currentSantri.telp}&text=${text}`;
+        let bulans = Array.from(selectedBulan);
+        bulans.forEach(b => santriAktif.bayar[b] = "LUNAS");
+        
+        let totalBayar = bulans.length * 150000;
+        let text = `*KUITANSI PEMBAYARAN SPP*%0ANama: ${santriAktif.nama}%0ABulan: ${bulans.join(", ")}%0ATotal: Rp ${totalBayar.toLocaleString("id-ID")}%0AStatus: LUNAS (${metode})`;
+        
+        window.location.href = `https://api.whatsapp.com/send?phone=${santriAktif.telp}&text=${text}`;
     }
 
-    render();
+    // Pastikan fungsi render langsung dipanggil begitu halaman dimuat
+    window.onload = function() {
+        renderGridBulan();
+    };
 </script>
 </body>
 </html>
