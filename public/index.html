@@ -440,7 +440,6 @@
 
     let santriCache = null;
 
-    // Otomatis cek data saat halaman pertama kali dibuka
     window.onload = function() {
         cekDataSantri();
     };
@@ -548,31 +547,14 @@
             }
         }
 
-        document.getElementById("loaderText").innerText = "Memproses pembayaran & membuka WhatsApp...";
-        document.getElementById("loadingOverlay").style.display = "flex";
+        // 1. Ubah status lokal di memori jadi LUNAS
+        if (santriCache && santriCache.pembayaran) {
+            santriCache.pembayaran[bulan] = "LUNAS";
+            populateDropdownBulan();
+            updateStatusBulan();
+        }
 
-        setTimeout(() => {
-            document.getElementById("loadingOverlay").style.display = "none";
-            
-            // Ubah status lokal jadi LUNAS
-            if (santriCache && santriCache.pembayaran) {
-                santriCache.pembayaran[bulan] = "LUNAS";
-                populateDropdownBulan();
-                updateStatusBulan();
-            }
-
-            // Langsung buka WhatsApp secara otomatis membawa kuitansi
-            bukaWhatsAppOtomatis(bulan, metode);
-
-            // Reset form PIN
-            document.getElementById("kodeBendahara").value = "";
-            document.getElementById("pinContainer").style.display = "none";
-        }, 500);
-    }
-
-    function bukaWhatsAppOtomatis(bulan, metode) {
-        if (!santriCache) return;
-
+        // 2. Siapkan data WhatsApp
         var nama = santriCache.nama;
         var nis = santriCache.nis;
         var kelas = santriCache.kelas;
@@ -603,8 +585,12 @@ Terima kasih, pembayaran Anda telah tercatat sah di sistem database pesantren.`;
 
         let urlWa = `https://api.whatsapp.com/send?phone=${noWa}&text=${encodeURIComponent(pesan)}`;
         
-        // Membuka WhatsApp secara otomatis
-        window.open(urlWa, '_blank');
+        // 3. Reset form PIN
+        document.getElementById("kodeBendahara").value = "";
+        document.getElementById("pinContainer").style.display = "none";
+
+        // 4. Langsung buka WhatsApp secara instan (menghindari blokir browser popup blocker)
+        window.location.href = urlWa;
     }
 </script>
 
