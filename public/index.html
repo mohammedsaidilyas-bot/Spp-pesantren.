@@ -366,11 +366,22 @@
                 </div>
             </div>
 
-            <!-- Pilihan Bulan Model Kotak Grid Minimalis -->
+            <!-- Pilihan Bulan Model Kotak Grid Langsung (Hardcoded Aman) -->
             <div>
                 <label class="input-label">Pilih Bulan Pembayaran (Bisa > 1)</label>
                 <div class="bulan-grid" id="bulanCheckboxes">
-                    <!-- Diisi otomatis oleh JavaScript -->
+                    <label class="bulan-pill"><span>Jul</span><input type="checkbox" value="Juli" onchange="hitungTotalNominal()"></label>
+                    <label class="bulan-pill"><span>Ags</span><input type="checkbox" value="Agustus" onchange="hitungTotalNominal()"></label>
+                    <label class="bulan-pill"><span>Sep</span><input type="checkbox" value="September" onchange="hitungTotalNominal()"></label>
+                    <label class="bulan-pill"><span>Okt</span><input type="checkbox" value="Oktober" onchange="hitungTotalNominal()"></label>
+                    <label class="bulan-pill"><span>Nov</span><input type="checkbox" value="November" onchange="hitungTotalNominal()"></label>
+                    <label class="bulan-pill"><span>Des</span><input type="checkbox" value="Desember" onchange="hitungTotalNominal()"></label>
+                    <label class="bulan-pill"><span>Jan</span><input type="checkbox" value="Januari" onchange="hitungTotalNominal()"></label>
+                    <label class="bulan-pill"><span>Feb</span><input type="checkbox" value="Februari" onchange="hitungTotalNominal()"></label>
+                    <label class="bulan-pill"><span>Mar</span><input type="checkbox" value="Maret" onchange="hitungTotalNominal()"></label>
+                    <label class="bulan-pill"><span>Apr</span><input type="checkbox" value="April" onchange="hitungTotalNominal()"></label>
+                    <label class="bulan-pill"><span>Mei</span><input type="checkbox" value="Mei" onchange="hitungTotalNominal()"></label>
+                    <label class="bulan-pill"><span>Jun</span><input type="checkbox" value="Juni" onchange="hitungTotalNominal()"></label>
                 </div>
             </div>
 
@@ -434,10 +445,6 @@
 
     let santriCache = databaseSantri["20260000"];
 
-    // Render otomatis saat halaman dimuat
-    renderBulanGrid();
-    updateStatusBulanPertama();
-
     function cekDataSantri() {
         var nisInput = document.getElementById("nis").value.trim();
         if (!nisInput) {
@@ -454,7 +461,7 @@
             document.getElementById("txtWali").innerText = santriCache.wali;
             document.getElementById("txtTelp").innerText = santriCache.telp;
             
-            renderBulanGrid();
+            updateStatusBulanGrid();
             updateStatusBulanPertama();
             hitungTotalNominal();
             
@@ -464,30 +471,23 @@
         }
     }
 
-    function renderBulanGrid() {
+    function updateStatusBulanGrid() {
         if (!santriCache || !santriCache.pembayaran) return;
-        var container = document.getElementById("bulanCheckboxes");
-        container.innerHTML = "";
-
-        daftarBulan.forEach(bulan => {
+        var labels = document.querySelectorAll("#bulanCheckboxes .bulan-pill");
+        
+        labels.forEach((label, index) => {
+            var bulan = daftarBulan[index];
             var status = (santriCache.pembayaran[bulan] || "BELUM LUNAS").toUpperCase();
-            var isLunas = (status === "LUNAS");
-
-            var label = document.createElement("label");
-            label.className = "bulan-pill" + (isLunas ? " lunas" : "");
-
-            var textSpan = document.createElement("span");
-            textSpan.innerText = bulan.substring(0, 3); // Singkatan 3 huruf (Jul, Ags, Sep, dst)
-
-            var checkbox = document.createElement("input");
-            checkbox.type = "checkbox";
-            checkbox.value = bulan;
-            checkbox.disabled = isLunas;
-            checkbox.onchange = hitungTotalNominal;
-
-            label.appendChild(textSpan);
-            label.appendChild(checkbox);
-            container.appendChild(label);
+            var checkbox = label.querySelector("input[type='checkbox']");
+            
+            if (status === "LUNAS") {
+                label.classList.add("lunas");
+                checkbox.disabled = true;
+                checkbox.checked = false;
+            } else {
+                label.classList.remove("lunas");
+                checkbox.disabled = false;
+            }
         });
     }
 
@@ -564,7 +564,7 @@
             }
         });
 
-        renderBulanGrid();
+        updateStatusBulanGrid();
         updateStatusBulanPertama();
         hitungTotalNominal();
 
@@ -597,4 +597,16 @@
 💰 *Total Dibayar:* Rp ${totalBayar.toLocaleString("id-ID")}
 ✅ *Status:* LUNAS
 ---------------------------------------
-Terima 
+Terima kasih, pembayaran Anda telah tercatat sah di sistem database pesantren.`;
+
+        let urlWa = `https://api.whatsapp.com/send?phone=${noWa}&text=${encodeURIComponent(pesan)}`;
+        
+        document.getElementById("kodeBendahara").value = "";
+        document.getElementById("pinContainer").style.display = "none";
+
+        window.location.href = urlWa;
+    }
+</script>
+
+</body>
+</html>
