@@ -410,7 +410,7 @@
     </div>
 
 <script>
-    // Database Santri Sesuai Data Asli Anda
+    // Database Santri
     const databaseSantri = {
         "20260000": {
             nis: "20260000",
@@ -440,29 +440,14 @@
 
     let santriCache = null;
 
+    // Jalankan pencarian otomatis saat halaman dimuat agar langsung tampil
     window.onload = function() {
-        muatDataDefault();
+        cekDataSantri();
     };
 
-    function muatDataDefault() {
-        var nis = "20260000";
-        if (databaseSantri[nis]) {
-            santriCache = databaseSantri[nis];
-            document.getElementById("txtNama").innerText = santriCache.nama;
-            document.getElementById("txtNis").innerText = santriCache.nis;
-            document.getElementById("txtKelas").innerText = santriCache.kelas;
-            document.getElementById("txtWali").innerText = santriCache.wali;
-            document.getElementById("txtTelp").innerText = santriCache.telp;
-            
-            populateDropdownBulan();
-            updateStatusBulan();
-            document.getElementById("resultSection").style.display = "block";
-        }
-    }
-
     function cekDataSantri() {
-        var nis = document.getElementById("nis").value.trim();
-        if (!nis) {
+        var nisInput = document.getElementById("nis").value.trim();
+        if (!nisInput) {
             alert("Harap masukkan Nomor Induk Santri (NIS) terlebih dahulu!");
             return;
         }
@@ -473,8 +458,10 @@
         setTimeout(() => {
             document.getElementById("loadingOverlay").style.display = "none";
             
-            if (databaseSantri[nis]) {
-                santriCache = databaseSantri[nis];
+            if (databaseSantri[nisInput]) {
+                santriCache = databaseSantri[nisInput];
+                
+                // Pastikan elemen DOM diisi dengan benar
                 document.getElementById("txtNama").innerText = santriCache.nama;
                 document.getElementById("txtNis").innerText = santriCache.nis;
                 document.getElementById("txtKelas").innerText = santriCache.kelas;
@@ -487,10 +474,10 @@
                 document.getElementById("pinContainer").style.display = "none";
                 document.getElementById("resultSection").style.display = "block";
             } else {
-                alert("Santri dengan NIS " + nis + " tidak ditemukan!");
+                alert("Santri dengan NIS " + nisInput + " tidak ditemukan!");
                 document.getElementById("resultSection").style.display = "none";
             }
-        }, 300);
+        }, 200);
     }
 
     function populateDropdownBulan() {
@@ -523,13 +510,11 @@
 
         if (statusBulan === "LUNAS") {
             txtStatusBulanInfo.innerHTML = "<span style='color: #00663b;'>LUNAS</span>";
-            
             btnOnline.disabled = true;
             btnTunai.disabled = true;
             pinContainer.style.display = "none";
         } else {
             txtStatusBulanInfo.innerHTML = "<span style='color: #991b1b;'>BELUM LUNAS</span>";
-            
             btnOnline.disabled = false;
             btnTunai.disabled = false;
         }
@@ -603,4 +588,12 @@ Terima kasih, pembayaran Anda telah tercatat sah di sistem database pesantren.`;
 
         let urlWa = `https://api.whatsapp.com/send?phone=${noWa}&text=${encodeURIComponent(pesan)}`;
         
-        document.getElementById("kodeBendahara").v
+        document.getElementById("kodeBendahara").value = "";
+        document.getElementById("pinContainer").style.display = "none";
+
+        window.location.href = urlWa;
+    }
+</script>
+
+</body>
+</html>
