@@ -135,12 +135,12 @@
             background: #1d4ed8;
         }
 
-        /* Bagian Informasi & Aksi */
+        /* Bagian Informasi & Aksi (Disembunyikan di Awal) */
         .result-section {
+            display: none; /* Awalnya tersembunyi */
             margin-top: 14px;
             padding-top: 14px;
             border-top: 1px solid var(--border-color);
-            display: block;
         }
 
         /* Desain Header Nama Santri */
@@ -404,7 +404,7 @@
 
     <!-- Kartu Utama -->
     <div class="search-card">
-        <div style="margin-bottom: 12px;">
+        <div style="margin-bottom: 0px;">
             <label class="input-label" for="nis">Nomor Induk Santri (NIS)</label>
             <div class="input-group">
                 <input type="text" id="nis" placeholder="Contoh: 20260001" autocomplete="off">
@@ -412,7 +412,7 @@
             </div>
         </div>
 
-        <!-- Bagian Informasi & Aksi -->
+        <!-- Bagian Informasi & Aksi (Hanya tampil setelah dicek) -->
         <div class="result-section" id="resultSection">
             <!-- Kotak Nama Santri -->
             <div class="santri-header-box">
@@ -501,7 +501,6 @@
     </div>
 
 <script>
-    // Database dinamis yang akan diisi dari Google Sheets
     let databaseSantri = {};
     let santriCache = null;
     let bulanTerpilihSet = new Set();
@@ -509,7 +508,6 @@
     const PIN_BENDAHARA_VALID = "123456";
     const daftarBulan = ["September", "Oktober", "November", "Desember", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus"];
 
-    // Mengambil data secara otomatis dari Google Sheets Web App
     async function ambilDataDariSheets() {
         const urlWebApps = "https://script.google.com/macros/s/AKfycbye_GFcxb8Wy6mmE6D08gE-_IRG_bGND9bJwJ473wiFmtIby1-DM72X5q5j2K8HWXDVPA/exec";
         
@@ -555,11 +553,15 @@
             document.getElementById("btnOnline").disabled = true;
             document.getElementById("btnTunai").disabled = true;
             document.getElementById("pinContainer").style.display = "none";
-            
             document.getElementById("bulanDropdownContent").style.display = "none";
             document.getElementById("dropdownIcon").style.transform = "rotate(0deg)";
+
+            // Munculkan bagian detail setelah santri ditemukan
+            document.getElementById("resultSection").style.display = "block";
         } else {
             alert("Santri dengan NIS " + nisInput + " tidak ditemukan di database Google Sheets!");
+            // Sembunyikan kembali jika salah
+            document.getElementById("resultSection").style.display = "none";
         }
     }
 
@@ -757,7 +759,6 @@ Terima kasih, pembayaran Anda telah tercatat sah di sistem database pesantren.`;
         window.location.href = urlWa;
     }
 
-    // Ambil data dari Google Sheets otomatis saat halaman dibuka
     window.onload = function() {
         ambilDataDariSheets();
     };
@@ -765,4 +766,3 @@ Terima kasih, pembayaran Anda telah tercatat sah di sistem database pesantren.`;
 
 </body>
 </html>
- 
