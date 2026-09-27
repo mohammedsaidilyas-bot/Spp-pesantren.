@@ -192,10 +192,17 @@
             text-align: right;
         }
 
+        /* Tata Letak Bersampingan (Grid 2 Kolom) untuk Bulan & Total Tagihan */
+        .form-row-side {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
         /* Model Dropdown/Accordion Pemilihan Bulan */
         .dropdown-bulan-container {
             position: relative;
-            margin-bottom: 12px;
         }
 
         .dropdown-toggle-box {
@@ -204,11 +211,12 @@
             align-items: center;
             background: #f8fafc;
             border: 1.5px solid var(--border-color);
-            padding: 10px 14px;
+            padding: 10px 10px;
             border-radius: 10px;
             cursor: pointer;
             transition: all 0.2s;
             user-select: none;
+            height: 42px;
         }
 
         .dropdown-toggle-box:hover {
@@ -217,14 +225,20 @@
         }
 
         .dropdown-toggle-box span {
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
             color: var(--text-main);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .dropdown-toggle-box i {
             color: var(--text-muted);
+            font-size: 11px;
             transition: transform 0.2s;
+            flex-shrink: 0;
+            margin-left: 4px;
         }
 
         /* Konten Pilihan Bulan (Menu Dropdown) */
@@ -233,7 +247,7 @@
             position: absolute;
             top: calc(100% + 4px);
             left: 0;
-            width: 100%;
+            width: 260px;
             background: #ffffff;
             border: 1.5px solid var(--border-color);
             border-radius: 12px;
@@ -261,7 +275,7 @@
             border: 1.5px solid var(--border-color);
             padding: 8px 4px;
             border-radius: 8px;
-            font-size: 12px;
+            font-size: 11.5px;
             font-weight: 600;
             color: var(--text-main);
             cursor: pointer;
@@ -298,6 +312,32 @@
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(-4px); }
             to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Box Total Tagihan Samping */
+        .total-tagihan-box {
+            background: #f8fafc;
+            padding: 8px 10px;
+            border-radius: 10px;
+            border: 1.5px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            height: 42px;
+        }
+
+        .total-tagihan-title {
+            font-size: 9.5px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .total-tagihan-value {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--primary);
         }
 
         /* PIN Bendahara */
@@ -424,38 +464,41 @@
                 </div>
             </div>
 
-            <!-- Dropdown / Accordion Pemilihan Bulan (Tampil 1 baris di depan) -->
-            <div class="dropdown-bulan-container">
-                <label class="input-label">Pilih Bulan Pembayaran</label>
-                <div class="dropdown-toggle-box" onclick="toggleDropdownBulan(event)">
-                    <span id="txtInfoPilihanBulan">Pilih bulan (Bisa > 1)</span>
-                    <i class="fa-solid fa-chevron-down" id="iconDropdown"></i>
-                </div>
+            <!-- Tata Letak Bersampingan (Pilih Bulan & Total Tagihan) -->
+            <div class="form-row-side">
+                <!-- Dropdown Pemilihan Bulan -->
+                <div class="dropdown-bulan-container">
+                    <label class="input-label">Bulan</label>
+                    <div class="dropdown-toggle-box" onclick="toggleDropdownBulan(event)">
+                        <span id="txtInfoPilihanBulan">Pilih bulan...</span>
+                        <i class="fa-solid fa-chevron-down" id="iconDropdown"></i>
+                    </div>
 
-                <!-- Kotak Menu Pilihan Bulan di Dalamnya -->
-                <div class="bulan-dropdown-content" id="bulanDropdownContent">
-                    <div class="bulan-grid" id="bulanCheckboxes">
-                        <label class="bulan-pill" onclick="toggleBulan(this)"><input type="checkbox" value="Juli">Juli</label>
-                        <label class="bulan-pill" onclick="toggleBulan(this)"><input type="checkbox" value="Agustus">Agustus</label>
-                        <label class="bulan-pill" onclick="toggleBulan(this)"><input type="checkbox" value="September">September</label>
-                        <label class="bulan-pill" onclick="toggleBulan(this)"><input type="checkbox" value="Oktober">Oktober</label>
-                        <label class="bulan-pill" onclick="toggleBulan(this)"><input type="checkbox" value="November">November</label>
-                        <label class="bulan-pill" onclick="toggleBulan(this)"><input type="checkbox" value="Desember">Desember</label>
-                        <label class="bulan-pill" onclick="toggleBulan(this)"><input type="checkbox" value="Januari">Januari</label>
-                        <label class="bulan-pill" onclick="toggleBulan(this)"><input type="checkbox" value="Februari">Februari</label>
-                        <label class="bulan-pill" onclick="toggleBulan(this)"><input type="checkbox" value="Maret">Maret</label>
-                        <label class="bulan-pill" onclick="toggleBulan(this)"><input type="checkbox" value="April">April</label>
-                        <label class="bulan-pill" onclick="toggleBulan(this)"><input type="checkbox" value="Mei">Mei</label>
-                        <label class="bulan-pill" onclick="toggleBulan(this)"><input type="checkbox" value="Juni">Juni</label>
+                    <!-- Kotak Menu Pilihan Bulan di Dalamnya -->
+                    <div class="bulan-dropdown-content" id="bulanDropdownContent">
+                        <div class="bulan-grid" id="bulanCheckboxes">
+                            <label class="bulan-pill" onclick="toggleBulan(this)"><input type="checkbox" value="Juli">Juli</label>
+                            <label class="bulan-pill" onclick="toggleBulan(this)"><input type="checkbox" value="Agustus">Agustus</label>
+                            <label class="bulan-pill" onclick="toggleBulan(this)"><input type="checkbox" value="September">September</label>
+                            <label class="bulan-pill" onclick="toggleBulan(this)"><input type="checkbox" value="Oktober">Oktober</label>
+                            <label class="bulan-pill" onclick="toggleBulan(this)"><input type="checkbox" value="November">November</label>
+                            <label class="bulan-pill" onclick="toggleBulan(this)"><input type="checkbox" value="Desember">Desember</label>
+                            <label class="bulan-pill" onclick="toggleBulan(this)"><input type="checkbox" value="Januari">Januari</label>
+                            <label class="bulan-pill" onclick="toggleBulan(this)"><input type="checkbox" value="Februari">Februari</label>
+                            <label class="bulan-pill" onclick="toggleBulan(this)"><input type="checkbox" value="Maret">Maret</label>
+                            <label class="bulan-pill" onclick="toggleBulan(this)"><input type="checkbox" value="April">April</label>
+                            <label class="bulan-pill" onclick="toggleBulan(this)"><input type="checkbox" value="Mei">Mei</label>
+                            <label class="bulan-pill" onclick="toggleBulan(this)"><input type="checkbox" value="Juni">Juni</label>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Total Tagihan & Nominal -->
-            <div style="margin-bottom: 12px;">
-                <div class="info-row" style="background: #f8fafc; padding: 8px 10px; border-radius: 8px; border: 1.5px solid var(--border-color);">
-                    <span class="info-label" style="font-weight: 700; color: var(--text-main);">Total Tagihan Dipilih</span>
-                    <span class="info-value" id="txtTotalTagihan" style="color: var(--primary); font-size: 14px;">Rp 0</span>
+                <!-- Total Tagihan Samping -->
+                <div>
+                    <span class="input-label">Total Tagihan</span>
+                    <div class="total-tagihan-box">
+                        <div class="total-tagihan-value" id="txtTotalTagihan">Rp 0</div>
+                    </div>
                 </div>
             </div>
 
@@ -547,38 +590,4 @@
     }
 
     function tutupDropdown() {
-        var content = document.getElementById("bulanDropdownContent");
-        var icon = document.getElementById("iconDropdown");
-        content.classList.remove("show");
-        icon.style.transform = "rotate(0deg)";
-    }
-
-    // Tutup dropdown jika mengklik di luar area dropdown
-    window.onclick = function(event) {
-        if (!event.target.closest('.dropdown-bulan-container')) {
-            tutupDropdown();
-        }
-    }
-
-    function toggleBulan(element) {
-        if (element.classList.contains("lunas")) return;
-        
-        var checkbox = element.querySelector("input[type='checkbox']");
-        checkbox.checked = !checkbox.checked;
-        
-        if (checkbox.checked) {
-            element.classList.add("selected");
-        } else {
-            element.classList.remove("selected");
-        }
-        
-        hitungTotalNominal();
-    }
-
-    function updateStatusBulanGrid() {
-        if (!santriCache || !santriCache.pembayaran) return;
-        var labels = document.querySelectorAll("#bulanCheckboxes .bulan-pill");
-        
-        labels.forEach((label, index) => {
-            var bulan = daftarBulan[index];
-            var status 
+        var content = document.getElementById("bulanDropdownContent
