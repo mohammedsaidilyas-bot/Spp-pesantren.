@@ -530,7 +530,6 @@
 
     let santriCache = databaseSantri["20260000"];
     let bulanTerpilihSet = new Set();
-    let bulanTerakhirDilihat = null; // Menyimpan bulan yang terakhir diklik untuk info status
 
     function getBulanAktifSekarang() {
         const d = new Date();
@@ -555,9 +554,8 @@
             document.getElementById("txtTelp").innerText = santriCache.telp;
             
             bulanTerpilihSet.clear();
-            bulanTerakhirDilihat = null;
-            renderBulanGrid();
-            updateStatusBulanBerjalan(); // Set default ke bulan aktif saat ini
+            renderBulanGrid(); // Dipanggil di sini agar grid terisi saat data dimuat
+            updateStatusBulanBerjalan();
             hitungTotalNominal();
             
             document.getElementById("pinContainer").style.display = "none";
@@ -570,6 +568,8 @@
 
     function renderBulanGrid() {
         var gridContainer = document.getElementById("bulanCheckboxes");
+        if (!gridContainer) return;
+        
         gridContainer.innerHTML = "";
 
         daftarBulan.forEach(bulan => {
@@ -598,11 +598,13 @@
     function toggleDropdownBulan() {
         var content = document.getElementById("bulanDropdownContent");
         var icon = document.getElementById("iconDropdown");
+        
+        renderBulanGrid(); // Selalu render ulang saat dropdown dibuka agar nama bulan pasti tampil
+
         if (content.classList.contains("show")) {
             content.classList.remove("show");
             icon.style.transform = "rotate(0deg)";
         } else {
-            renderBulanGrid();
             content.classList.add("show");
             icon.style.transform = "rotate(180deg)";
         }
@@ -613,8 +615,8 @@
         
         // Perbarui status di bagian atas sesuai bulan yang diklik (baik lunas maupun belum)
         updateStatusBulanDilihat(bulanNama, statusBulan);
-        bulanTerakhirDilihat = bulanNama;
 
         // Jika bulan sudah LUNAS, tampilkan info statusnya tapi kunci tombol pembayaran
         if (statusBulan === "LUNAS") {
+            bulanTerpilihSet.clear();
  
