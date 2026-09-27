@@ -444,10 +444,10 @@
                     <span class="info-label">No. Telepon</span>
                     <span class="info-value" id="txtTelp">082219644442</span>
                 </div>
-                <!-- Status Pembayaran Bulan yang Dipilih / Berjalan -->
+                <!-- Status Pembayaran SPP -->
                 <div class="info-row" style="border-top: 1px dashed var(--border-color); margin-top: 6px; padding-top: 6px;">
-                    <span class="info-label" id="txtLabelBulanIni">Status Bulan Ini</span>
-                    <span class="info-value" id="txtStatusBulanInfo" style="font-weight: 700;">BELUM LUNAS</span>
+                    <span class="info-label" id="txtLabelBulanIni">Status Pembayaran SPP</span>
+                    <span class="info-value" id="txtStatusBulanInfo" style="font-weight: 700;">SILAHKAN PILIH BULAN</span>
                 </div>
             </div>
 
@@ -531,12 +531,6 @@
     let santriCache = databaseSantri["20260000"];
     let bulanTerpilihSet = new Set();
 
-    function getBulanAktifSekarang() {
-        const d = new Date();
-        const bulanIndo = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-        return bulanIndo[d.getMonth()];
-    }
-
     function cekDataSantri() {
         var nisInput = document.getElementById("nis").value.trim();
         if (!nisInput) {
@@ -554,10 +548,20 @@
             document.getElementById("txtTelp").innerText = santriCache.telp;
             
             bulanTerpilihSet.clear();
-            renderBulanGrid(); // Dipanggil di sini agar grid terisi saat data dimuat
-            updateStatusBulanBerjalan();
-            hitungTotalNominal();
+            renderBulanGrid(); 
             
+            // Reset status awal
+            document.getElementById("txtLabelBulanIni").innerText = "Status Pembayaran SPP";
+            let statusInfo = document.getElementById("txtStatusBulanInfo");
+            statusInfo.innerText = "SILAHKAN PILIH BULAN";
+            statusInfo.style.color = "var(--text-muted)";
+
+            document.getElementById("txtInfoPilihanBulan").innerText = "Pilih bulan...";
+            document.getElementById("txtInfoPilihanBulan").style.color = "var(--text-main)";
+            document.getElementById("txtTotalTagihan").innerText = "Rp 0";
+            
+            document.getElementById("btnOnline").disabled = true;
+            document.getElementById("btnTunai").disabled = true;
             document.getElementById("pinContainer").style.display = "none";
             document.getElementById("bulanDropdownContent").classList.remove("show");
             document.getElementById("iconDropdown").style.transform = "rotate(0deg)";
@@ -599,7 +603,7 @@
         var content = document.getElementById("bulanDropdownContent");
         var icon = document.getElementById("iconDropdown");
         
-        renderBulanGrid(); // Selalu render ulang saat dropdown dibuka agar nama bulan pasti tampil
+        renderBulanGrid(); 
 
         if (content.classList.contains("show")) {
             content.classList.remove("show");
@@ -613,10 +617,4 @@
     function pilihBulanPill(bulanNama, statusBulan) {
         var txtInfoPilihan = document.getElementById("txtInfoPilihanBulan");
         
-        // Perbarui status di bagian atas sesuai bulan yang diklik (baik lunas maupun belum)
-        updateStatusBulanDilihat(bulanNama, statusBulan);
-
-        // Jika bulan sudah LUNAS, tampilkan info statusnya tapi kunci tombol pembayaran
-        if (statusBulan === "LUNAS") {
-            bulanTerpilihSet.clear();
- 
+        // Perbarui tampilan status di atas sesuai bulan yang diklik (Lunas / 
