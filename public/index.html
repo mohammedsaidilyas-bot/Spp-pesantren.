@@ -137,7 +137,7 @@
             margin-top: 14px;
             padding-top: 14px;
             border-top: 1px solid var(--border-color);
-            display: block; /* Default tampil langsung */
+            display: block;
         }
 
         /* Desain Header Nama Santri & Status */
@@ -264,9 +264,16 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.08);
         }
 
-        .btn-action:hover { 
+        .btn-action:hover:not(:disabled) { 
             opacity: 0.92;
             transform: translateY(-1px);
+        }
+
+        .btn-action:disabled {
+            background: #cbd5e1 !important;
+            cursor: not-allowed;
+            box-shadow: none;
+            color: #64748b;
         }
 
         .btn-mayar { background: #6366f1; } 
@@ -396,10 +403,10 @@
 
             <!-- Tombol Aksi Berjajar, Kecil, & Elegan -->
             <div class="action-buttons-group">
-                <button class="btn-action btn-mayar" onclick="prosesPembayaran('Online / Mayar.id')">
+                <button id="btnOnline" class="btn-action btn-mayar" onclick="prosesPembayaran('Online / Mayar.id')">
                     <i class="fa-solid fa-globe"></i> Online
                 </button>
-                <button class="btn-action btn-tunai" onclick="handleBayarTunaiClick()">
+                <button id="btnTunai" class="btn-action btn-tunai" onclick="handleBayarTunaiClick()">
                     <i class="fa-solid fa-money-bill-wave"></i> Tunai (PIN)
                 </button>
             </div>
@@ -445,7 +452,6 @@
 
     let santriCache = null;
 
-    // Langsung muat data santri default saat halaman dibuka
     window.onload = function() {
         muatDataDefault();
     };
@@ -504,7 +510,6 @@
         var selectBulan = document.getElementById("bulan");
         selectBulan.innerHTML = "";
 
-        let adaBulanBelumLunas = false;
         let jumlahLunas = 0;
 
         daftarBulan.forEach(bulan => {
@@ -512,13 +517,12 @@
             var option = document.createElement("option");
             option.value = bulan;
             
+            // Bulannya tetap bisa diklik/dipilih, status lunasnya ditaruh di luar (pada teks opsi dropdown)
             if (status === "LUNAS") {
-                option.text = bulan + " (LUNAS)";
-                option.disabled = true;
+                option.text = bulan + " - (LUNAS)";
                 jumlahLunas++;
             } else {
-                option.text = bulan;
-                adaBulanBelumLunas = true;
+                option.text = bulan + " - (Belum Lunas)";
             }
             selectBulan.appendChild(option);
         });
@@ -530,20 +534,7 @@
             txtStatusGlobal.innerHTML = "<span style='color: #d97706;'>Belum Lunas (" + jumlahLunas + "/12 Bulan)</span>";
         }
 
-        if (!adaBulanBelumLunas) {
-            var option = document.createElement("option");
-            option.text = "Semua Bulan Sudah Lunas";
-            option.disabled = true;
-            selectBulan.appendChild(option);
-            selectBulan.selectedIndex = selectBulan.options.length - 1;
-        } else {
-            for (let i = 0; i < selectBulan.options.length; i++) {
-                if (!selectBulan.options[i].disabled) {
-                    selectBulan.selectedIndex = i;
-                    break;
-                }
-            }
-        }
+        selectBulan.selectedIndex = 0;
     }
 
     function updateStatusBulan() {
@@ -555,19 +546,32 @@
         var statusBulan = (santriCache.pembayaran[bulanPilih] || "BELUM LUNAS").toUpperCase();
         var badge = document.getElementById("txtStatusBadge");
         
+        var btnOnline = document.getElementById("btnOnline");
+        var btnTunai = document.getElementById("btnTunai");
+        var pinContainer = document.getElementById("pinContainer");
+
         if (statusBulan === "LUNAS") {
             badge.innerText = "LUNAS";
             badge.className = "badge-status badge-lunas";
+            
+            // Kunci tombol pembayaran jika bulan sudah lunas
+            btnOnline.disabled = true;
+            btnTunai.disabled = true;
+            pinContainer.style.display = "none";
         } else {
             badge.innerText = "BELUM LUNAS";
             badge.className = "badge-status badge-belum";
+            
+            // Aktifkan kembali tombol pembayaran jika belum lunas
+            btnOnline.disabled = false;
+            btnTunai.disabled = false;
         }
     }
 
     function handleBayarTunaiClick() {
         var bulan = document.getElementById("bulan").value;
         if (!bulan || santriCache.pembayaran[bulan] === "LUNAS") {
-            alert("Bulan ini sudah lunas atau tidak valid untuk dipilih!");
+            alert("Bulan ini sudah lunas!");
             return;
         }
 
@@ -584,7 +588,7 @@
         var bulan = document.getElementById("bulan").value;
 
         if (!bulan || santriCache.pembayaran[bulan] === "LUNAS") {
-            alert("Harap pilih bulan pembayaran yang belum lunas terlebih dahulu!");
+            alert("Bulan pembayaran ini sudah lunas!");
             return;
         }
 
