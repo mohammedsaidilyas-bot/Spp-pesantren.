@@ -258,12 +258,11 @@
 
         .bulan-pill {
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
             background: #ffffff;
             border: 1.5px solid var(--border-color);
-            padding: 8px 4px;
+            padding: 10px 4px;
             border-radius: 8px;
             font-size: 11px;
             font-weight: 600;
@@ -274,38 +273,25 @@
             text-align: center;
         }
 
-        .bulan-pill span.status-text {
-            font-size: 9px;
-            font-weight: 700;
-            margin-top: 2px;
-        }
-
-        .bulan-pill.lunas {
+        .bulan-pill:hover {
+            border-color: var(--primary);
             background: #f0fdf4;
-            border-color: #bbf7d0;
-            color: #166534;
-        }
-        .bulan-pill.lunas span.status-text {
-            color: #15803d;
-        }
-
-        .bulan-pill.belum {
-            background: #fef2f2;
-            border-color: #fecaca;
-            color: #991b1b;
-        }
-        .bulan-pill.belum span.status-text {
-            color: #b91c1c;
+            color: var(--primary);
         }
 
         .bulan-pill.selected {
-            background: var(--primary) !important;
-            border-color: var(--primary) !important;
-            color: #ffffff !important;
+            background: var(--primary);
+            border-color: var(--primary);
+            color: #ffffff;
             box-shadow: 0 2px 4px rgba(0, 137, 83, 0.2);
         }
-        .bulan-pill.selected span.status-text {
-            color: #ffffff !important;
+
+        /* Warna khusus bulan yang sudah lunas di dalam pilihan */
+        .bulan-pill.lunas-pill {
+            background: #f1f5f9;
+            color: #94a3b8;
+            border-color: #e2e8f0;
+            text-decoration: line-through;
         }
 
         .total-tagihan-box {
@@ -442,6 +428,11 @@
                     <span class="info-label">No. Telepon</span>
                     <span class="info-value" id="txtTelp">-</span>
                 </div>
+                <!-- Status Pembayaran di Luar / Bagian Informasi -->
+                <div class="info-row" style="border-top: 1px dashed var(--border-color); margin-top: 6px; padding-top: 6px;">
+                    <span class="info-label" id="txtLabelBulanIni">Status Pembayaran SPP</span>
+                    <span class="info-value" id="txtStatusBulanInfo" style="font-weight: 700; color: var(--text-muted);">PILIH BULAN DI BAWAH</span>
+                </div>
             </div>
 
             <div class="form-row-side">
@@ -462,7 +453,7 @@
             </div>
 
             <div class="bulan-dropdown-content" id="bulanDropdownContent">
-                <label class="input-label" style="margin-bottom: 8px;">Ketuk Bulan untuk Memilih Tagihan:</label>
+                <label class="input-label" style="margin-bottom: 8px;">Pilih Bulan Pembayaran:</label>
                 <div class="bulan-grid" id="bulanCheckboxes"></div>
             </div>
 
@@ -497,7 +488,7 @@
         try {
             let response = await fetch(urlWebApps);
             databaseSantri = await response.json();
-            console.log("Database berhasil dimuat dari Google Sheets!");
+            console.log("Database berhasil dimuat!");
         } catch (error) {
             console.error("Gagal memuat database:", error);
             alert("Gagal terhubung ke database Google Sheets.");
@@ -511,7 +502,6 @@
             return;
         }
 
-        // Ambil data terbaru dari sheets setiap kali pencarian
         await ambilDataDariSheets();
 
         if (databaseSantri[nisInput]) {
@@ -527,6 +517,11 @@
             bulanTerpilihSet.clear();
             renderBulanGrid();
             
+            document.getElementById("txtLabelBulanIni").innerText = "Status Pembayaran SPP";
+            let statusInfo = document.getElementById("txtStatusBulanInfo");
+            statusInfo.innerText = "PILIH BULAN DI BAWAH";
+            statusInfo.style.color = "var(--text-muted)";
+
             document.getElementById("txtInfoPilihanBulan").innerText = "Pilih bulan...";
             document.getElementById("txtInfoPilihanBulan").style.color = "var(--text-muted)";
             document.getElementById("txtTotalTagihan").innerText = "Rp 0";
@@ -571,17 +566,13 @@
             pill.className = "bulan-pill";
             
             if (status === "LUNAS") {
-                pill.classList.add("lunas");
-            } else {
-                pill.classList.add("belum");
+                pill.classList.add("lunas-pill");
             }
-
             if (isSelected) {
                 pill.classList.add("selected");
             }
             
-            pill.innerHTML = `<span>${bulan}</span><span class="status-text">${status}</span>`;
-            
+            pill.innerText = bulan;
             pill.onclick = function() {
                 pilihBulanPill(bulan, status);
             };
@@ -591,6 +582,17 @@
     }
 
     function pilihBulanPill(bulanNama, statusBulan) {
+        document.getElementById("txtLabelBulanIni").innerText = "Status (" + bulanNama + ")";
+        var txtStatusBulanInfo = document.getElementById("txtStatusBulanInfo");
+
+        if (statusBulan === "LUNAS") {
+            txtStatusBulanInfo.innerText = "LUNAS";
+            txtStatusBulanInfo.style.color = "#008953";
+        } else {
+            txtStatusBulanInfo.innerText = "BELUM LUNAS";
+            txtStatusBulanInfo.style.color = "#991b1b";
+        }
+
         if (statusBulan === "LUNAS") {
             alert("Bulan " + bulanNama + " sudah berstatus LUNAS!");
             return;
@@ -598,6 +600,11 @@
 
         if (bulanTerpilihSet.has(bulanNama)) {
             bulanTerpilihSet.delete(bulanNama);
+            if (bulanTerpilihSet.size === 0) {
+                document.getElementById("txtLabelBulanIni").innerText = "Status Pembayaran SPP";
+                txtStatusBulanInfo.innerText = "PILIH BULAN DI BAWAH";
+                txtStatusBulanInfo.style.color = "var(--text-muted)";
+            }
         } else {
             bulanTerpilihSet.add(bulanNama);
         }
@@ -659,7 +666,7 @@
 
         if (metode === "Tunai / Offline") {
             var inputPin = document.getElementById("kodeBendahara").value.trim();
-            if (inputPin !== PIN_BENDAHARA_VALID) {
+            if (inputPIN_BENDAHARA_VALID !== PIN_BENDAHARA_VALID && inputPin !== PIN_BENDAHARA_VALID) {
                 alert("Akses Ditolak! PIN Bendahara salah. (Gunakan PIN: 123456)");
                 return;
             }
@@ -667,7 +674,6 @@
 
         var listBulanDipilih = Array.from(bulanTerpilihSet);
 
-        // Kirim data ke Google Sheets secara permanen
         try {
             document.body.style.cursor = "wait";
             let response = await fetch(urlWebApps, {
@@ -691,7 +697,6 @@
             return;
         }
 
-        // Update cache lokal
         listBulanDipilih.forEach(bulan => {
             if (santriCache && santriCache.pembayaran) {
                 santriCache.pembayaran[bulan] = "LUNAS";
@@ -700,6 +705,12 @@
 
         bulanTerpilihSet.clear();
         renderBulanGrid();
+        
+        document.getElementById("txtLabelBulanIni").innerText = "Status Pembayaran SPP";
+        let statusInfo = document.getElementById("txtStatusBulanInfo");
+        statusInfo.innerText = "PILIH BULAN DI BAWAH";
+        statusInfo.style.color = "var(--text-muted)";
+
         hitungTotalNominal();
 
         document.getElementById("bulanDropdownContent").style.display = "none";
@@ -709,7 +720,7 @@
         var nis = santriCache.nis;
         var kelas = santriCache.kelas;
         var wali = santriCache.wali;
-        var telp = santriCard = santriCache.telp;
+        var telp = santriCache.telp;
         var nominalPerBulan = Number(santriCache.nominal) || 150000;
         var tanggal = new Date().toLocaleDateString("id-ID", { day: 'numeric', month: 'long', year: 'numeric' });
         var totalBayar = listBulanDipilih.length * nominalPerBulan;
