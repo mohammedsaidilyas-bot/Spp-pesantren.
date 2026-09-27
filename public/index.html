@@ -444,7 +444,7 @@
                     <span class="info-label">No. Telepon</span>
                     <span class="info-value" id="txtTelp">082219644442</span>
                 </div>
-                <!-- Status Pembayaran Bulan Berjalan Otomatis -->
+                <!-- Status Pembayaran Bulan yang Dipilih / Berjalan -->
                 <div class="info-row" style="border-top: 1px dashed var(--border-color); margin-top: 6px; padding-top: 6px;">
                     <span class="info-label" id="txtLabelBulanIni">Status Bulan Ini</span>
                     <span class="info-value" id="txtStatusBulanInfo" style="font-weight: 700;">BELUM LUNAS</span>
@@ -530,6 +530,7 @@
 
     let santriCache = databaseSantri["20260000"];
     let bulanTerpilihSet = new Set();
+    let bulanTerakhirDilihat = null; // Menyimpan bulan yang terakhir diklik untuk info status
 
     function getBulanAktifSekarang() {
         const d = new Date();
@@ -554,8 +555,9 @@
             document.getElementById("txtTelp").innerText = santriCache.telp;
             
             bulanTerpilihSet.clear();
+            bulanTerakhirDilihat = null;
             renderBulanGrid();
-            updateStatusBulanBerjalan();
+            updateStatusBulanBerjalan(); // Set default ke bulan aktif saat ini
             hitungTotalNominal();
             
             document.getElementById("pinContainer").style.display = "none";
@@ -600,7 +602,7 @@
             content.classList.remove("show");
             icon.style.transform = "rotate(0deg)";
         } else {
-            renderBulanGrid(); // Memastikan grid selalu ter-render saat dibuka
+            renderBulanGrid();
             content.classList.add("show");
             icon.style.transform = "rotate(180deg)";
         }
@@ -609,172 +611,10 @@
     function pilihBulanPill(bulanNama, statusBulan) {
         var txtInfoPilihan = document.getElementById("txtInfoPilihanBulan");
         
-        // Jika bulan sudah LUNAS, tetap bisa diklik untuk melihat statusnya, tapi tombol pembayaran dikunci
+        // Perbarui status di bagian atas sesuai bulan yang diklik (baik lunas maupun belum)
+        updateStatusBulanDilihat(bulanNama, statusBulan);
+        bulanTerakhirDilihat = bulanNama;
+
+        // Jika bulan sudah LUNAS, tampilkan info statusnya tapi kunci tombol pembayaran
         if (statusBulan === "LUNAS") {
-            bulanTerpilihSet.clear();
-            renderBulanGrid();
-            
-            txtInfoPilihan.innerText = bulanNama + " (LUNAS)";
-            txtInfoPilihan.style.color = "#0284c7";
-            
-            document.getElementById("txtTotalTagihan").innerText = "Rp 0";
-            document.getElementById("btnOnline").disabled = true;
-            document.getElementById("btnTunai").disabled = true;
-            document.getElementById("pinContainer").style.display = "none";
-            
-            document.getElementById("bulanDropdownContent").classList.add("show");
-            document.getElementById("iconDropdown").style.transform = "rotate(180deg)";
-            return;
-        }
-
-        // Logika untuk bulan belum lunas (multi-select)
-        if (bulanTerpilihSet.has(bulanNama)) {
-            bulanTerpilihSet.delete(bulanNama);
-        } else {
-            bulanTerpilihSet.add(bulanNama);
-        }
-
-        renderBulanGrid();
-        hitungTotalNominal();
-        
-        document.getElementById("bulanDropdownContent").classList.add("show");
-        document.getElementById("iconDropdown").style.transform = "rotate(180deg)";
-    }
-
-    function updateStatusBulanBerjalan() {
-        if (!santriCache || !santriCache.pembayaran) return;
-        var bulanIni = getBulanAktifSekarang();
-        var statusBulanIni = (santriCache.pembayaran[bulanIni] || "BELUM LUNAS").toUpperCase();
-        
-        document.getElementById("txtLabelBulanIni").innerText = "Status Bulan Ini (" + bulanIni + ")";
-        var txtStatusBulanInfo = document.getElementById("txtStatusBulanInfo");
-
-        if (statusBulanIni === "LUNAS") {
-            txtStatusBulanInfo.innerText = "LUNAS";
-            txtStatusBulanInfo.style.color = "#00663b";
-        } else {
-            txtStatusBulanInfo.innerText = "BELUM LUNAS";
-            txtStatusBulanInfo.style.color = "#991b1b";
-        }
-    }
-
-    function hitungTotalNominal() {
-        var jumlahPilih = bulanTerpilihSet.size;
-        var total = jumlahPilih * NOMINAL_PER_BULAN;
-
-        var txtInfoPilihan = document.getElementById("txtInfoPilihanBulan");
-        if (jumlahPilih > 0) {
-            var listBulan = Array.from(bulanTerpilihSet);
-            txtInfoPilihan.innerText = listBulan.join(", ");
-            txtInfoPilihan.style.color = "var(--primary)";
-        } else {
-            if (!txtInfoPilihan.innerText.includes("(LUNAS)")) {
-                txtInfoPilihan.innerText = "Pilih bulan...";
-                txtInfoPilihan.style.color = "var(--text-main)";
-            }
-        }
-
-        document.getElementById("txtTotalTagihan").innerText = "Rp " + total.toLocaleString("id-ID");
-
-        var btnOnline = document.getElementById("btnOnline");
-        var btnTunai = document.getElementById("btnTunai");
-
-        if (jumlahPilih === 0) {
-            btnOnline.disabled = true;
-            btnTunai.disabled = true;
-            document.getElementById("pinContainer").style.display = "none";
-        } else {
-            btnOnline.disabled = false;
-            btnTunai.disabled = false;
-        }
-    }
-
-    function handleBayarTunaiClick() {
-        if (bulanTerpilihSet.size === 0) {
-            alert("Pilih minimal satu bulan pembayaran terlebih dahulu!");
-            return;
-        }
-
-        var pinContainer = document.getElementById("pinContainer");
-        if (pinContainer.style.display === "none" || pinContainer.style.display === "") {
-            pinContainer.style.display = "block";
-            document.getElementById("kodeBendahara").focus();
-        } else {
-            prosesPembayaran("Tunai / Offline");
-        }
-    }
-
-    function prosesPembayaran(metode) {
-        if (bulanTerpilihSet.size === 0) {
-            alert("Pilih minimal satu bulan pembayaran!");
-            return;
-        }
-
-        if (metode === "Tunai / Offline") {
-            var inputPin = document.getElementById("kodeBendahara").value.trim();
-            if (inputPin !== PIN_BENDAHARA_VALID) {
-                alert("Akses Ditolak! PIN Bendahara salah. (Gunakan PIN: 123456)");
-                return;
-            }
-        }
-
-        var listBulanDipilih = Array.from(bulanTerpilihSet);
-        listBulanDipilih.forEach(bulan => {
-            if (santriCache && santriCache.pembayaran) {
-                santriCache.pembayaran[bulan] = "LUNAS";
-            }
-        });
-
-        bulanTerpilihSet.clear();
-        renderBulanGrid();
-        updateStatusBulanBerjalan();
-        hitungTotalNominal();
-        document.getElementById("bulanDropdownContent").classList.remove("show");
-        document.getElementById("iconDropdown").style.transform = "rotate(0deg)";
-
-        var nama = santriCache.nama;
-        var nis = santriCache.nis;
-        var kelas = santriCache.kelas;
-        var wali = santriCache.wali;
-        var telp = santriCache.telp;
-        var tanggal = new Date().toLocaleDateString("id-ID", { day: 'numeric', month: 'long', year: 'numeric' });
-        var totalBayar = listBulanDipilih.length * NOMINAL_PER_BULAN;
-
-        let noWa = telp.trim();
-        if (noWa.startsWith('0')) {
-            noWa = '62' + noWa.substring(1);
-        }
-
-        let pesan = `*KUITANSI PEMBAYARAN SPP*
-*Pondok Pesantren Fathul Huda Al-Qarobiyah*
----------------------------------------
-📅 *Tanggal:* ${tanggal}
-💳 *Metode:* ${metode}
----------------------------------------
-👤 *Nama Santri:* ${nama}
-🆔 *NIS:* ${nis}
-🏫 *Kelas:* ${kelas}
-👨‍👩‍👦 *Wali Santri:* ${wali}
----------------------------------------
-📌 *Untuk Pembayaran Bulan:* 
-*${listBulanDipilih.join(", ")}*
-💰 *Total Dibayar:* Rp ${totalBayar.toLocaleString("id-ID")}
-✅ *Status:* LUNAS
----------------------------------------
-Terima kasih, pembayaran Anda telah tercatat sah di sistem database pesantren.`;
-
-        let urlWa = `https://api.whatsapp.com/send?phone=${noWa}&text=${encodeURIComponent(pesan)}`;
-        
-        document.getElementById("kodeBendahara").value = "";
-        document.getElementById("pinContainer").style.display = "none";
-
-        window.location.href = urlWa;
-    }
-
-    window.onload = function() {
-        cekDataSantri();
-    };
-</script>
-
-</body>
-</html>
+ 
