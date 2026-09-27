@@ -71,7 +71,7 @@
                 </div>
             </div>
 
-            <!-- Bagian Pemilihan Bulan (Bisa Centang Banyak) -->
+            <!-- Bagian Pemilihan Bulan -->
             <div class="space-y-2">
                 <div class="flex justify-between items-center text-xs">
                     <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Pilih Bulan Tagihan (Bisa Lebih Dari Satu)</span>
@@ -87,7 +87,7 @@
                 <span id="view-total" class="text-sm font-bold text-emerald-700">Rp 0</span>
             </div>
 
-            <!-- Tombol Aksi Berdampingan di Bawah (Warna Utama/Senada) -->
+            <!-- Tombol Aksi Berdampingan di Bawah -->
             <div class="grid grid-cols-2 gap-3 pt-1">
                 <button onclick="bukaModalOnline()" class="bg-emerald-700 hover:bg-emerald-800 text-white py-3 rounded-xl text-xs font-bold transition-all shadow-md flex items-center justify-center gap-1.5 active:scale-95">
                     🌐 Bayar Online
@@ -125,35 +125,43 @@
         </div>
     </div>
 
-    <!-- Modal Kuitansi Resmi -->
-    <div id="modal-kuitansi" class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-3xl p-6 w-full max-w-sm space-y-3 shadow-2xl border border-slate-100 font-mono text-xs text-slate-800">
-            <div class="text-center border-b border-dashed border-slate-300 pb-3">
-                <p class="font-bold text-sm tracking-wide text-emerald-900">KUITANSI PEMBAYARAN SPP</p>
-                <p class="font-bold text-[11px] text-slate-600 mt-1">PP Fathul Huda Al-Qorrobiyah</p>
+    <!-- Modal Kuitansi Buku Struk -->
+    <div id="modal-kuitansi" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div class="bg-amber-50/95 rounded-3xl p-6 w-full max-w-sm space-y-3 shadow-2xl border-4 border-emerald-800 font-mono text-xs text-slate-900 relative">
+            <div class="text-center border-b-2 border-dashed border-emerald-800 pb-3">
+                <p class="font-bold text-sm tracking-wide text-emerald-950">KUITANSI PEMBAYARAN SPP</p>
+                <p class="font-bold text-[11px] text-emerald-800 mt-1">PP Fathul Huda Al-Qorrobiyah</p>
             </div>
-            <div class="space-y-1.5 text-[11px] py-1 border-b border-dashed border-slate-300 pb-3">
+            
+            <div class="space-y-1.5 text-[11px] py-1 border-b border-dashed border-slate-400 pb-2.5">
                 <div>📅 <strong>Tanggal:</strong> <span id="k-tgl"></span></div>
                 <div>💳 <strong>Metode:</strong> <span id="k-metode"></span></div>
             </div>
-            <div class="space-y-1.5 text-[11px] py-1 border-b border-dashed border-slate-300 pb-3">
+
+            <div class="space-y-1.5 text-[11px] py-1 border-b border-dashed border-slate-400 pb-2.5">
                 <div>👤 <strong>Nama Santri:</strong> <span id="k-nama"></span></div>
                 <div>🆔 <strong>NIS:</strong> <span id="k-nis"></span></div>
                 <div>🏫 <strong>Kelas:</strong> <span id="k-kelas"></span></div>
                 <div>👨‍👩‍👦 <strong>Wali Santri:</strong> <span id="k-wali"></span></div>
             </div>
-            <div class="space-y-1.5 text-[11px] py-1 border-b border-dashed border-slate-300 pb-3">
+
+            <div class="space-y-1 py-1 border-b border-dashed border-slate-400 pb-2.5">
                 <div>📌 <strong>Untuk Pembayaran Bulan:</strong></div>
-                <div id="k-bulan" class="font-bold text-emerald-800 pl-4"></div>
+                <div id="k-bulan" class="font-bold text-emerald-900 pl-4"></div>
             </div>
-            <div class="space-y-1.5 text-[11px] py-1">
+
+            <div class="space-y-1 text-[11px] py-1">
                 <div>💰 <strong>Total Dibayar:</strong> Rp <span id="k-total"></span></div>
-                <div>✅ <strong>Status:</strong> <span id="k-status" class="font-bold text-emerald-600"></span></div>
+                <div>✅ <strong>Status:</strong> <span id="k-status" class="font-bold text-emerald-700"></span></div>
             </div>
-            <div class="text-[10px] text-slate-500 text-center pt-2 border-t border-dashed border-slate-300">
+
+            <div class="text-[10px] text-slate-600 text-center pt-2 border-t-2 border-dashed border-emerald-800 leading-tight">
                 Terima kasih, pembayaran Anda telah tercatat sah di sistem database pesantren.
             </div>
-            <button onclick="tutupKuitansi()" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white py-2.5 rounded-xl font-bold text-xs mt-3 shadow">Tutup</button>
+
+            <div class="pt-2">
+                <button onclick="tutupKuitansi()" class="w-full bg-emerald-800 hover:bg-emerald-900 text-white py-2.5 rounded-xl font-bold text-xs shadow">Tutup & Selesai</button>
+            </div>
         </div>
     </div>
 
@@ -178,7 +186,7 @@
         const urlWebApps = "https://script.google.com/macros/s/AKfycbzzOR8F8WGAQ7eDAdY1dOr2TYROFktb7FAAeNRu4633c5iilWN7OSPReyZIfI3M6U54vA/exec";
         let santriAktif = null;
         let databaseSantri = [];
-        const NOMINAL_SPP = 50000; // Ubah nominal SPP per bulan sesuai kebutuhan
+        const NOMINAL_SPP = 50000;
 
         async function cariSantri() {
             const nis = document.getElementById('input-nis').value.trim();
@@ -277,17 +285,49 @@
             const now = new Date();
             const tglStr = now.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
             
-            document.getElementById('k-tgl').innerText = tglStr;
-            document.getElementById('k-metode').innerText = metode;
-            document.getElementById('k-nama').innerText = santriAktif.nama;
-            document.getElementById('k-nis').innerText = santriAktif.nis;
-            document.getElementById('k-kelas').innerText = santriAktif.kelas;
-            document.getElementById('k-wali').innerText = santriAktif.namaWali;
-            document.getElementById('k-bulan').innerText = bulanList.join(', ');
-            document.getElementById('k-total').innerText = (bulanList.length * NOMINAL_SPP).toLocaleString('id-ID');
-            document.getElementById('k-status').innerText = metode.includes('Tunai') ? "LUNAS (TUNAI)" : "PENDING (MENUNGGU VERIFIKASI)";
+            const dataKuitansi = {
+                tanggal: tglStr,
+                metode: metode,
+                nama: santriAktif.nama,
+                nis: santriAktif.nis,
+                kelas: santriAktif.kelas,
+                wali: santriAktif.namaWali,
+                noWa: santriAktif.noWa,
+                bulan: bulanList.join(', '),
+                total: (bulanList.length * NOMINAL_SPP).toLocaleString('id-ID'),
+                status: metode.includes('Tunai') ? "LUNAS (TUNAI)" : "PENDING (MENUNGGU VERIFIKASI)"
+            };
+
+            document.getElementById('k-tgl').innerText = dataKuitansi.tanggal;
+            document.getElementById('k-metode').innerText = dataKuitansi.metode;
+            document.getElementById('k-nama').innerText = dataKuitansi.nama;
+            document.getElementById('k-nis').innerText = dataKuitansi.nis;
+            document.getElementById('k-kelas').innerText = dataKuitansi.kelas;
+            document.getElementById('k-wali').innerText = dataKuitansi.wali;
+            document.getElementById('k-bulan').innerText = dataKuitansi.bulan;
+            document.getElementById('k-total').innerText = dataKuitansi.total;
+            document.getElementById('k-status').innerText = dataKuitansi.status;
 
             document.getElementById('modal-kuitansi').classList.remove('hidden');
+
+            // Jika Tunai, langsung otomatis kirim ke WA saat itu juga. Jika Online, tidak otomatis kirim WA di sini (dikirim pas Approve).
+            if (metode.includes('Tunai')) {
+                kirimOtomatisWA(dataKuitansi);
+            }
+        }
+
+        function kirimOtomatisWA(dataKuitansi) {
+            let noHp = dataKuitansi.noWa || "";
+            if (noHp.startsWith('08')) {
+                noHp = '62' + noHp.slice(1);
+            }
+
+            const pesan = `*KUITANSI PEMBAYARAN SPP*%0A*PP Fathul Huda Al-Qorrobiyah*%0A---------------------------------------%0A📅 *Tanggal:* ${dataKuitansi.tanggal}%0A💳 *Metode:* ${dataKuitansi.metode}%0A---------------------------------------%0A👤 *Nama Santri:* ${dataKuitansi.nama}%0A🆔 *NIS:* ${dataKuitansi.nis}%0A🏫 *Kelas:* ${dataKuitansi.kelas}%0A👨‍👩‍👦 *Wali Santri:* ${dataKuitansi.wali}%0A---------------------------------------%0A📌 *Untuk Pembayaran Bulan:*%0A${dataKuitansi.bulan}%0A%0A💰 *Total Dibayar:* Rp ${dataKuitansi.total}%0A✅ *Status:* ${dataKuitansi.status}%0A---------------------------------------%0ATerima kasih, pembayaran Anda telah tercatat sah di sistem database pesantren.`;
+
+            const urlWA = noHp ? `https://wa.me/${noHp}?text=${pesan}` : `https://wa.me/?text=${pesan}`;
+            setTimeout(() => {
+                window.open(urlWA, '_blank');
+            }, 500);
         }
 
         function tutupKuitansi() {
@@ -361,7 +401,8 @@
                 const result = await res.json();
                 if (result.status === 'success') {
                     tutupModalOnline();
-                    tampilkanKuitansi("Transfer Online", bulanList);
+                    alert("Bukti transfer berhasil dikirim! Menunggu verifikasi bendahara.");
+                    resetPencarian();
                 } else {
                     alert("Gagal mengunggah bukti: " + (result.message || 'Kesalahan server.'));
                 }
@@ -433,7 +474,7 @@
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                             <span class="truncate">${item.keteranganBukti || 'Bukti Transfer'}</span>
                         </div>
-                        <button onclick="approvePembayaran('${item.nis}', '${item.bulan}')" class="bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl text-xs font-bold transition-all shadow-md active:scale-95">Setujui & Lunasi</button>
+                        <button onclick="approvePembayaran('${item.nis}', '${item.bulan}', '${item.nama}', '${item.kelas || '-'}', '${item.namaWali || '-'}', '${item.noWa || ''}')" class="bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl text-xs font-bold transition-all shadow-md active:scale-95">Setujui & Kirim ke WhatsApp</button>
                     `;
                     listContainer.appendChild(div);
                 });
@@ -446,7 +487,7 @@
             document.getElementById('modal-bendahara').classList.add('hidden');
         }
 
-        async function approvePembayaran(nis, bulan) {
+        async function approvePembayaran(nis, bulan, nama, kelas, wali, noWa) {
             if (!confirm(`Setujui pembayaran ${bulan} untuk NIS ${nis}?`)) return;
 
             try {
@@ -457,7 +498,22 @@
                 });
                 const result = await res.json();
                 if (result.status === 'success') {
-                    alert("Pembayaran disetujui!");
+                    alert("Pembayaran disetujui! Membuka WhatsApp untuk mengirim kuitansi...");
+                    
+                    // Otomatis buka WhatsApp setelah disetujui bendahara
+                    const now = new Date();
+                    const tglStr = now.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+                    
+                    let noHp = noWa || "";
+                    if (noHp.startsWith('08')) {
+                        noHp = '62' + noHp.slice(1);
+                    }
+
+                    const pesan = `*KUITANSI PEMBAYARAN SPP*%0A*PP Fathul Huda Al-Qorrobiyah*%0A---------------------------------------%0A📅 *Tanggal:* ${tglStr}%0A💳 *Metode:* Transfer Online (Lunas)%0A---------------------------------------%0A👤 *Nama Santri:* ${nama}%0A🆔 *NIS:* ${nis}%0A🏫 *Kelas:* ${kelas}%0A👨‍👩‍👦 *Wali Santri:* ${wali}%0A---------------------------------------%0A📌 *Untuk Pembayaran Bulan:*%0A${bulan}%0A%0A💰 *Total Dibayar:* Rp ${(50000).toLocaleString('id-ID')}%0A✅ *Status:* LUNAS (DIVERIFIKASI BENDAHARA)%0A---------------------------------------%0ATerima kasih, pembayaran Anda telah tercatat sah di sistem database pesantren.`;
+
+                    const urlWA = noHp ? `https://wa.me/${noHp}?text=${pesan}` : `https://wa.me/?text=${pesan}`;
+                    window.open(urlWA, '_blank');
+
                     bukaPanelBendahara();
                 }
             } catch (err) {
@@ -467,4 +523,3 @@
     </script>
 </body>
 </html>
-       
