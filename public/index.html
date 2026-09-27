@@ -44,21 +44,21 @@
         }
 
         .logo-circle {
-            width: 60px;
-            height: 60px;
+            width: 56px;
+            height: 56px;
             background: #ffffff;
             color: var(--primary);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
+            font-size: 22px;
             margin: 0 auto 8px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
 
         .brand-container h1 {
-            font-size: 18px;
+            font-size: 17px;
             font-weight: 700;
             margin-bottom: 2px;
         }
@@ -75,7 +75,7 @@
         .search-card {
             background: var(--card-bg);
             width: 100%;
-            max-width: 440px;
+            max-width: 420px;
             padding: 20px;
             border-radius: 18px;
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
@@ -84,10 +84,10 @@
 
         .input-label {
             display: block;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 600;
             color: var(--text-muted);
-            margin-bottom: 6px;
+            margin-bottom: 5px;
             text-transform: uppercase;
             letter-spacing: 0.3px;
         }
@@ -99,8 +99,8 @@
 
         input, select {
             width: 100%;
-            padding: 11px 14px;
-            font-size: 14px;
+            padding: 10px 14px;
+            font-size: 13.5px;
             border: 1.5px solid var(--border-color);
             border-radius: 10px;
             outline: none;
@@ -112,15 +112,15 @@
         input:focus, select:focus {
             border-color: var(--primary);
             background: #ffffff;
-            box-shadow: 0 0 0 3px rgba(13, 92, 54, 0.1);
+            box-shadow: 0 0 0 3px rgba(13, 92, 54, 0.08);
         }
 
         .btn-cek {
             background: #2563eb;
             color: white;
             border: none;
-            padding: 0 18px;
-            font-size: 14px;
+            padding: 0 16px;
+            font-size: 13.5px;
             font-weight: 600;
             border-radius: 10px;
             cursor: pointer;
@@ -134,7 +134,7 @@
 
         /* Bagian Informasi & Aksi */
         .result-section {
-            margin-top: 16px;
+            margin-top: 14px;
             padding-top: 14px;
             border-top: 1px solid var(--border-color);
             display: none;
@@ -144,9 +144,9 @@
         .santri-header-box {
             display: flex;
             flex-direction: column;
-            padding-bottom: 12px;
+            padding-bottom: 10px;
             border-bottom: 1px solid var(--border-color);
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
 
         .nama-top-row {
@@ -166,15 +166,15 @@
         }
 
         .nama-value-big {
-            font-size: 18px;
+            font-size: 17px;
             font-weight: 700;
             color: var(--text-main);
         }
 
         .badge-status {
-            padding: 4px 10px;
-            border-radius: 8px;
-            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 10.5px;
             font-weight: 700;
             text-transform: uppercase;
             white-space: nowrap;
@@ -185,8 +185,8 @@
         .info-row {
             display: flex;
             justify-content: space-between;
-            font-size: 13px;
-            padding: 6px 0;
+            font-size: 12.5px;
+            padding: 5px 0;
         }
 
         .info-label {
@@ -205,38 +205,69 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 10px;
-            margin-bottom: 14px;
-        }
-
-        /* Input PIN Bendahara Khusus Tunai */
-        #pinContainer {
-            display: none;
-            background: #fdf2f8;
-            padding: 10px 12px;
-            border-radius: 10px;
-            border: 1px dashed #db2777;
             margin-bottom: 12px;
         }
 
-        /* Tombol Aksi */
-        .btn-action {
-            width: 100%;
-            border: none;
+        /* PIN Bendahara Lebih Halus & Elegan */
+        #pinContainer {
+            display: none;
+            background: #f8fafc;
             padding: 12px;
-            font-size: 14px;
-            font-weight: 600;
             border-radius: 10px;
+            border: 1px solid #cbd5e1;
+            margin-bottom: 12px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+            animation: fadeIn 0.25s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .pin-header {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11.5px;
+            font-weight: 700;
+            color: #475569;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .pin-header i {
+            color: #d97706;
+        }
+
+        /* Tombol Aksi yang Lebih Kecil, Ramping & Elegan */
+        .action-buttons-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-action {
+            flex: 1;
+            border: none;
+            padding: 9px 10px;
+            font-size: 12.5px;
+            font-weight: 600;
+            border-radius: 9px;
             cursor: pointer;
-            margin-bottom: 8px;
-            transition: opacity 0.2s;
+            transition: all 0.2s;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 6px;
             color: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.08);
         }
 
-        .btn-action:hover { opacity: 0.9; }
+        .btn-action:hover { 
+            opacity: 0.92;
+            transform: translateY(-1px);
+        }
 
         .btn-mayar { background: #6366f1; } 
         .btn-tunai { background: #d97706; } 
@@ -255,7 +286,7 @@
 
         .loader-box {
             background: white;
-            padding: 18px 24px;
+            padding: 16px 22px;
             border-radius: 12px;
             display: flex;
             align-items: center;
@@ -264,9 +295,9 @@
         }
 
         .spinner {
-            width: 20px;
-            height: 20px;
-            border: 3px solid #e2e8f0;
+            width: 18px;
+            height: 18px;
+            border: 2.5px solid #e2e8f0;
             border-top-color: var(--primary);
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
@@ -277,7 +308,7 @@
         }
 
         .loader-text {
-            font-size: 13px;
+            font-size: 12.5px;
             font-weight: 600;
             color: var(--text-main);
         }
@@ -317,7 +348,7 @@
                 </div>
             </div>
 
-            <div style="margin-bottom: 14px;">
+            <div style="margin-bottom: 12px;">
                 <div class="info-row">
                     <span class="info-label">NIS</span>
                     <span class="info-value" id="txtNis">-</span>
@@ -350,21 +381,23 @@
                 </div>
             </div>
 
-            <!-- PIN Bendahara Khusus Tunai -->
+            <!-- PIN Bendahara Lebih Halus & Minimalis -->
             <div id="pinContainer">
-                <label class="input-label" style="color: #be185d; margin-bottom: 4px;">
-                    <i class="fa-solid fa-lock"></i> Masukkan PIN Bendahara
-                </label>
-                <input type="password" id="kodeBendahara" placeholder="PIN: 123456" autocomplete="current-password">
+                <div class="pin-header">
+                    <i class="fa-solid fa-shield-halved"></i> Autorisasi PIN Bendahara
+                </div>
+                <input type="password" id="kodeBendahara" placeholder="Masukkan 6 digit PIN..." autocomplete="current-password">
             </div>
 
-            <!-- Tombol Aksi (Otomatis Kirim WA Begitu Berhasil) -->
-            <button class="btn-action btn-mayar" onclick="prosesPembayaran('Online / Mayar.id')">
-                <i class="fa-solid fa-globe"></i> Bayar Online (Mayar.id) & Kirim WA
-            </button>
-            <button class="btn-action btn-tunai" onclick="handleBayarTunaiClick()">
-                <i class="fa-solid fa-money-bill-wave"></i> Bayar Tunai / Offline (PIN) & Kirim WA
-            </button>
+            <!-- Tombol Aksi Berjajar, Kecil, & Elegan -->
+            <div class="action-buttons-group">
+                <button class="btn-action btn-mayar" onclick="prosesPembayaran('Online / Mayar.id')">
+                    <i class="fa-solid fa-globe"></i> Online
+                </button>
+                <button class="btn-action btn-tunai" onclick="handleBayarTunaiClick()">
+                    <i class="fa-solid fa-money-bill-wave"></i> Tunai (PIN)
+                </button>
+            </div>
         </div>
     </div>
 
