@@ -322,7 +322,8 @@
             const now = new Date();
             const tglStr = now.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
             
-            const nominalSantri = Number(santriObj.nominalSpp) || nominalSppAktif || 50000;
+            // Membaca nominal SPP secara akurat dari objek database santri (fallback ke 50000 jika kosong)
+            const nominalSantri = Number(santriObj.nominalSpp) || 50000;
             const totalBayar = bulanList.length * nominalSantri;
             const nomorWaSantri = santriObj.noWa || santriObj.noHp || "-";
 
@@ -554,7 +555,7 @@
                 if (result.status === 'success') {
                     tutupPanelBendahara();
                     
-                    // Ambil data santri secara presisi dari database santri agar data lengkap (namaWali, kelas, noWa, nominalSpp)
+                    // Ambil data santri secara presisi dari database agar nominalSpp, noWa, dll sesuai database
                     await muatDatabaseSantri();
                     const santriLengkap = databaseSantri.find(s => s.nis === nis) || {
                         nis: nis,
