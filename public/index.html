@@ -272,7 +272,7 @@
             justify-content: center;
             background: #ffffff;
             border: 1.5px solid var(--border-color);
-            padding: 8px 2px;
+            padding: 10px 4px;
             border-radius: 8px;
             font-size: 11px;
             font-weight: 600;
@@ -280,6 +280,7 @@
             cursor: pointer;
             transition: all 0.15s ease;
             user-select: none;
+            text-align: center;
         }
 
         .bulan-pill:hover {
@@ -548,9 +549,10 @@
             document.getElementById("txtTelp").innerText = santriCache.telp;
             
             bulanTerpilihSet.clear();
-            renderBulanGrid(); 
             
-            // Reset status awal
+            // Panggil render grid langsung di sini agar elemen bulan terisi ke DOM
+            renderBulanGrid();
+            
             document.getElementById("txtLabelBulanIni").innerText = "Status Pembayaran SPP";
             let statusInfo = document.getElementById("txtStatusBulanInfo");
             statusInfo.innerText = "SILAHKAN PILIH BULAN";
@@ -603,7 +605,8 @@
         var content = document.getElementById("bulanDropdownContent");
         var icon = document.getElementById("iconDropdown");
         
-        renderBulanGrid(); 
+        // Pastikan grid selalu di-render ulang setiap kali dropdown diklik agar aman
+        renderBulanGrid();
 
         if (content.classList.contains("show")) {
             content.classList.remove("show");
@@ -614,7 +617,4 @@
         }
     }
 
-    function pilihBulanPill(bulanNama, statusBulan) {
-        var txtInfoPilihan = document.getElementById("txtInfoPilihanBulan");
-        
-        // Perbarui tampilan status di atas sesuai bulan yang diklik (Lunas / 
+    function pilihBulanPill(bulanNama
