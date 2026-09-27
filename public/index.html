@@ -19,7 +19,7 @@
         <div class="bg-emerald-800 p-6 text-white text-center relative overflow-hidden">
             <div class="absolute -right-6 -top-6 w-24 h-24 bg-emerald-700/50 rounded-full blur-xl"></div>
             
-            <!-- Logo Pondok Pesantren (Diperbesar & Background Transparan) -->
+            <!-- Logo Pondok Pesantren (Tanpa Background Putih & Lebih Besar) -->
             <div class="w-20 h-20 mx-auto mb-3 flex items-center justify-center p-0.5">
                 <img src="https://lh3.googleusercontent.com/d/1nisPkmO93MQycG2iEWxMduwWb6ZOh0kA" alt="Logo PPFHA" class="w-full h-full object-contain drop-shadow-md" onerror="this.src='https://iili.io/3V0U3V7.png'">
             </div>
@@ -69,6 +69,15 @@
                 <button onclick="prosesBayarTunai()" class="w-full bg-amber-600 hover:bg-amber-700 text-white py-3 rounded-2xl text-xs font-bold transition-all shadow-md shadow-amber-600/20 active:scale-95">
                     Bayar Tunai ke Bendahara (Datang ke Kantor)
                 </button>
+            </div>
+
+            <!-- Panel Bendahara di Dalam -->
+            <div class="bg-slate-900 rounded-2xl p-3.5 text-white text-xs flex justify-between items-center shadow-md border border-slate-800">
+                <div>
+                    <span class="font-bold block">Panel Bendahara</span>
+                    <span class="text-[10px] text-emerald-400">Verifikasi pembayaran masuk</span>
+                </div>
+                <button onclick="bukaPanelBendahara()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-2 rounded-xl font-bold transition-all shadow active:scale-95 text-[11px]">Buka</button>
             </div>
 
             <button onclick="resetPencarian()" class="w-full text-center text-xs text-slate-400 hover:text-slate-600 font-medium py-1">← Cari Santri Lain</button>
@@ -126,6 +135,22 @@
                 Terima kasih, pembayaran Anda telah tercatat sah di sistem database pesantren.
             </div>
             <button onclick="tutupKuitansi()" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white py-2.5 rounded-xl font-bold text-xs mt-3 shadow">Tutup</button>
+        </div>
+    </div>
+
+    <!-- Modal Bendahara -->
+    <div id="modal-bendahara" class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-3xl p-6 w-full max-w-md max-h-[85vh] overflow-y-auto space-y-4 shadow-2xl border border-slate-100">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <div>
+                    <h3 class="font-bold text-slate-800 text-base">Verifikasi Pembayaran Pending</h3>
+                    <p class="text-[11px] text-slate-400">Daftar setoran santri yang menunggu persetujuan</p>
+                </div>
+                <button onclick="tutupPanelBendahara()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 font-bold flex items-center justify-center transition-all">✕</button>
+            </div>
+            <div id="list-pending" class="space-y-3">
+                <p class="text-xs text-slate-400 text-center py-6 font-medium">Memuat data pending...</p>
+            </div>
         </div>
     </div>
 
@@ -341,6 +366,74 @@
                 }
             } catch (err) {
                 alert("Gagal memproses pembayaran.");
+            }
+        }
+
+        async function bukaPanelBendahara() {
+            const pin = prompt("Masukkan PIN Bendahara:");
+            if (pin !== "123456") {
+                if (pin !== null) alert("PIN Salah!");
+                return;
+            }
+
+            document.getElementById('modal-bendahara').classList.remove('hidden');
+            const listContainer = document.getElementById('list-pending');
+            listContainer.innerHTML = '<p class="text-xs text-slate-400 text-center py-6 font-medium">Memuat data...</p>';
+
+            try {
+                const res = await fetch(`${urlWebApps}?action=getPending`, {
+                    method: 'GET',
+                    redirect: 'follow'
+                });
+                const pending = await res.json();
+
+                listContainer.innerHTML = '';
+                if (pending.length === 0) {
+                    listContainer.innerHTML = '<p class="text-xs text-slate-400 text-center py-6 font-medium">Tidak ada pembayaran pending.</p>';
+                    return;
+                }
+
+                pending.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = "bg-slate-50 border border-slate-200/80 rounded-2xl p-3.5 flex flex-col gap-2.5 shadow-sm";
+                    div.innerHTML = `
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="font-bold text-slate-800">${item.nama} (${item.nis})</span>
+                            <span class="bg-amber-100 text-amber-800 px-2.5 py-1 rounded-full font-bold text-[10px]">${item.bulan}</span>
+                        </div>
+                        <div class="text-slate-600 font-medium text-xs bg-white p-2.5 rounded-xl border border-slate-200/60 flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                            <span class="truncate">${item.keteranganBukti || 'Bukti Transfer'}</span>
+                        </div>
+                        <button onclick="approvePembayaran('${item.nis}', '${item.bulan}')" class="bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl text-xs font-bold transition-all shadow-md shadow-emerald-600/20 active:scale-95">Setujui & Lunasi</button>
+                    `;
+                    listContainer.appendChild(div);
+                });
+            } catch (err) {
+                listContainer.innerHTML = '<p class="text-xs text-red-500 text-center py-6 font-medium">Gagal memuat data pending.</p>';
+            }
+        }
+
+        function tutupPanelBendahara() {
+            document.getElementById('modal-bendahara').classList.add('hidden');
+        }
+
+        async function approvePembayaran(nis, bulan) {
+            if (!confirm(`Setujui pembayaran ${bulan} untuk NIS ${nis}?`)) return;
+
+            try {
+                const res = await fetch(urlWebApps, {
+                    method: 'POST',
+                    redirect: 'follow',
+                    body: JSON.stringify({ action: 'approve', nis: nis, bulan: bulan })
+                });
+                const result = await res.json();
+                if (result.status === 'success') {
+                    alert("Pembayaran disetujui!");
+                    bukaPanelBendahara();
+                }
+            } catch (err) {
+                alert("Gagal menyetujui pembayaran.");
             }
         }
     </script>
