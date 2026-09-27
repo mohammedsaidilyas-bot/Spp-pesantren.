@@ -192,12 +192,65 @@
             text-align: right;
         }
 
-        /* Layout Grid Bulan Model Simpel / Pill Minimalis */
+        /* Model Dropdown/Accordion Pemilihan Bulan */
+        .dropdown-bulan-container {
+            position: relative;
+            margin-bottom: 12px;
+        }
+
+        .dropdown-toggle-box {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8fafc;
+            border: 1.5px solid var(--border-color);
+            padding: 10px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .dropdown-toggle-box:hover {
+            border-color: var(--primary);
+            background: #ffffff;
+        }
+
+        .dropdown-toggle-box span {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .dropdown-toggle-box i {
+            color: var(--text-muted);
+            transition: transform 0.2s;
+        }
+
+        /* Konten Pilihan Bulan (Menu Dropdown) */
+        .bulan-dropdown-content {
+            display: none;
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            width: 100%;
+            background: #ffffff;
+            border: 1.5px solid var(--border-color);
+            border-radius: 12px;
+            padding: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            z-index: 50;
+            animation: fadeIn 0.2s ease-in-out;
+        }
+
+        .bulan-dropdown-content.show {
+            display: block;
+        }
+
         .bulan-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 6px;
-            margin-bottom: 12px;
         }
 
         .bulan-pill {
@@ -216,7 +269,6 @@
             user-select: none;
         }
 
-        /* Sembunyikan checkbox asli agar tampil seperti tombol */
         .bulan-pill input[type="checkbox"] {
             display: none;
         }
@@ -227,7 +279,6 @@
             color: var(--primary);
         }
 
-        /* Jika dipilih (checked) */
         .bulan-pill.selected {
             background: var(--primary);
             border-color: var(--primary);
@@ -235,7 +286,6 @@
             box-shadow: 0 2px 4px rgba(0, 137, 83, 0.2);
         }
 
-        /* Jika statusnya sudah Lunas */
         .bulan-pill.lunas {
             background: #f1f5f9;
             color: #94a3b8;
@@ -243,6 +293,11 @@
             text-decoration: line-through;
             cursor: not-allowed;
             opacity: 0.7;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-4px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         /* PIN Bendahara */
@@ -255,11 +310,6 @@
             margin-bottom: 12px;
             box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
             animation: fadeIn 0.25s ease-in-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-4px); }
-            to { opacity: 1; transform: translateY(0); }
         }
 
         .pin-header {
@@ -374,22 +424,30 @@
                 </div>
             </div>
 
-            <!-- Pilihan Bulan Model Simpel & Clean -->
-            <div>
-                <label class="input-label">Pilih Bulan Pembayaran (Bisa > 1)</label>
-                <div class="bulan-grid" id="bulanCheckboxes">
-                    <label class="bulan-pill" onclick="toggleBulan(this)"><input type="checkbox" value="Juli">Juli</label>
-                    <label class="bulan-pill" onclick="toggleBulan(this)"><input type="checkbox" value="Agustus">Agustus</label>
-                    <label class="bulan-pill" onclick="toggleBulan(this)"><input type="checkbox" value="September">September</label>
-                    <label class="bulan-pill" onclick="toggleBulan(this)"><input type="checkbox" value="Oktober">Oktober</label>
-                    <label class="bulan-pill" onclick="toggleBulan(this)"><input type="checkbox" value="November">November</label>
-                    <label class="bulan-pill" onclick="toggleBulan(this)"><input type="checkbox" value="Desember">Desember</label>
-                    <label class="bulan-pill" onclick="toggleBulan(this)"><input type="checkbox" value="Januari">Januari</label>
-                    <label class="bulan-pill" onclick="toggleBulan(this)"><input type="checkbox" value="Februari">Februari</label>
-                    <label class="bulan-pill" onclick="toggleBulan(this)"><input type="checkbox" value="Maret">Maret</label>
-                    <label class="bulan-pill" onclick="toggleBulan(this)"><input type="checkbox" value="April">April</label>
-                    <label class="bulan-pill" onclick="toggleBulan(this)"><input type="checkbox" value="Mei">Mei</label>
-                    <label class="bulan-pill" onclick="toggleBulan(this)"><input type="checkbox" value="Juni">Juni</label>
+            <!-- Dropdown / Accordion Pemilihan Bulan (Tampil 1 baris di depan) -->
+            <div class="dropdown-bulan-container">
+                <label class="input-label">Pilih Bulan Pembayaran</label>
+                <div class="dropdown-toggle-box" onclick="toggleDropdownBulan(event)">
+                    <span id="txtInfoPilihanBulan">Pilih bulan (Bisa > 1)</span>
+                    <i class="fa-solid fa-chevron-down" id="iconDropdown"></i>
+                </div>
+
+                <!-- Kotak Menu Pilihan Bulan di Dalamnya -->
+                <div class="bulan-dropdown-content" id="bulanDropdownContent">
+                    <div class="bulan-grid" id="bulanCheckboxes">
+                        <label class="bulan-pill" onclick="toggleBulan(this)"><input type="checkbox" value="Juli">Juli</label>
+                        <label class="bulan-pill" onclick="toggleBulan(this)"><input type="checkbox" value="Agustus">Agustus</label>
+                        <label class="bulan-pill" onclick="toggleBulan(this)"><input type="checkbox" value="September">September</label>
+                        <label class="bulan-pill" onclick="toggleBulan(this)"><input type="checkbox" value="Oktober">Oktober</label>
+                        <label class="bulan-pill" onclick="toggleBulan(this)"><input type="checkbox" value="November">November</label>
+                        <label class="bulan-pill" onclick="toggleBulan(this)"><input type="checkbox" value="Desember">Desember</label>
+                        <label class="bulan-pill" onclick="toggleBulan(this)"><input type="checkbox" value="Januari">Januari</label>
+                        <label class="bulan-pill" onclick="toggleBulan(this)"><input type="checkbox" value="Februari">Februari</label>
+                        <label class="bulan-pill" onclick="toggleBulan(this)"><input type="checkbox" value="Maret">Maret</label>
+                        <label class="bulan-pill" onclick="toggleBulan(this)"><input type="checkbox" value="April">April</label>
+                        <label class="bulan-pill" onclick="toggleBulan(this)"><input type="checkbox" value="Mei">Mei</label>
+                        <label class="bulan-pill" onclick="toggleBulan(this)"><input type="checkbox" value="Juni">Juni</label>
+                    </div>
                 </div>
             </div>
 
@@ -474,8 +532,31 @@
             hitungTotalNominal();
             
             document.getElementById("pinContainer").style.display = "none";
+            tutupDropdown();
         } else {
             alert("Santri dengan NIS " + nisInput + " tidak ditemukan!");
+        }
+    }
+
+    function toggleDropdownBulan(event) {
+        event.stopPropagation();
+        var content = document.getElementById("bulanDropdownContent");
+        var icon = document.getElementById("iconDropdown");
+        content.classList.toggle("show");
+        icon.style.transform = content.classList.contains("show") ? "rotate(180deg)" : "rotate(0deg)";
+    }
+
+    function tutupDropdown() {
+        var content = document.getElementById("bulanDropdownContent");
+        var icon = document.getElementById("iconDropdown");
+        content.classList.remove("show");
+        icon.style.transform = "rotate(0deg)";
+    }
+
+    // Tutup dropdown jika mengklik di luar area dropdown
+    window.onclick = function(event) {
+        if (!event.target.closest('.dropdown-bulan-container')) {
+            tutupDropdown();
         }
     }
 
@@ -500,73 +581,4 @@
         
         labels.forEach((label, index) => {
             var bulan = daftarBulan[index];
-            var status = (santriCache.pembayaran[bulan] || "BELUM LUNAS").toUpperCase();
-            var checkbox = label.querySelector("input[type='checkbox']");
-            
-            checkbox.checked = false;
-            label.classList.remove("selected");
-
-            if (status === "LUNAS") {
-                label.classList.add("lunas");
-                checkbox.disabled = true;
-            } else {
-                label.classList.remove("lunas");
-                checkbox.disabled = false;
-            }
-        });
-    }
-
-    function updateStatusBulanPertama() {
-        if (!santriCache || !santriCache.pembayaran) return;
-        var statusJuli = (santriCache.pembayaran["Juli"] || "BELUM LUNAS").toUpperCase();
-        var txtStatusBulanInfo = document.getElementById("txtStatusBulanInfo");
-
-        if (statusJuli === "LUNAS") {
-            txtStatusBulanInfo.innerText = "LUNAS";
-            txtStatusBulanInfo.style.color = "#00663b";
-        } else {
-            txtStatusBulanInfo.innerText = "BELUM LUNAS";
-            txtStatusBulanInfo.style.color = "#991b1b";
-        }
-    }
-
-    function hitungTotalNominal() {
-        var checkboxes = document.querySelectorAll("#bulanCheckboxes input[type='checkbox']:checked");
-        var jumlahPilih = checkboxes.length;
-        var total = jumlahPilih * NOMINAL_PER_BULAN;
-
-        document.getElementById("txtTotalTagihan").innerText = "Rp " + total.toLocaleString("id-ID");
-
-        var btnOnline = document.getElementById("btnOnline");
-        var btnTunai = document.getElementById("btnTunai");
-
-        if (jumlahPilih === 0) {
-            btnOnline.disabled = true;
-            btnTunai.disabled = true;
-            document.getElementById("pinContainer").style.display = "none";
-        } else {
-            btnOnline.disabled = false;
-            btnTunai.disabled = false;
-        }
-    }
-
-    function handleBayarTunaiClick() {
-        var checkboxes = document.querySelectorAll("#bulanCheckboxes input[type='checkbox']:checked");
-        if (checkboxes.length === 0) {
-            alert("Pilih minimal satu bulan pembayaran terlebih dahulu!");
-            return;
-        }
-
-        var pinContainer = document.getElementById("pinContainer");
-        if (pinContainer.style.display === "none" || pinContainer.style.display === "") {
-            pinContainer.style.display = "block";
-            document.getElementById("kodeBendahara").focus();
-        } else {
-            prosesPembayaran("Tunai / Offline");
-        }
-    }
-
-    function prosesPembayaran(metode) {
-        var checkboxes = document.querySelectorAll("#bulanCheckboxes input[type='checkbox']:checked");
-        if (checkboxes.length === 0) {
-            alert("Pilih 
+            var status 
