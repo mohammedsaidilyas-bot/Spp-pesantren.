@@ -369,7 +369,7 @@
             <!-- Pilihan Bulan Model Kotak Grid Minimalis -->
             <div>
                 <label class="input-label">Pilih Bulan Pembayaran (Bisa > 1)</label>
-                <div class="bulan-grid" id="bulanGridGroup">
+                <div class="bulan-grid" id="bulanCheckboxes">
                     <!-- Diisi otomatis oleh JavaScript -->
                 </div>
             </div>
@@ -434,7 +434,7 @@
 
     let santriCache = databaseSantri["20260000"];
 
-    // Langsung render saat halaman dibuka tanpa menunggu event tambahan
+    // Render otomatis saat halaman dimuat
     renderBulanGrid();
     updateStatusBulanPertama();
 
@@ -466,7 +466,7 @@
 
     function renderBulanGrid() {
         if (!santriCache || !santriCache.pembayaran) return;
-        var container = document.getElementById("bulanGridGroup");
+        var container = document.getElementById("bulanCheckboxes");
         container.innerHTML = "";
 
         daftarBulan.forEach(bulan => {
@@ -506,7 +506,7 @@
     }
 
     function hitungTotalNominal() {
-        var checkboxes = document.querySelectorAll("#bulanGridGroup input[type='checkbox']:checked");
+        var checkboxes = document.querySelectorAll("#bulanCheckboxes input[type='checkbox']:checked");
         var jumlahPilih = checkboxes.length;
         var total = jumlahPilih * NOMINAL_PER_BULAN;
 
@@ -526,7 +526,7 @@
     }
 
     function handleBayarTunaiClick() {
-        var checkboxes = document.querySelectorAll("#bulanGridGroup input[type='checkbox']:checked");
+        var checkboxes = document.querySelectorAll("#bulanCheckboxes input[type='checkbox']:checked");
         if (checkboxes.length === 0) {
             alert("Pilih minimal satu bulan pembayaran terlebih dahulu!");
             return;
@@ -542,7 +542,7 @@
     }
 
     function prosesPembayaran(metode) {
-        var checkboxes = document.querySelectorAll("#bulanGridGroup input[type='checkbox']:checked");
+        var checkboxes = document.querySelectorAll("#bulanCheckboxes input[type='checkbox']:checked");
         if (checkboxes.length === 0) {
             alert("Pilih minimal satu bulan pembayaran!");
             return;
@@ -596,4 +596,5 @@
 *${bulanDipilih.join(", ")}*
 💰 *Total Dibayar:* Rp ${totalBayar.toLocaleString("id-ID")}
 ✅ *Status:* LUNAS
-----------------------
+---------------------------------------
+Terima 
