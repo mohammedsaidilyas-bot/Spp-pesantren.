@@ -143,7 +143,7 @@
         </div>
     </div>
 
-    <!-- Modal Kuitansi (Muncul sebelum kirim WA) -->
+    <!-- Modal Kuitansi -->
     <div id="modal-kuitansi" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
         <div id="area-kuitansi" class="bg-amber-50 rounded-3xl p-6 w-full max-w-sm space-y-3 shadow-2xl border-4 border-emerald-800 font-mono text-xs text-slate-900 relative">
             <div class="text-center border-b-2 border-dashed border-emerald-800 pb-3">
@@ -161,6 +161,7 @@
                 <div>🆔 <strong>NIS:</strong> <span id="k-nis"></span></div>
                 <div>🏫 <strong>Kelas:</strong> <span id="k-kelas"></span></div>
                 <div>👨‍👩‍👦 <strong>Wali Santri:</strong> <span id="k-wali"></span></div>
+                <div>📞 <strong>No. WhatsApp:</strong> <span id="k-notel"></span></div>
             </div>
 
             <div class="space-y-1 py-1 border-b border-dashed border-slate-400 pb-2.5">
@@ -320,7 +321,7 @@
                 nis: santriObj.nis,
                 kelas: santriObj.kelas,
                 wali: santriObj.namaWali,
-                noWa: santriObj.noWa,
+                noWa: santriObj.noWa || "-",
                 bulan: bulanList.join(', '),
                 total: totalBayar.toLocaleString('id-ID'),
                 status: metode.includes('Tunai') || metode.includes('Lunas') ? "LUNAS" : "PENDING (MENUNGGU VERIFIKASI)"
@@ -332,6 +333,7 @@
             document.getElementById('k-nis').innerText = dataKuitansi.nis;
             document.getElementById('k-kelas').innerText = dataKuitansi.kelas;
             document.getElementById('k-wali').innerText = dataKuitansi.wali;
+            document.getElementById('k-notel').innerText = dataKuitansi.noWa;
             document.getElementById('k-bulan').innerText = dataKuitansi.bulan;
             document.getElementById('k-total').innerText = dataKuitansi.total;
             document.getElementById('k-status').innerText = dataKuitansi.status;
@@ -341,7 +343,7 @@
                 noHp = '62' + noHp.slice(1);
             }
 
-            const pesan = `*KUITANSI PEMBAYARAN SPP*%0A*PP Fathul Huda Al-Qorrobiyah*%0A---------------------------------------%0A📅 *Tanggal:* ${dataKuitansi.tanggal}%0A💳 *Metode:* ${dataKuitansi.metode}%0A---------------------------------------%0A👤 *Nama Santri:* ${dataKuitansi.nama}%0A🆔 *NIS:* ${dataKuitansi.nis}%0A🏫 *Kelas:* ${dataKuitansi.kelas}%0A👨‍👩‍? *Wali Santri:* ${dataKuitansi.wali}%0A---------------------------------------%0A📌 *Untuk Pembayaran Bulan:*%0A${dataKuitansi.bulan}%0A%0A💰 *Total Dibayar:* Rp ${dataKuitansi.total}%0A✅ *Status:* ${dataKuitansi.status}%0A---------------------------------------%0ATerima kasih, pembayaran Anda telah tercatat sah di sistem database pesantren.`;
+            const pesan = `*KUITANSI PEMBAYARAN SPP*%0A*PP Fathul Huda Al-Qorrobiyah*%0A---------------------------------------%0A📅 *Tanggal:* ${dataKuitansi.tanggal}%0A💳 *Metode:* ${dataKuitansi.metode}%0A---------------------------------------%0A👤 *Nama Santri:* ${dataKuitansi.nama}%0A🆔 *NIS:* ${dataKuitansi.nis}%0A🏫 *Kelas:* ${dataKuitansi.kelas}%0A👨‍👩‍👦 *Wali Santri:* ${dataKuitansi.wali}%0A---------------------------------------%0A📌 *Untuk Pembayaran Bulan:*%0A${dataKuitansi.bulan}%0A%0A💰 *Total Dibayar:* Rp ${dataKuitansi.total}%0A✅ *Status:* ${dataKuitansi.status}%0A---------------------------------------%0ATerima kasih, pembayaran Anda telah tercatat sah di sistem database pesantren.`;
 
             urlWaGlobal = noHp ? `https://wa.me/${noHp}?text=${pesan}` : `https://wa.me/?text=${pesan}`;
             
@@ -467,7 +469,7 @@
                 });
                 const result = await res.json();
                 if (result.status === 'success') {
-                    tampilkanKuitansi("Tunai ke Bendahara (Lunas)", bulan);
+                    tampilkanKuitansi("Tunai ke Bendahara (Lunas)", bulan, santriAktif);
                 } else {
                     alert("Gagal memproses pembayaran ke server.");
                 }
@@ -539,6 +541,7 @@
                 const result = await res.json();
                 if (result.status === 'success') {
                     tutupPanelBendahara();
+                    // Mengirimkan data item lengkap agar nomor WhatsApp yang ditarik dari Google Sheets ikut terbawa ke kuitansi
                     tampilkanKuitansi("Transfer Online (Diverifikasi)", item.bulan.split(', '), item);
                 } else {
                     alert("Gagal menyetujui pembayaran di server.");
