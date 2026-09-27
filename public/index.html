@@ -240,7 +240,6 @@
 
         .btn-mayar { background: #6366f1; } 
         .btn-tunai { background: #d97706; } 
-        .btn-wa { background: #10b981; }    
 
         /* Loading Overlay */
         #loadingOverlay {
@@ -359,15 +358,12 @@
                 <input type="password" id="kodeBendahara" placeholder="PIN: 123456" autocomplete="current-password">
             </div>
 
-            <!-- Tombol Aksi -->
+            <!-- Tombol Aksi (Otomatis Kirim WA Begitu Berhasil) -->
             <button class="btn-action btn-mayar" onclick="prosesPembayaran('Online / Mayar.id')">
-                <i class="fa-solid fa-globe"></i> Bayar Online (Mayar.id)
+                <i class="fa-solid fa-globe"></i> Bayar Online (Mayar.id) & Kirim WA
             </button>
             <button class="btn-action btn-tunai" onclick="handleBayarTunaiClick()">
-                <i class="fa-solid fa-money-bill-wave"></i> Bayar Tunai / Offline (PIN)
-            </button>
-            <button class="btn-action btn-wa" onclick="kirimWhatsAppManual()">
-                <i class="fa-brands fa-whatsapp"></i> Kirim Kuitansi ke WhatsApp Wali
+                <i class="fa-solid fa-money-bill-wave"></i> Bayar Tunai / Offline (PIN) & Kirim WA
             </button>
         </div>
     </div>
@@ -381,7 +377,7 @@
     </div>
 
 <script>
-    // Database Simulasi Sementara (Mock Data)
+    // Database Simulasi Sementara Sesuai Permintaan Anda
     const databaseSantri = {
         "20260000": {
             nis: "20260000",
@@ -411,7 +407,7 @@
 
     let santriCache = null;
 
-    // Otomatis cek saat halaman dimuat jika NIS sudah terisi
+    // Otomatis cek data saat halaman pertama kali dibuka
     window.onload = function() {
         cekDataSantri();
     };
@@ -443,10 +439,10 @@
                 document.getElementById("pinContainer").style.display = "none";
                 document.getElementById("resultSection").style.display = "block";
             } else {
-                alert("Santri dengan NIS " + nis + " tidak ditemukan dalam data uji coba!");
+                alert("Santri dengan NIS " + nis + " tidak ditemukan!");
                 document.getElementById("resultSection").style.display = "none";
             }
-        }, 400); // Simulasi jeda jaringan tipis agar natural
+        }, 300);
     }
 
     function populateDropdownBulan() {
@@ -519,28 +515,29 @@
             }
         }
 
-        document.getElementById("loaderText").innerText = "Memproses pembayaran...";
+        document.getElementById("loaderText").innerText = "Memproses pembayaran & membuka WhatsApp...";
         document.getElementById("loadingOverlay").style.display = "flex";
 
         setTimeout(() => {
             document.getElementById("loadingOverlay").style.display = "none";
             
-            // Ubah status lokal di memori
+            // Ubah status lokal jadi LUNAS
             if (santriCache && santriCache.pembayaran) {
                 santriCache.pembayaran[bulan] = "LUNAS";
                 populateDropdownBulan();
                 updateStatusBulan();
             }
 
-            alert("Pembayaran SPP bulan " + bulan + " berhasil dicatat!");
-            kirimWhatsAppOtomatis(bulan, metode);
+            // Langsung buka WhatsApp secara otomatis membawa kuitansi
+            bukaWhatsAppOtomatis(bulan, metode);
 
+            // Reset form PIN
             document.getElementById("kodeBendahara").value = "";
             document.getElementById("pinContainer").style.display = "none";
         }, 500);
     }
 
-    function kirimWhatsAppOtomatis(bulan, metode) {
+    function bukaWhatsAppOtomatis(bulan, metode) {
         if (!santriCache) return;
 
         var nama = santriCache.nama;
@@ -572,13 +569,9 @@
 Terima kasih, pembayaran Anda telah tercatat sah di sistem database pesantren.`;
 
         let urlWa = `https://api.whatsapp.com/send?phone=${noWa}&text=${encodeURIComponent(pesan)}`;
+        
+        // Membuka WhatsApp secara otomatis
         window.open(urlWa, '_blank');
-    }
-
-    function kirimWhatsAppManual() {
-        var bulan = document.getElementById("bulan").value;
-        var metode = "Manual WhatsApp";
-        kirimWhatsAppOtomatis(bulan, metode);
     }
 </script>
 
