@@ -286,12 +286,18 @@
             box-shadow: 0 2px 4px rgba(0, 137, 83, 0.2);
         }
 
-        /* Warna khusus bulan yang sudah lunas di dalam pilihan */
+        /* Styling khusus bulan yang sudah lunas (terkunci dan tidak bisa diklik, tanpa coret) */
         .bulan-pill.lunas-pill {
             background: #f1f5f9;
             color: #94a3b8;
             border-color: #e2e8f0;
-            text-decoration: line-through;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        .bulan-pill.lunas-pill:hover {
+            background: #f1f5f9;
+            color: #94a3b8;
+            border-color: #e2e8f0;
         }
 
         .total-tagihan-box {
@@ -573,9 +579,13 @@
             }
             
             pill.innerText = bulan;
-            pill.onclick = function() {
-                pilihBulanPill(bulan, status);
-            };
+            
+            // Jika sudah LUNAS, tombol dikunci (tidak bisa diklik dan tidak memunculkan alert)
+            if (status !== "LUNAS") {
+                pill.onclick = function() {
+                    pilihBulanPill(bulan, status);
+                };
+            }
             
             gridContainer.appendChild(pill);
         });
@@ -591,11 +601,6 @@
         } else {
             txtStatusBulanInfo.innerText = "BELUM LUNAS";
             txtStatusBulanInfo.style.color = "#991b1b";
-        }
-
-        if (statusBulan === "LUNAS") {
-            alert("Bulan " + bulanNama + " sudah berstatus LUNAS!");
-            return;
         }
 
         if (bulanTerpilihSet.has(bulanNama)) {
@@ -666,7 +671,7 @@
 
         if (metode === "Tunai / Offline") {
             var inputPin = document.getElementById("kodeBendahara").value.trim();
-            if (inputPIN_BENDAHARA_VALID !== PIN_BENDAHARA_VALID && inputPin !== PIN_BENDAHARA_VALID) {
+            if (inputPin !== PIN_BENDAHARA_VALID) {
                 alert("Akses Ditolak! PIN Bendahara salah. (Gunakan PIN: 123456)");
                 return;
             }
