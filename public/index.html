@@ -368,6 +368,17 @@
 
         .btn-mayar { background: #6366f1; } 
         .btn-tunai { background: #d97706; } 
+
+        /* Kotak Tambahan Upload Bukti Transfer Online */
+        .upload-box {
+            background: #f8fafc;
+            border: 2px dashed #008953;
+            padding: 14px;
+            border-radius: 10px;
+            margin-top: 12px;
+            text-align: left;
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -457,13 +468,33 @@
             </div>
 
             <div class="action-buttons-group">
-                <button id="btnOnline" class="btn-action btn-mayar" onclick="prosesPembayaran('Online / Mayar.id')" disabled>
-                    <i class="fa-solid fa-globe"></i> Online
+                <button id="btnOnline" class="btn-action btn-mayar" onclick="bukaPanelUploadOnline()" disabled>
+                    <i class="fa-solid fa-cloud-arrow-up"></i> Online (Upload Bukti)
                 </button>
                 <button id="btnTunai" class="btn-action btn-tunai" onclick="handleBayarTunaiClick()" disabled>
                     <i class="fa-solid fa-money-bill-wave"></i> Tunai (PIN)
                 </button>
             </div>
+
+            <!-- Panel Upload Bukti Transfer Online (Ditambahkan di sini) -->
+            <div id="panelUploadOnline" class="upload-box">
+                <h6 style="color: var(--primary); font-size: 13px; font-weight: 700; margin-bottom: 6px;">
+                    <i class="fa-solid fa-file-invoice-dollar"></i> Konfirmasi Transfer Manual
+                </h6>
+                <p style="font-size: 11.5px; color: var(--text-muted); margin-bottom: 8px;">
+                    Silakan transfer ke Rekening Pesantren:<br>
+                    <strong>BSI: 1234-5678-9012 (a.n PP Fathul Huda)</strong>
+                </p>
+                <div style="margin-bottom: 8px;">
+                    <label class="input-label" for="fileBukti">Upload Foto Bukti Transfer (Struk/M-Banking)</label>
+                    <input type="file" id="fileBukti" accept="image/*" style="font-size: 12px; padding: 6px;">
+                </div>
+                <div style="display: flex; gap: 6px;">
+                    <button class="btn-cek" style="background: var(--primary); font-size: 12px; padding: 6px 12px;" onclick="kirimBuktiTransfer()" id="btnKirimBukti">Kirim Bukti</button>
+                    <button class="btn-cek" style="background: #64748b; font-size: 12px; padding: 6px 12px;" onclick="tutupPanelUpload()">Batal</button>
+                </div>
+            </div>
+
         </div>
     </div>
 
@@ -508,6 +539,7 @@
             
             bulanTerpilihSet.clear();
             renderBulanGrid();
+            tutupPanelUpload();
             
             document.getElementById("txtLabelBulanIni").innerText = "Status Pembayaran SPP";
             let statusInfo = document.getElementById("txtStatusBulanInfo");
@@ -562,8 +594,6 @@
             }
             
             pill.innerText = bulan;
-            
-            // Semua bulan bisa diklik untuk melihat statusnya di atas, tetapi fungsi pilih/tagihan dibatasi
             pill.onclick = function() {
                 pilihBulanPill(bulan, status);
             };
@@ -578,17 +608,14 @@
 
         if (statusBulan === "LUNAS") {
             txtStatusBulanInfo.innerText = "LUNAS";
-            txtStatusBulanInfo.style.color = "#008953"; // Hijau
-            
-            // Jika sudah lunas, pastikan bulan tersebut tidak masuk ke antrean pilihan pembayaran
+            txtStatusBulanInfo.style.color = "#008953"; 
             if (bulanTerpilihSet.has(bulanNama)) {
                 bulanTerpilihSet.delete(bulanNama);
             }
         } else {
             txtStatusBulanInfo.innerText = "BELUM LUNAS";
-            txtStatusBulanInfo.style.color = "#991b1b"; // Merah
+            txtStatusBulanInfo.style.color = "#991b1b"; 
 
-            // Hanya bulan yang BELUM LUNAS yang bisa dipilih/dicentang untuk pembayaran
             if (bulanTerpilihSet.has(bulanNama)) {
                 bulanTerpilihSet.delete(bulanNama);
                 if (bulanTerpilihSet.size === 0) {
@@ -603,6 +630,7 @@
 
         renderBulanGrid();
         hitungTotalNominal();
+        tutupPanelUpload();
     }
 
     function hitungTotalNominal() {
@@ -641,6 +669,7 @@
             return;
         }
 
+        tutupPanelUpload();
         var pinContainer = document.getElementById("pinContainer");
         if (pinContainer.style.display === "none" || pinContainer.style.display === "") {
             pinContainer.style.display = "block";
@@ -648,6 +677,74 @@
         } else {
             prosesPembayaran("Tunai / Offline");
         }
+    }
+
+    function bukaPanelUploadOnline() {
+        if (bulanTerpilihSet.size === 0) {
+            alert("Pilih minimal satu bulan pembayaran terlebih dahulu!");
+            return;
+        }
+        document.getElementById("pinContainer").style.display = "none";
+        document.getElementById("panelUploadOnline").style.display = "block";
+        document.getElementById("panelUploadOnline").scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function tutupPanelUpload() {
+        document.getElementById("panelUploadOnline").style.display = "none";
+        var fileInput = document.getElementById("fileBukti");
+        if(fileInput) fileInput.value = "";
+    }
+
+    async function kirimBuktiTransfer() {
+        var fileInput = document.getElementById("fileBukti");
+        if (fileInput.files.length === 0) {
+            alert("Silakan pilih foto bukti transfer terlebih dahulu!");
+            return;
+        }
+
+        var file = fileInput.files[0];
+        var reader = new FileReader();
+        var btn = document.getElementById("btnKirimBukti");
+        btn.disabled = true;
+        btn.innerText = "Mengirim...";
+
+        let listBulanDipilih = Array.from(bulanTerpilihSet);
+
+        reader.onload = async function(e) {
+            var base64Data = e.target.result.split(',')[1];
+            var payload = {
+                action: "uploadBukti",
+                nis: santriCache.nis,
+                bulan: listBulanDipilih, // Bisa menampung array bulan
+                fileData: base64Data,
+                fileName: file.name,
+                mimeType: file.type
+            };
+
+            try {
+                let response = await fetch(urlWebApps, {
+                    method: "POST",
+                    body: JSON.stringify(payload)
+                });
+                let resJson = await response.json();
+
+                if(resJson.status === "success") {
+                    alert("Bukti transfer berhasil dikirim! Menunggu verifikasi bendahara.");
+                    tutupPanelUpload();
+                    cekDataSantri(); // Refresh data
+                } else {
+                    alert("Gagal mengunggah: " + (resJson.message || "Terjadi kesalahan"));
+                }
+            } catch(err) {
+                console.error(err);
+                alert("Terjadi kesalahan koneksi saat mengunggah bukti.");
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Kirim Bukti";
+            }
+        };
+
+        reader.readAsDataURL(file);
     }
 
     async function prosesPembayaran(metode) {
@@ -712,7 +809,6 @@
         var nis = santriCache.nis;
         var kelas = santriCache.kelas;
         var wali = santriCache.wali;
-        var telp = santriCache.telp;
         var nominalPerBulan = Number(santriCache.nominal) || 150000;
         var tanggal = new Date().toLocaleDateString("id-ID", { day: 'numeric', month: 'long', year: 'numeric' });
         var totalBayar = listBulanDipilih.length * nominalPerBulan;
