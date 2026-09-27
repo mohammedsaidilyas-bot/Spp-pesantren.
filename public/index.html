@@ -407,7 +407,7 @@
         <div style="margin-bottom: 12px;">
             <label class="input-label" for="nis">Nomor Induk Santri (NIS)</label>
             <div class="input-group">
-                <input type="text" id="nis" placeholder="Contoh: 20260000" autocomplete="off" value="20260000">
+                <input type="text" id="nis" placeholder="Contoh: 20260001" autocomplete="off">
                 <button class="btn-cek" onclick="cekDataSantri()">Cek</button>
             </div>
         </div>
@@ -419,7 +419,7 @@
                 <div class="nama-top-row">
                     <div>
                         <div class="nama-label-small">Nama Santri</div>
-                        <div class="nama-value-big" id="txtNama">Mohammed Said Ilyas</div>
+                        <div class="nama-value-big" id="txtNama">-</div>
                     </div>
                 </div>
             </div>
@@ -427,19 +427,23 @@
             <div style="margin-bottom: 10px;">
                 <div class="info-row">
                     <span class="info-label">NIS</span>
-                    <span class="info-value" id="txtNis">20260000</span>
+                    <span class="info-value" id="txtNis">-</span>
                 </div>
                 <div class="info-row">
                     <span class="info-label">Kelas</span>
-                    <span class="info-value" id="txtKelas">Takhoss</span>
+                    <span class="info-value" id="txtKelas">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Asrama</span>
+                    <span class="info-value" id="txtAsrama">-</span>
                 </div>
                 <div class="info-row">
                     <span class="info-label">Wali Santri</span>
-                    <span class="info-value" id="txtWali">H. Ilyas Aly</span>
+                    <span class="info-value" id="txtWali">-</span>
                 </div>
                 <div class="info-row">
                     <span class="info-label">No. Telepon</span>
-                    <span class="info-value" id="txtTelp">082219644442</span>
+                    <span class="info-value" id="txtTelp">-</span>
                 </div>
                 <!-- Status Pembayaran SPP (Dinamis) -->
                 <div class="info-row" style="border-top: 1px dashed var(--border-color); margin-top: 6px; padding-top: 6px;">
@@ -497,37 +501,27 @@
     </div>
 
 <script>
-    // Database Santri Percobaan
-    const databaseSantri = {
-        "20260000": {
-            nis: "20260000",
-            nama: "Mohammed Said Ilyas",
-            kelas: "Takhoss",
-            wali: "H. Ilyas Aly",
-            telp: "082219644442",
-            pembayaran: {
-                "Juli": "BELUM LUNAS",
-                "Agustus": "BELUM LUNAS",
-                "September": "LUNAS",
-                "Oktober": "BELUM LUNAS",
-                "November": "BELUM LUNAS",
-                "Desember": "BELUM LUNAS",
-                "Januari": "BELUM LUNAS",
-                "Februari": "BELUM LUNAS",
-                "Maret": "BELUM LUNAS",
-                "April": "BELUM LUNAS",
-                "Mei": "BELUM LUNAS",
-                "Juni": "BELUM LUNAS"
-            }
-        }
-    };
+    // Database dinamis yang akan diisi dari Google Sheets
+    let databaseSantri = {};
+    let santriCache = null;
+    let bulanTerpilihSet = new Set();
 
     const PIN_BENDAHARA_VALID = "123456";
-    const NOMINAL_PER_BULAN = 150000;
-    const daftarBulan = ["Juli", "Agustus", "September", "Oktober", "November", "Desember", "Januari", "Februari", "Maret", "April", "Mei", "Juni"];
+    const daftarBulan = ["September", "Oktober", "November", "Desember", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus"];
 
-    let santriCache = databaseSantri["20260000"];
-    let bulanTerpilihSet = new Set();
+    // Mengambil data secara otomatis dari Google Sheets Web App
+    async function ambilDataDariSheets() {
+        const urlWebApps = "https://script.google.com/macros/s/AKfycbye_GFcxb8Wy6mmE6D08gE-_IRG_bGND9bJwJ473wiFmtIby1-DM72X5q5j2K8HWXDVPA/exec";
+        
+        try {
+            let response = await fetch(urlWebApps);
+            databaseSantri = await response.json();
+            console.log("Database berhasil dimuat dari Google Sheets!");
+        } catch (error) {
+            console.error("Gagal memuat database:", error);
+            alert("Gagal terhubung ke database Google Sheets.");
+        }
+    }
 
     function cekDataSantri() {
         var nisInput = document.getElementById("nis").value.trim();
@@ -542,6 +536,7 @@
             document.getElementById("txtNama").innerText = santriCache.nama;
             document.getElementById("txtNis").innerText = santriCache.nis;
             document.getElementById("txtKelas").innerText = santriCache.kelas;
+            document.getElementById("txtAsrama").innerText = santriCache.asrama;
             document.getElementById("txtWali").innerText = santriCache.wali;
             document.getElementById("txtTelp").innerText = santriCache.telp;
             
@@ -564,7 +559,7 @@
             document.getElementById("bulanDropdownContent").style.display = "none";
             document.getElementById("dropdownIcon").style.transform = "rotate(0deg)";
         } else {
-            alert("Santri dengan NIS " + nisInput + " tidak ditemukan!");
+            alert("Santri dengan NIS " + nisInput + " tidak ditemukan di database Google Sheets!");
         }
     }
 
@@ -611,6 +606,9 @@
 
     function pilihBulanPill(bulanNama, statusBulan) {
         var txtInfoPilihan = document.getElementById("txtInfoPilihanBulan");
+        
+        document.getElementById("txtLabelBulanIni").innerText = "Status (" + bulanNama + ")";
+        var txtStatusBulanInfo = document.getElementById("txtStatusBulanInfo");
 
         if (statusBulan === "LUNAS") {
             txtStatusBulanInfo.innerText = "LUNAS";
@@ -620,13 +618,11 @@
             txtStatusBulanInfo.style.color = "#991b1b";
         }
 
-        // Jika bulan tersebut sudah lunas, cegah agar tidak bisa dipilih untuk dibayar ulang
         if (statusBulan === "LUNAS") {
             alert("Bulan " + bulanNama + " sudah lunas!");
             return;
         }
 
-        // Logika pilih / batal pilih bulan pembayaran
         if (bulanTerpilihSet.has(bulanNama)) {
             bulanTerpilihSet.delete(bulanNama);
             if (bulanTerpilihSet.size === 0) {
@@ -644,7 +640,8 @@
 
     function hitungTotalNominal() {
         var jumlahPilih = bulanTerpilihSet.size;
-        var total = jumlahPilih * NOMINAL_PER_BULAN;
+        var nominalPerBulan = Number(santriCache.nominal) || 150000;
+        var total = jumlahPilih * nominalPerBulan;
 
         var txtInfoPilihan = document.getElementById("txtInfoPilihanBulan");
         if (jumlahPilih > 0) {
@@ -725,8 +722,9 @@
         var kelas = santriCache.kelas;
         var wali = santriCache.wali;
         var telp = santriCache.telp;
+        var nominalPerBulan = Number(santriCache.nominal) || 150000;
         var tanggal = new Date().toLocaleDateString("id-ID", { day: 'numeric', month: 'long', year: 'numeric' });
-        var totalBayar = listBulanDipilih.length * NOMINAL_PER_BULAN;
+        var totalBayar = listBulanDipilih.length * nominalPerBulan;
 
         let noWa = telp.trim();
         if (noWa.startsWith('0')) {
@@ -759,10 +757,12 @@ Terima kasih, pembayaran Anda telah tercatat sah di sistem database pesantren.`;
         window.location.href = urlWa;
     }
 
+    // Ambil data dari Google Sheets otomatis saat halaman dibuka
     window.onload = function() {
-        cekDataSantri();
+        ambilDataDariSheets();
     };
 </script>
 
 </body>
-</html>  
+</html>
+ 
