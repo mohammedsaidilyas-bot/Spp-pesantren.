@@ -140,7 +140,7 @@
             margin-top: 14px;
             padding-top: 14px;
             border-top: 1px solid var(--border-color);
-            display: block; /* Pastikan selalu tampil */
+            display: block;
         }
 
         /* Desain Header Nama Santri */
@@ -307,47 +307,6 @@
 
         .btn-mayar { background: #6366f1; } 
         .btn-tunai { background: #d97706; } 
-
-        /* Loading Overlay */
-        #loadingOverlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 77, 46, 0.6);
-            backdrop-filter: blur(4px);
-            justify-content: center;
-            align-items: center;
-            z-index: 999;
-        }
-
-        .loader-box {
-            background: white;
-            padding: 16px 22px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-        }
-
-        .spinner {
-            width: 18px;
-            height: 18px;
-            border: 2.5px solid #e2e8f0;
-            border-top-color: var(--primary);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .loader-text {
-            font-size: 12.5px;
-            font-weight: 600;
-            color: var(--text-main);
-        }
     </style>
 </head>
 <body>
@@ -378,7 +337,7 @@
                 <div class="nama-top-row">
                     <div>
                         <div class="nama-label-small">Nama Santri</div>
-                        <div class="nama-value-big" id="txtNama">-</div>
+                        <div class="nama-value-big" id="txtNama">Mohammed Said Ilyas</div>
                     </div>
                 </div>
             </div>
@@ -386,24 +345,24 @@
             <div style="margin-bottom: 10px;">
                 <div class="info-row">
                     <span class="info-label">NIS</span>
-                    <span class="info-value" id="txtNis">-</span>
+                    <span class="info-value" id="txtNis">20260000</span>
                 </div>
                 <div class="info-row">
                     <span class="info-label">Kelas</span>
-                    <span class="info-value" id="txtKelas">-</span>
+                    <span class="info-value" id="txtKelas">Takhoss</span>
                 </div>
                 <div class="info-row">
                     <span class="info-label">Wali Santri</span>
-                    <span class="info-value" id="txtWali">-</span>
+                    <span class="info-value" id="txtWali">H. Ilyas Aly</span>
                 </div>
                 <div class="info-row">
                     <span class="info-label">No. Telepon</span>
-                    <span class="info-value" id="txtTelp">-</span>
+                    <span class="info-value" id="txtTelp">082219644442</span>
                 </div>
                 <!-- Status Pembayaran Bulan Ini -->
                 <div class="info-row" style="border-top: 1px dashed var(--border-color); margin-top: 6px; padding-top: 6px;">
                     <span class="info-label">Status Bulan Ini (Juli)</span>
-                    <span class="info-value" id="txtStatusBulanInfo" style="font-weight: 700;">-</span>
+                    <span class="info-value" id="txtStatusBulanInfo" style="font-weight: 700; color: #991b1b;">BELUM LUNAS</span>
                 </div>
             </div>
 
@@ -443,16 +402,8 @@
         </div>
     </div>
 
-    <!-- Loading Overlay -->
-    <div id="loadingOverlay">
-        <div class="loader-box">
-            <div class="spinner"></div>
-            <div class="loader-text" id="loaderText">Memproses...</div>
-        </div>
-    </div>
-
 <script>
-    // Database Santri
+    // Database Santri Percobaan
     const databaseSantri = {
         "20260000": {
             nis: "20260000",
@@ -481,12 +432,11 @@
     const NOMINAL_PER_BULAN = 150000;
     const daftarBulan = ["Juli", "Agustus", "September", "Oktober", "November", "Desember", "Januari", "Februari", "Maret", "April", "Mei", "Juni"];
 
-    let santriCache = null;
+    let santriCache = databaseSantri["20260000"];
 
-    // Eksekusi otomatis saat halaman selesai dimuat
-    window.onload = function() {
-        cekDataSantri();
-    };
+    // Langsung render saat halaman dibuka tanpa menunggu event tambahan
+    renderBulanGrid();
+    updateStatusBulanPertama();
 
     function cekDataSantri() {
         var nisInput = document.getElementById("nis").value.trim();
@@ -547,9 +497,11 @@
         var txtStatusBulanInfo = document.getElementById("txtStatusBulanInfo");
 
         if (statusJuli === "LUNAS") {
-            txtStatusBulanInfo.innerHTML = "<span style='color: #00663b;'>LUNAS</span>";
+            txtStatusBulanInfo.innerText = "LUNAS";
+            txtStatusBulanInfo.style.color = "#00663b";
         } else {
-            txtStatusBulanInfo.innerHTML = "<span style='color: #991b1b;'>BELUM LUNAS</span>";
+            txtStatusBulanInfo.innerText = "BELUM LUNAS";
+            txtStatusBulanInfo.style.color = "#991b1b";
         }
     }
 
@@ -607,4 +559,41 @@
         var bulanDipilih = [];
         checkboxes.forEach(cb => {
             bulanDipilih.push(cb.value);
-            if (santriCache && santriCache.pemba
+            if (santriCache && santriCache.pembayaran) {
+                santriCache.pembayaran[cb.value] = "LUNAS";
+            }
+        });
+
+        renderBulanGrid();
+        updateStatusBulanPertama();
+        hitungTotalNominal();
+
+        var nama = santriCache.nama;
+        var nis = santriCache.nis;
+        var kelas = santriCache.kelas;
+        var wali = santriCache.wali;
+        var telp = santriCache.telp;
+        var tanggal = new Date().toLocaleDateString("id-ID", { day: 'numeric', month: 'long', year: 'numeric' });
+        var totalBayar = bulanDipilih.length * NOMINAL_PER_BULAN;
+
+        let noWa = telp.trim();
+        if (noWa.startsWith('0')) {
+            noWa = '62' + noWa.substring(1);
+        }
+
+        let pesan = `*KUITANSI PEMBAYARAN SPP*
+*Pondok Pesantren Fathul Huda Al-Qarobiyah*
+---------------------------------------
+📅 *Tanggal:* ${tanggal}
+💳 *Metode:* ${metode}
+---------------------------------------
+👤 *Nama Santri:* ${nama}
+🆔 *NIS:* ${nis}
+🏫 *Kelas:* ${kelas}
+👨‍👩‍👦 *Wali Santri:* ${wali}
+---------------------------------------
+📌 *Untuk Pembayaran Bulan:* 
+*${bulanDipilih.join(", ")}*
+💰 *Total Dibayar:* Rp ${totalBayar.toLocaleString("id-ID")}
+✅ *Status:* LUNAS
+----------------------
