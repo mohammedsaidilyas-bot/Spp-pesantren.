@@ -62,7 +62,7 @@
         .brand-container h1 {
             font-size: 17px;
             font-weight: 700;
-            margin-top: -6px; /* Ditarik ke atas agar sangat dekat dengan logo */
+            margin-top: -6px;
             margin-bottom: 2px;
         }
 
@@ -200,6 +200,46 @@
             margin-bottom: 12px;
         }
 
+        /* Container Checkbox Bulan Multi-Pilih */
+        .bulan-checkbox-container {
+            background: #f8fafc;
+            border: 1.5px solid var(--border-color);
+            border-radius: 10px;
+            padding: 10px;
+            max-height: 140px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .bulan-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12.5px;
+            cursor: pointer;
+            padding: 4px 6px;
+            border-radius: 6px;
+            transition: background 0.15s;
+        }
+
+        .bulan-item:hover {
+            background: #e2e8f0;
+        }
+
+        .bulan-item input {
+            width: auto;
+            cursor: pointer;
+        }
+
+        .bulan-item.lunas {
+            color: #94a3b8;
+            text-decoration: line-through;
+            cursor: not-allowed;
+            background: transparent !important;
+        }
+
         /* PIN Bendahara Lebih Halus & Elegan */
         #pinContainer {
             display: none;
@@ -315,7 +355,7 @@
 </head>
 <body>
 
-    <!-- Header Brand dengan Jarak Nama & Logo Sangat Rapat -->
+    <!-- Header Brand -->
     <div class="brand-container">
         <div class="logo-wrapper">
             <img src="https://lh3.googleusercontent.com/d/1nisPkmO93MQycG2iEWxMduwWb6ZOh0kA" alt="Logo PP. Fathul Huda Al-Qarobiyah">
@@ -363,24 +403,19 @@
                     <span class="info-label">No. Telepon</span>
                     <span class="info-value" id="txtTelp">-</span>
                 </div>
-                <!-- Status Pembayaran Bulan Terpilih -->
-                <div class="info-row" style="border-top: 1px dashed var(--border-color); margin-top: 6px; padding-top: 6px;">
-                    <span class="info-label">Status Bulan Ini</span>
-                    <span class="info-value" id="txtStatusBulanInfo" style="font-weight: 700;">-</span>
-                </div>
             </div>
 
-            <!-- Bagian Bulan & Nominal Sejajar -->
-            <div class="form-row-2">
+            <!-- Bagian Pilih Bulan (Bisa Banyak / Multi-Pilih) & Total Nominal -->
+            <div class="form-row-2" style="align-items: start;">
                 <div>
-                    <label class="input-label" for="bulan">Bulan SPP</label>
-                    <select id="bulan" onchange="updateStatusBulan()">
-                        <!-- Diisi otomatis oleh script -->
-                    </select>
+                    <label class="input-label">Pilih Bulan SPP (Bisa > 1)</label>
+                    <div class="bulan-checkbox-container" id="bulanCheckboxGroup">
+                        <!-- Diisi otomatis oleh JavaScript -->
+                    </div>
                 </div>
                 <div>
-                    <label class="input-label" for="nominal">Nominal</label>
-                    <input type="text" id="nominal" value="Rp 150.000" disabled style="background: #e2e8f0; font-weight: 700; color: var(--text-main);">
+                    <label class="input-label" for="totalNominal">Total Tagihan</label>
+                    <input type="text" id="totalNominal" value="Rp 0" disabled style="background: #e2e8f0; font-weight: 700; color: var(--text-main); margin-top: 0;">
                 </div>
             </div>
 
@@ -439,6 +474,7 @@
     };
 
     const PIN_BENDAHARA_VALID = "123456";
+    const NOMINAL_PER_BULAN = 150000;
     const daftarBulan = ["Juli", "Agustus", "September", "Oktober", "November", "Desember", "Januari", "Februari", "Maret", "April", "Mei", "Juni"];
 
     let santriCache = null;
@@ -469,8 +505,8 @@
                 document.getElementById("txtWali").innerText = santriCache.wali;
                 document.getElementById("txtTelp").innerText = santriCache.telp;
                 
-                populateDropdownBulan();
-                updateStatusBulan();
+                renderBulanCheckboxes();
+                hitungTotalNominal();
                 
                 document.getElementById("pinContainer").style.display = "none";
                 document.getElementById("resultSection").style.display = "block";
@@ -481,50 +517,57 @@
         }, 200);
     }
 
-    function populateDropdownBulan() {
+    function renderBulanCheckboxes() {
         if (!santriCache || !santriCache.pembayaran) return;
-        var selectBulan = document.getElementById("bulan");
-        selectBulan.innerHTML = "";
+        var container = document.getElementById("bulanCheckboxGroup");
+        container.innerHTML = "";
 
         daftarBulan.forEach(bulan => {
-            var option = document.createElement("option");
-            option.value = bulan;
-            option.text = bulan;
-            selectBulan.appendChild(option);
-        });
+            var status = (santriCache.pembayaran[bulan] || "BELUM LUNAS").toUpperCase();
+            var isLunas = (status === "LUNAS");
 
-        selectBulan.selectedIndex = 0;
+            var label = document.createElement("label");
+            label.className = "bulan-item" + (isLunas ? " lunas" : "");
+
+            var textSpan = document.createElement("span");
+            textSpan.innerText = bulan + (isLunas ? " (Lunas)" : "");
+
+            var checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.value = bulan;
+            checkbox.disabled = isLunas;
+            checkbox.onchange = hitungTotalNominal;
+
+            label.appendChild(textSpan);
+            label.appendChild(checkbox);
+            container.appendChild(label);
+        });
     }
 
-    function updateStatusBulan() {
-        if (!santriCache || !santriCache.pembayaran) return;
-        var selectBulan = document.getElementById("bulan");
-        var bulanPilih = selectBulan.value;
-        if (!bulanPilih) return;
-        
-        var statusBulan = (santriCache.pembayaran[bulanPilih] || "BELUM LUNAS").toUpperCase();
-        var txtStatusBulanInfo = document.getElementById("txtStatusBulanInfo");
-        
+    function hitungTotalNominal() {
+        var checkboxes = document.querySelectorAll("#bulanCheckboxGroup input[type='checkbox']:checked");
+        var jumlahPilih = checkboxes.length;
+        var total = jumlahPilih * NOMINAL_PER_BULAN;
+
+        document.getElementById("totalNominal").value = "Rp " + total.toLocaleString("id-ID");
+
         var btnOnline = document.getElementById("btnOnline");
         var btnTunai = document.getElementById("btnTunai");
-        var pinContainer = document.getElementById("pinContainer");
 
-        if (statusBulan === "LUNAS") {
-            txtStatusBulanInfo.innerHTML = "<span style='color: #00663b;'>LUNAS</span>";
+        if (jumlahPilih === 0) {
             btnOnline.disabled = true;
             btnTunai.disabled = true;
-            pinContainer.style.display = "none";
+            document.getElementById("pinContainer").style.display = "none";
         } else {
-            txtStatusBulanInfo.innerHTML = "<span style='color: #991b1b;'>BELUM LUNAS</span>";
             btnOnline.disabled = false;
             btnTunai.disabled = false;
         }
     }
 
     function handleBayarTunaiClick() {
-        var bulan = document.getElementById("bulan").value;
-        if (!bulan || santriCache.pembayaran[bulan] === "LUNAS") {
-            alert("Bulan ini sudah lunas!");
+        var checkboxes = document.querySelectorAll("#bulanCheckboxGroup input[type='checkbox']:checked");
+        if (checkboxes.length === 0) {
+            alert("Pilih minimal satu bulan pembayaran terlebih dahulu!");
             return;
         }
 
@@ -538,10 +581,9 @@
     }
 
     function prosesPembayaran(metode) {
-        var bulan = document.getElementById("bulan").value;
-
-        if (!bulan || santriCache.pembayaran[bulan] === "LUNAS") {
-            alert("Bulan pembayaran ini sudah lunas!");
+        var checkboxes = document.querySelectorAll("#bulanCheckboxGroup input[type='checkbox']:checked");
+        if (checkboxes.length === 0) {
+            alert("Pilih minimal satu bulan pembayaran!");
             return;
         }
 
@@ -553,11 +595,16 @@
             }
         }
 
-        if (santriCache && santriCache.pembayaran) {
-            santriCache.pembayaran[bulan] = "LUNAS";
-            populateDropdownBulan();
-            updateStatusBulan();
-        }
+        var bulanDipilih = [];
+        checkboxes.forEach(cb => {
+            bulanDipilih.push(cb.value);
+            if (santriCache && santriCache.pembayaran) {
+                santriCache.pembayaran[cb.value] = "LUNAS";
+            }
+        });
+
+        renderBulanCheckboxes();
+        hitungTotalNominal();
 
         var nama = santriCache.nama;
         var nis = santriCache.nis;
@@ -565,36 +612,8 @@
         var wali = santriCache.wali;
         var telp = santriCache.telp;
         var tanggal = new Date().toLocaleDateString("id-ID", { day: 'numeric', month: 'long', year: 'numeric' });
+        var totalBayar = bulanDipilih.length * NOMINAL_PER_BULAN;
 
         let noWa = telp.trim();
         if (noWa.startsWith('0')) {
-            noWa = '62' + noWa.substring(1);
-        }
-
-        let pesan = `*KUITANSI PEMBAYARAN SPP*
-*Pondok Pesantren Fathul Huda Al-Qarobiyah*
----------------------------------------
-📅 *Tanggal:* ${tanggal}
-💳 *Metode:* ${metode}
----------------------------------------
-👤 *Nama Santri:* ${nama}
-🆔 *NIS:* ${nis}
-🏫 *Kelas:* ${kelas}
-👨‍👩‍👦 *Wali Santri:* ${wali}
----------------------------------------
-📌 *Untuk Pembayaran SPP Bulan:* *${bulan}*
-✅ *Status:* LUNAS
----------------------------------------
-Terima kasih, pembayaran Anda telah tercatat sah di sistem database pesantren.`;
-
-        let urlWa = `https://api.whatsapp.com/send?phone=${noWa}&text=${encodeURIComponent(pesan)}`;
-        
-        document.getElementById("kodeBendahara").value = "";
-        document.getElementById("pinContainer").style.display = "none";
-
-        window.location.href = urlWa;
-    }
-</script>
-
-</body>
-</html>
+            noWa = '62'
