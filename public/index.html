@@ -25,8 +25,8 @@
         <div class="bg-emerald-800 p-6 text-white text-center relative overflow-hidden">
             <div class="absolute -right-6 -top-6 w-24 h-24 bg-emerald-700/50 rounded-full blur-xl"></div>
             
-            <!-- Logo Pondok Pesantren -->
-            <div class="w-20 h-20 mx-auto mb-3 flex items-center justify-center p-0.5">
+            <!-- Logo Pondok Pesantren (Diperbesar Jelas) -->
+            <div class="w-28 h-28 mx-auto mb-3 flex items-center justify-center p-0.5">
                 <img src="https://lh3.googleusercontent.com/d/1nisPkmO93MQycG2iEWxMduwWb6ZOh0kA" alt="Logo PPFHA" class="w-full h-full object-contain drop-shadow-md" onerror="this.src='https://iili.io/3V0U3V7.png'">
             </div>
 
@@ -93,12 +93,12 @@
                 <span id="view-total" class="text-sm font-bold text-emerald-700">Rp 0</span>
             </div>
 
-            <!-- Tombol Aksi Berdampingan di Bawah -->
+            <!-- Tombol Aksi Berdampingan di Bawah (Semua Hijau) -->
             <div class="grid grid-cols-2 gap-3 pt-1">
                 <button onclick="bukaModalOnline()" class="bg-emerald-700 hover:bg-emerald-800 text-white py-3 rounded-xl text-xs font-bold transition-all shadow-md flex items-center justify-center gap-1.5 active:scale-95">
                     🌐 Bayar Online
                 </button>
-                <button onclick="prosesBayarTunai()" class="bg-slate-700 hover:bg-slate-800 text-white py-3 rounded-xl text-xs font-bold transition-all shadow-md flex items-center justify-center gap-1.5 active:scale-95">
+                <button onclick="prosesBayarTunai()" class="bg-emerald-800 hover:bg-emerald-900 text-white py-3 rounded-xl text-xs font-bold transition-all shadow-md flex items-center justify-center gap-1.5 active:scale-95">
                     💵 Tunai (PIN)
                 </button>
             </div>
@@ -433,7 +433,9 @@
 
             const pin = prompt("Masukkan PIN Bendahara untuk Pembayaran Tunai:");
             if (pin !== "123456") {
-                if (pin !== null) alert("PIN Salah!");
+                if (pin !== null) {
+                    alert("PIN Salah!");
+                }
                 return;
             }
 
@@ -446,16 +448,20 @@
                 const result = await res.json();
                 if (result.status === 'success') {
                     tampilkanKuitansi("Tunai ke Bendahara", bulan);
+                } else {
+                    alert("Gagal memproses pembayaran ke server.");
                 }
             } catch (err) {
-                alert("Gagal memproses pembayaran.");
+                alert("Terjadi kesalahan koneksi saat memproses pembayaran tunai.");
             }
         }
 
         async function bukaPanelBendahara() {
             const pin = prompt("Masukkan PIN Bendahara:");
             if (pin !== "123456") {
-                if (pin !== null) alert("PIN Salah!");
+                if (pin !== null) {
+                    alert("PIN Salah!");
+                }
                 return;
             }
 
@@ -528,12 +534,13 @@
                     window.open(urlWA, '_blank');
 
                     bukaPanelBendahara();
+                } else {
+                    alert("Gagal menyetujui pembayaran di server.");
                 }
             } catch (err) {
-                alert("Gagal menyetujui pembayaran.");
+                alert("Terjadi kesalahan koneksi saat menyetujui pembayaran.");
             }
         }
     </script>
 </body>
 </html>
-                  
