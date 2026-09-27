@@ -482,6 +482,8 @@
         var selectBulan = document.getElementById("bulan");
         selectBulan.innerHTML = "";
 
+        let adaBulanBelumLunas = false;
+
         daftarBulan.forEach(bulan => {
             var status = (santriCache.pembayaran[bulan] || "BELUM LUNAS").toUpperCase();
             var option = document.createElement("option");
@@ -489,24 +491,36 @@
             
             if (status === "LUNAS") {
                 option.text = bulan + " (LUNAS)";
-                option.disabled = true;
+                option.disabled = true; // Mengunci bulan yang sudah lunas agar tidak bisa dipilih
             } else {
                 option.text = bulan;
+                adaBulanBelumLunas = true;
             }
             selectBulan.appendChild(option);
         });
 
-        for (let i = 0; i < selectBulan.options.length; i++) {
-            if (!selectBulan.options[i].disabled) {
-                selectBulan.selectedIndex = i;
-                break;
+        // Jika semua bulan sudah lunas
+        if (!adaBulanBelumLunas) {
+            var option = document.createElement("option");
+            option.text = "Semua Bulan Sudah Lunas";
+            option.disabled = true;
+            selectBulan.appendChild(option);
+            selectBulan.selectedIndex = selectBulan.options.length - 1;
+        } else {
+            // Arahkan ke bulan aktif pertama yang belum lunas
+            for (let i = 0; i < selectBulan.options.length; i++) {
+                if (!selectBulan.options[i].disabled) {
+                    selectBulan.selectedIndex = i;
+                    break;
+                }
             }
         }
     }
 
     function updateStatusBulan() {
         if (!santriCache || !santriCache.pembayaran) return;
-        var bulanPilih = document.getElementById("bulan").value;
+        var selectBulan = document.getElementById("bulan");
+        var bulanPilih = selectBulan.value;
         if (!bulanPilih) return;
         
         var statusBulan = (santriCache.pembayaran[bulanPilih] || "BELUM LUNAS").toUpperCase();
@@ -522,6 +536,12 @@
     }
 
     function handleBayarTunaiClick() {
+        var bulan = document.getElementById("bulan").value;
+        if (!bulan || santriCache.pembayaran[bulan] === "LUNAS") {
+            alert("Bulan ini sudah lunas atau tidak valid untuk dipilih!");
+            return;
+        }
+
         var pinContainer = document.getElementById("pinContainer");
         if (pinContainer.style.display === "none" || pinContainer.style.display === "") {
             pinContainer.style.display = "block";
@@ -534,8 +554,8 @@
     function prosesPembayaran(metode) {
         var bulan = document.getElementById("bulan").value;
 
-        if (!bulan) {
-            alert("Harap pilih bulan pembayaran terlebih dahulu!");
+        if (!bulan || santriCache.pembayaran[bulan] === "LUNAS") {
+            alert("Harap pilih bulan pembayaran yang belum lunas terlebih dahulu!");
             return;
         }
 
@@ -550,7 +570,7 @@
         // 1. Ubah status lokal di memori jadi LUNAS
         if (santriCache && santriCache.pembayaran) {
             santriCache.pembayaran[bulan] = "LUNAS";
-            populateDropdownBulan();
+            populateDropdownBulan(); // Memperbarui dropdown & mengunci bulan yang baru saja dilunasi
             updateStatusBulan();
         }
 
@@ -589,7 +609,7 @@ Terima kasih, pembayaran Anda telah tercatat sah di sistem database pesantren.`;
         document.getElementById("kodeBendahara").value = "";
         document.getElementById("pinContainer").style.display = "none";
 
-        // 4. Langsung buka WhatsApp secara instan (menghindari blokir browser popup blocker)
+        // 4. Langsung buka WhatsApp secara instan
         window.location.href = urlWa;
     }
 </script>
