@@ -537,9 +537,7 @@
 
     const PIN_BENDAHARA_VALID = "123456";
     const daftarBulan = ["September", "Oktober", "November", "Desember", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus"];
-    
-    // URL Web Apps Baru yang sudah terhubung ke Google Drive
-    const urlWebApps = "https://script.google.com/macros/s/AKfycbxEzv3HK3-FGG2u-kbV8vfW-eiw-L6wRCquyh2w807esIgbL54_GcmsFcogFaQA6KVqYQ/exec";
+    const urlWebApps = "https://script.google.com/macros/s/AKfycbye_GFcxb8Wy6mmE6D08gE-_IRG_bGND9bJwJ473wiFmtIby1-DM72X5q5j2K8HWXDVPA/exec";
 
     async function ambilDataDariSheets() {
         try {
@@ -627,115 +625,138 @@
                 pill.classList.add("selected");
             }
             
-            // Format tampilan jika Lunas atau Pending
-            if (status === "LUNAS") {
-                pill.style.background = "#dcfce7";
-                pill.style.color = "#166534";
-                pill.style.borderColor = "#86efac";
-                pill.title = "Sudah Lunas";
-            } else if (status.startsWith("PENDING")) {
-                pill.style.background = "#fef3c7";
-                pill.style.color = "#92400e";
-                pill.style.borderColor = "#fde68a";
-                pill.title = "Menunggu Verifikasi";
-            }
-
             pill.innerText = bulan;
-            
-            // Hanya izinkan pilih jika belum lunas atau tidak sedang pending
-            if (status === "BELUM LUNAS" || status === "") {
-                pill.onclick = function() {
-                    togglePilihBulan(bulan, pill);
-                };
-            } else {
-                pill.style.cursor = "not-allowed";
-            }
+            pill.onclick = function() {
+                pilihBulanPill(bulan, status);
+            };
             
             gridContainer.appendChild(pill);
         });
     }
 
-    function togglePilihBulan(bulan, element) {
-        if (bulanTerpilihSet.has(bulan)) {
-            bulanTerpilihSet.delete(bulan);
-            element.classList.remove("selected");
+    function pilihBulanPill(bulanNama, statusBulan) {
+        document.getElementById("txtLabelBulanIni").innerText = "Status (" + bulanNama + ")";
+        var txtStatusBulanInfo = document.getElementById("txtStatusBulanInfo");
+
+        if (statusBulan === "LUNAS") {
+            txtStatusBulanInfo.innerText = "LUNAS";
+            txtStatusBulanInfo.style.color = "#008953"; 
+            if (bulanTerpilihSet.has(bulanNama)) {
+                bulanTerpilihSet.delete(bulanNama);
+            }
+        } else if (statusBulan === "PENDING") {
+            txtStatusBulanInfo.innerText = "MENUNGGU VERIFIKASI";
+            txtStatusBulanInfo.style.color = "#d97706";
+            if (bulanTerpilihSet.has(bulanNama)) {
+                bulanTerpilihSet.delete(bulanNama);
+            }
         } else {
-            bulanTerpilihSet.add(bulan);
-            element.classList.add("selected");
+            txtStatusBulanInfo.innerText = "BELUM LUNAS";
+            txtStatusBulanInfo.style.color = "#991b1b"; 
+
+            if (bulanTerpilihSet.has(bulanNama)) {
+                bulanTerpilihSet.delete(bulanNama);
+                if (bulanTerpilihSet.size === 0) {
+                    document.getElementById("txtLabelBulanIni").innerText = "Status Pembayaran SPP";
+                    txtStatusBulanInfo.innerText = "PILIH BULAN DI BAWAH";
+                    txtStatusBulanInfo.style.color = "var(--text-muted)";
+                }
+            } else {
+                bulanTerpilihSet.add(bulanNama);
+            }
         }
 
-        updateRingkasanPilihan();
+        renderBulanGrid();
+        hitungTotalNominal();
+        tutupPanelUpload();
     }
 
-    function updateRingkasanPilihan() {
-        let jumlah = bulanTerpilihSet.size;
-        let infoPilihan = document.getElementById("txtInfoPilihanBulan");
-        let totalTagihanEl = document.getElementById("txtTotalTagihan");
-        let btnOnline = document.getElementById("btnOnline");
-        let btnTunai = document.getElementById("btnTunai");
-        let pinContainer = document.getElementById("pinContainer");
+    function hitungTotalNominal() {
+        var jumlahPilih = bulanTerpilihSet.size;
+        var nominalPerBulan = Number(santriCache.nominal) || 150000;
+        var total = jumlahPilih * nominalPerBulan;
 
-        if (jumlah > 0) {
-            let arrBulan = Array.from(bulanTerpilihSet);
-            infoPilihan.innerText = arrBulan.join(", ");
-            infoPilihan.style.color = "var(--text-main)";
-
-            let nominalPerBulan = parseInt(santriCache.nominal || 150000);
-            let total = jumlah * nominalPerBulan;
-            totalTagihanEl.innerText = formatRupiah(total);
-
-            btnOnline.disabled = false;
-            btnTunai.disabled = false;
-            pinContainer.style.display = "block";
+        var txtInfoPilihan = document.getElementById("txtInfoPilihanBulan");
+        if (jumlahPilih > 0) {
+            var listBulan = Array.from(bulanTerpilihSet);
+            txtInfoPilihan.innerText = listBulan.join(", ");
+            txtInfoPilihan.style.color = "var(--primary)";
         } else {
-            infoPilihan.innerText = "Pilih bulan...";
-            infoPilihan.style.color = "var(--text-muted)";
-            totalTagihanEl.innerText = "Rp 0";
+            txtInfoPilihan.innerText = "Pilih bulan...";
+            txtInfoPilihan.style.color = "var(--text-muted)";
+        }
 
+        document.getElementById("txtTotalTagihan").innerText = "Rp " + total.toLocaleString("id-ID");
+
+        var btnOnline = document.getElementById("btnOnline");
+        var btnTunai = document.getElementById("btnTunai");
+
+        if (jumlahPilih === 0) {
             btnOnline.disabled = true;
             btnTunai.disabled = true;
-            pinContainer.style.display = "none";
+            document.getElementById("pinContainer").style.display = "none";
+        } else {
+            btnOnline.disabled = false;
+            btnTunai.disabled = false;
         }
     }
 
-    function formatRupiah(angka) {
-        return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(angka);
+    function handleBayarTunaiClick() {
+        if (bulanTerpilihSet.size === 0) {
+            alert("Pilih minimal satu bulan pembayaran terlebih dahulu!");
+            return;
+        }
+
+        tutupPanelUpload();
+        var pinContainer = document.getElementById("pinContainer");
+        if (pinContainer.style.display === "none" || pinContainer.style.display === "") {
+            pinContainer.style.display = "block";
+            document.getElementById("kodeBendahara").focus();
+        } else {
+            prosesPembayaran("Tunai / Offline");
+        }
     }
 
     function bukaPanelUploadOnline() {
-        if (bulanTerpilihSet.size === 0) return;
+        if (bulanTerpilihSet.size === 0) {
+            alert("Pilih minimal satu bulan pembayaran terlebih dahulu!");
+            return;
+        }
+        document.getElementById("pinContainer").style.display = "none";
         document.getElementById("panelUploadOnline").style.display = "block";
+        document.getElementById("panelUploadOnline").scrollIntoView({ behavior: 'smooth' });
     }
 
     function tutupPanelUpload() {
         document.getElementById("panelUploadOnline").style.display = "none";
-        let fileInput = document.getElementById("fileBukti");
-        if (fileInput) fileInput.value = "";
+        var fileInput = document.getElementById("fileBukti");
+        if(fileInput) fileInput.value = "";
     }
 
     async function kirimBuktiTransfer() {
-        let fileInput = document.getElementById("fileBukti");
+        var fileInput = document.getElementById("fileBukti");
         if (fileInput.files.length === 0) {
-            alert("Harap pilih foto bukti transfer terlebih dahulu!");
+            alert("Silakan pilih foto bukti transfer terlebih dahulu!");
             return;
         }
 
-        let file = fileInput.files[0];
-        let btnKirim = document.getElementById("btnKirimBukti");
-        btnKirim.innerText = "Mengirim...";
-        btnKirim.disabled = true;
+        var file = fileInput.files[0];
+        var reader = new FileReader();
+        var btn = document.getElementById("btnKirimBukti");
+        btn.disabled = true;
+        btn.innerText = "Mengirim...";
 
-        let reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = async function() {
-            let base64Data = reader.result.split(',')[1];
-            let payload = {
+        let listBulanDipilih = Array.from(bulanTerpilihSet);
+
+        reader.onload = async function(e) {
+            var base64Data = e.target.result.split(',')[1];
+            var payload = {
                 action: "uploadBukti",
                 nis: santriCache.nis,
-                bulan: Array.from(bulanTerpilihSet),
+                bulan: listBulanDipilih,
+                fileData: base64Data,
                 fileName: file.name,
-                mimeType: file.type,
-                fileData: base64Data
+                mimeType: file.type
             };
 
             try {
@@ -743,62 +764,112 @@
                     method: "POST",
                     body: JSON.stringify(payload)
                 });
-                let result = await response.json();
-                
-                if (result.status === "success") {
-                    alert("Bukti transfer berhasil diunggah! Menunggu verifikasi bendahara.");
+                let resJson = await response.json();
+
+                if(resJson.status === "success") {
+                    alert("Bukti transfer berhasil dikirim! Menunggu verifikasi bendahara.");
                     tutupPanelUpload();
-                    cekDataSantri(); // Refresh data santri
+                    cekDataSantri(); 
                 } else {
-                    alert("Gagal mengunggah: " + result.message);
+                    alert("Gagal mengunggah: " + (resJson.message || "Terjadi kesalahan"));
                 }
-            } catch (error) {
-                console.error(error);
-                alert("Terjadi kesalahan saat mengirim data.");
+            } catch(err) {
+                console.error(err);
+                alert("Terjadi kesalahan koneksi saat mengunggah bukti.");
             } finally {
-                btnKirim.innerText = "Kirim Bukti";
-                btnKirim.disabled = false;
+                btn.disabled = false;
+                btn.innerText = "Kirim Bukti";
             }
         };
+
+        reader.readAsDataURL(file);
     }
 
-    async function handleBayarTunaiClick() {
-        let pin = document.getElementById("kodeBendahara").value.trim();
-        if (pin !== PIN_BENDAHARA_VALID) {
-            alert("PIN Bendahara salah!");
+    async function prosesPembayaran(metode) {
+        if (bulanTerpilihSet.size === 0) {
+            alert("Pilih minimal satu bulan pembayaran!");
             return;
         }
 
-        if (bulanTerpilihSet.size === 0) return;
+        if (metode === "Tunai / Offline") {
+            var inputPin = document.getElementById("kodeBendahara").value.trim();
+            if (inputPin !== PIN_BENDAHARA_VALID) {
+                alert("Akses Ditolak! PIN Bendahara salah. (Gunakan PIN: 123456)");
+                return;
+            }
+        }
 
-        if (!confirm("Konfirmasi pembayaran tunai untuk bulan yang dipilih?")) return;
-
-        let payload = {
-            nis: santriCache.nis,
-            bulan: Array.from(bulanTerpilihSet)
-        };
+        var listBulanDipilih = Array.from(bulanTerpilihSet);
 
         try {
+            document.body.style.cursor = "wait";
             let response = await fetch(urlWebApps, {
                 method: "POST",
-                body: JSON.stringify(payload)
+                body: JSON.stringify({
+                    nis: santriCache.nis,
+                    bulan: listBulanDipilih
+                })
             });
-            let result = await response.json();
-
-            if (result.status === "success") {
-                alert("Pembayaran tunai berhasil dicatat dan berstatus LUNAS!");
-                document.getElementById("kodeBendahara").value = "";
-                cekDataSantri();
-            } else {
-                alert("Gagal mencatat pembayaran.");
+            let resJson = await response.json();
+            document.body.style.cursor = "default";
+            
+            if(resJson.status !== "success") {
+                alert("Gagal menyimpan ke Google Sheets!");
+                return;
             }
-        } catch (error) {
-            alert("Kesalahan koneksi.");
+        } catch (err) {
+            document.body.style.cursor = "default";
+            console.error(err);
+            alert("Terjadi kesalahan koneksi saat menyimpan ke database.");
+            return;
         }
+
+        listBulanDipilih.forEach(bulan => {
+            if (santriCache && santriCache.pembayaran) {
+                santriCache.pembayaran[bulan] = "LUNAS";
+            }
+        });
+
+        bulanTerpilihSet.clear();
+        renderBulanGrid();
+        
+        document.getElementById("txtLabelBulanIni").innerText = "Status Pembayaran SPP";
+        let statusInfo = document.getElementById("txtStatusBulanInfo");
+        statusInfo.innerText = "PILIH BULAN DI BAWAH";
+        statusInfo.style.color = "var(--text-muted)";
+
+        hitungTotalNominal();
+
+        document.getElementById("bulanDropdownContent").style.display = "none";
+        document.getElementById("dropdownIcon").style.transform = "rotate(0deg)";
+
+        var nama = santriCache.nama;
+        var nis = santriCache.nis;
+        var kelas = santriCache.kelas;
+        var wali = santriCache.wali;
+        var nominalPerBulan = Number(santriCache.nominal) || 150000;
+        var tanggal = new Date().toLocaleDateString("id-ID", { day: 'numeric', month: 'long', year: 'numeric' });
+        var totalBayar = listBulanDipilih.length * nominalPerBulan;
+
+        let noWa = String(santriCache.telp).trim();
+        if (noWa.startsWith('0')) {
+            noWa = '62' + noWa.substring(1);
+        }
+
+        // Kuitansi lengkap dengan emoji ikon persis seperti gambar Anda
+        let pesan = `*KUITANSI PEMBAYARAN SPP*\n\n*Pondok Pesantren Fathul Huda Al-Qarobiyah*\n---------------------------------------\n📅 *Tanggal:* ${tanggal}\n💳 *Metode:* ${metode}\n---------------------------------------\n👤 *Nama Santri:* ${nama}\n🆔 *NIS:* ${nis}\n🏫 *Kelas:* ${kelas}\n👨‍👩‍👦 *Wali Santri:* ${wali}\n---------------------------------------\n📌 *Untuk Pembayaran Bulan:* \n*${listBulanDipilih.join(", ")}*\n\n💰 *Total Dibayar:* Rp ${totalBayar.toLocaleString("id-ID")}\n✅ *Status:* LUNAS\n---------------------------------------\nTerima kasih, pembayaran Anda telah tercatat sah di sistem database pesantren.`;
+
+        let urlWa = `https://api.whatsapp.com/send?phone=${noWa}&text=${encodeURIComponent(pesan)}`;
+        
+        document.getElementById("kodeBendahara").value = "";
+        document.getElementById("pinContainer").style.display = "none";
+
+        window.location.href = urlWa;
     }
 
+    // Fungsi Panel Bendahara Verifikasi via PIN
     function bukaPanelVerifikasi() {
-        let pin = document.getElementById("pinPanelBendahara").value.trim();
+        var pin = document.getElementById("pinPanelBendahara").value.trim();
         if (pin !== PIN_BENDAHARA_VALID) {
             alert("PIN Bendahara salah!");
             return;
@@ -815,7 +886,7 @@
     }
 
     async function muatDataPending() {
-        let container = document.getElementById("listPendingContainer");
+        var container = document.getElementById("listPendingContainer");
         container.innerHTML = "Memeriksa data pending...";
         
         try {
