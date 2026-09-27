@@ -302,7 +302,7 @@
         }
 
         .bulan-pill.lunas-pill.selected {
-            background: #0284c7; /* Warna biru untuk menandakan status lunas yang sedang dilihat */
+            background: #0284c7;
             border-color: #0284c7;
             color: #ffffff;
         }
@@ -606,12 +606,15 @@
     }
 
     function pilihBulanPill(bulanNama, statusBulan) {
+        var txtInfoPilihan = document.getElementById("txtInfoPilihanBulan");
+        
         // Jika bulan sudah LUNAS, tetap bisa diklik untuk melihat statusnya, tapi tombol pembayaran dikunci
         if (statusBulan === "LUNAS") {
             bulanTerpilihSet.clear();
             renderBulanGrid();
-            hitungTotalNominal();
             
-            document.getElementById("txtInfoPilihanBulan").innerText = bulanNama + " (LUNAS)";
-            document.getElementById("txtInfoPilihanBulan").style.color = "#0284c7";
-            document.getElementById("pinContainer").style.display = "none
+            txtInfoPilihan.innerText = bulanNama + " (LUNAS)";
+            txtInfoPilihan.style.color = "#0284c7";
+            
+            document.getElementById("txtTotalTagihan").innerText = "Rp 0";
+            document.getElementById("btnOnline").disabled = true
