@@ -3,168 +3,415 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal SPP - PPFHA</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <title>Portal Pembayaran SPP - PP. Fathul Huda Al-Qarobiyah</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        :root { --primary: #008953; --bg: linear-gradient(135deg, #008953 0%, #004d2e 100%); }
+        :root {
+            --primary: #008953;
+            --bg-gradient: linear-gradient(135deg, #008953 0%, #004d2e 100%);
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+        }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
-        body { background: var(--bg); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px 16px; color: #0f172a; }
-        .card { background: #fff; width: 100%; max-width: 400px; padding: 20px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        .title { text-align: center; color: #fff; margin-bottom: 15px; font-size: 16px; font-weight: 700; }
-        .label { font-size: 11px; font-weight: 600; color: #64748b; margin-bottom: 4px; text-transform: uppercase; display: block; }
-        .group { display: flex; gap: 8px; margin-bottom: 12px; }
-        input { width: 100%; padding: 10px; font-size: 13px; border: 1.5px solid #e2e8f0; border-radius: 8px; outline: none; background: #f8fafc; }
-        input:focus { border-color: var(--primary); background: #fff; }
-        .btn { background: #2563eb; color: #fff; border: none; padding: 0 14px; border-radius: 8px; font-weight: 600; cursor: pointer; }
-        .info-box { border-top: 1px solid #e2e8f0; padding-top: 10px; margin-top: 10px; font-size: 13px; }
-        .row { display: flex; justify-content: space-between; padding: 4px 0; }
-        .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 10px 0; }
-        .pill { background: #fff; border: 1.5px solid #e2e8f0; padding: 10px 2px; text-align: center; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; }
-        .pill:hover { border-color: var(--primary); background: #f0fdf4; }
-        .pill.selected { background: var(--primary); color: #fff; border-color: var(--primary); }
-        .pill.lunas { background: #f1f5f9; color: #64748b; border-color: #cbd5e1; }
-        .actions { display: flex; gap: 8px; margin-top: 12px; }
-        .btn-act { flex: 1; padding: 10px; border: none; border-radius: 8px; font-weight: 600; color: #fff; cursor: pointer; }
+        body {
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 24px 16px;
+        }
+        .brand-container { text-align: center; margin-bottom: 16px; color: #ffffff; }
+        .brand-container h1 { font-size: 17px; font-weight: 700; margin-top: 4px; }
+        .brand-container p { font-size: 11px; color: #a7f3d0; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .search-card {
+            background: var(--card-bg);
+            width: 100%;
+            max-width: 420px;
+            padding: 20px;
+            border-radius: 18px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+        }
+        .input-label {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+        .input-group { display: flex; gap: 8px; margin-bottom: 14px; }
+        input {
+            width: 100%;
+            padding: 10px 14px;
+            font-size: 13.5px;
+            border: 1.5px solid var(--border-color);
+            border-radius: 10px;
+            outline: none;
+            background: #f8fafc;
+            color: var(--text-main);
+        }
+        input:focus { border-color: var(--primary); background: #ffffff; }
+        .btn-cek {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 0 16px;
+            font-size: 13.5px;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .result-section {
+            border-top: 1px solid var(--border-color);
+            padding-top: 12px;
+        }
+        .santri-header-box {
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 8px;
+        }
+        .nama-label-small { font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
+        .nama-value-big { font-size: 17px; font-weight: 700; color: var(--text-main); }
+        .info-row { display: flex; justify-content: space-between; font-size: 12.5px; padding: 4px 0; }
+        .info-label { color: var(--text-muted); font-weight: 500; }
+        .info-value { color: var(--text-main); font-weight: 600; }
+        
+        /* Grid Bulan & Total Tagihan Sejajar */
+        .form-row-side {
+            display: grid;
+            grid-template-columns: 1.3fr 1fr;
+            gap: 8px;
+            margin-top: 10px;
+            margin-bottom: 8px;
+        }
+        .total-tagihan-box {
+            background: #f8fafc;
+            padding: 8px 10px;
+            border-radius: 10px;
+            border: 1.5px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            height: 42px;
+        }
+        .total-tagihan-value { font-size: 13px; font-weight: 700; color: var(--primary); }
+
+        /* Kotak Pilihan Bulan (Grid 4 Kolom) */
+        .bulan-dropdown-content {
+            background: #f8fafc;
+            border: 1.5px solid var(--border-color);
+            border-radius: 12px;
+            padding: 10px;
+            margin-bottom: 12px;
+        }
+        .bulan-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+        }
+        .bulan-pill {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #ffffff;
+            border: 1.5px solid var(--border-color);
+            padding: 9px 2px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-main);
+            cursor: pointer;
+            text-align: center;
+            user-select: none;
+        }
+        .bulan-pill:hover { border-color: var(--primary); background: #f0fdf4; color: var(--primary); }
+        .bulan-pill.selected { background: var(--primary); border-color: var(--primary); color: #ffffff; }
+        .bulan-pill.lunas-pill { background: #f1f5f9; color: #64748b; border-color: #cbd5e1; }
+
+        /* PIN & Tombol */
+        #pinContainer {
+            display: none;
+            background: #f8fafc;
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid #cbd5e1;
+            margin-bottom: 10px;
+        }
+        .action-buttons-group { display: flex; gap: 8px; }
+        .btn-action {
+            flex: 1;
+            border: none;
+            padding: 10px;
+            font-size: 12.5px;
+            font-weight: 600;
+            border-radius: 9px;
+            cursor: pointer;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
         .btn-mayar { background: #6366f1; }
         .btn-tunai { background: #d97706; }
-        .btn-act:disabled { background: #cbd5e1; cursor: not-allowed; }
+        .btn-action:disabled { background: #cbd5e1 !important; cursor: not-allowed; color: #64748b; }
     </style>
 </head>
 <body>
 
-    <div class="title">PP. Fathul Huda Al-Qarobiyah</div>
+    <div class="brand-container">
+        <h1>PP. Fathul Huda Al-Qarobiyah</h1>
+        <p>Portal Pembayaran SPP Santri</p>
+    </div>
 
-    <div class="card">
-        <label class="label">Nomor Induk Santri (NIS)</label>
-        <div class="group">
-            <input type="text" id="nis" value="20260000">
-            <button class="btn" onclick="cekData()">Cek</button>
+    <div class="search-card">
+        <div>
+            <label class="input-label" for="nis">Nomor Induk Santri (NIS)</label>
+            <div class="input-group">
+                <input type="text" id="nis" value="20260000" autocomplete="off">
+                <button class="btn-cek" onclick="cekDataSantri()">Cek</button>
+            </div>
         </div>
 
-        <div class="info-box">
-            <div class="row"><b>Nama:</b> <span id="nama">Mohammed Said Ilyas</span></div>
-            <div class="row"><b>Kelas:</b> <span id="kelas">Takhoss</span></div>
-            
-            <label class="label" style="margin-top: 10px;">Pilih Bulan Pembayaran:</label>
-            <!-- DIV INI YANG MENAMPUNG NAMA BULAN -->
-            <div class="grid" id="bulanGrid"></div>
-
-            <div class="row" style="margin-top: 10px; font-weight: 700;">
-                <span>Total:</span>
-                <span id="total" style="color: var(--primary);">Rp 0</span>
+        <div class="result-section" id="resultSection">
+            <div class="santri-header-box">
+                <div class="nama-label-small">Nama Santri</div>
+                <div class="nama-value-big" id="txtNama">Mohammed Said Ilyas</div>
             </div>
 
-            <div id="pinBox" style="display: none; margin-top: 10px;">
-                <label class="label">PIN Bendahara (123456)</label>
-                <input type="password" id="pin" placeholder="Masukkan PIN...">
+            <div style="margin-bottom: 8px;">
+                <div class="info-row"><span class="info-label">NIS</span><span class="info-value" id="txtNis">20260000</span></div>
+                <div class="info-row"><span class="info-label">Kelas</span><span class="info-value" id="txtKelas">Takhoss</span></div>
+                <div class="info-row"><span class="info-label">Wali Santri</span><span class="info-value" id="txtWali">H. Ilyas Aly</span></div>
+                <div class="info-row"><span class="info-label">No. Telepon</span><span class="info-value" id="txtTelp">082219644442</span></div>
+                <div class="info-row" style="border-top: 1px dashed var(--border-color); margin-top: 6px; padding-top: 6px;">
+                    <span class="info-label" id="txtLabelBulanIni">Status Pembayaran</span>
+                    <span class="info-value" id="txtStatusBulanInfo" style="font-weight: 700; color: #64748b;">SILAHKAN PILIH BULAN</span>
+                </div>
             </div>
 
-            <div class="actions">
-                <button id="btnOnline" class="btn-act btn-mayar" onclick="bayar('Online')" disabled><i class="fa-solid fa-globe"></i> Online</button>
-                <button id="btnTunai" class="btn-act btn-tunai" onclick="bayarTunai()" disabled><i class="fa-solid fa-money-bill-wave"></i> Tunai</button>
+            <div class="form-row-side">
+                <div>
+                    <label class="input-label">Bulan Dipilih</label>
+                    <div style="background: #f8fafc; border: 1.5px solid var(--border-color); padding: 10px; border-radius: 10px; height: 42px; display: flex; align-items: center;">
+                        <span id="txtInfoPilihanBulan" style="font-size: 11.5px; font-weight: 600; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Belum ada dipilih</span>
+                    </div>
+                </div>
+                <div>
+                    <label class="input-label">Total Tagihan</label>
+                    <div class="total-tagihan-box">
+                        <div class="total-tagihan-value" id="txtTotalTagihan">Rp 0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kotak Nama Bulan (Dijamin Muncul Langsung) -->
+            <div class="bulan-dropdown-content">
+                <label class="input-label" style="margin-bottom: 6px;">Pilih Bulan SPP:</label>
+                <div class="bulan-grid" id="bulanCheckboxes"></div>
+            </div>
+
+            <div id="pinContainer">
+                <label class="input-label" style="color: #d97706; margin-bottom: 4px;"><i class="fa-solid fa-shield-halved"></i> PIN Bendahara (123456)</label>
+                <input type="password" id="kodeBendahara" placeholder="Masukkan 6 digit PIN...">
+            </div>
+
+            <div class="action-buttons-group">
+                <button id="btnOnline" class="btn-action btn-mayar" onclick="prosesPembayaran('Online / Mayar.id')" disabled>
+                    <i class="fa-solid fa-globe"></i> Online
+                </button>
+                <button id="btnTunai" class="btn-action btn-tunai" onclick="handleBayarTunaiClick()" disabled>
+                    <i class="fa-solid fa-money-bill-wave"></i> Tunai
+                </button>
             </div>
         </div>
     </div>
 
 <script>
-    const database = {
+    const databaseSantri = {
         "20260000": {
-            nama: "Mohammed Said Ilyas", 
-            kelas: "Takhoss", 
-            telp: "6282219644442",
-            bayar: { 
-                "Juli": "BELUM", "Agustus": "BELUM", "September": "LUNAS", 
-                "Oktober": "BELUM", "November": "BELUM", "Desember": "BELUM", 
-                "Januari": "BELUM", "Februari": "BELUM", "Maret": "BELUM", 
-                "April": "BELUM", "Mei": "BELUM", "Juni": "BELUM" 
+            nis: "20260000",
+            nama: "Mohammed Said Ilyas",
+            kelas: "Takhoss",
+            wali: "H. Ilyas Aly",
+            telp: "082219644442",
+            pembayaran: {
+                "Juli": "BELUM LUNAS", "Agustus": "BELUM LUNAS", "September": "LUNAS",
+                "Oktober": "BELUM LUNAS", "November": "BELUM LUNAS", "Desember": "BELUM LUNAS",
+                "Januari": "BELUM LUNAS", "Februari": "BELUM LUNAS", "Maret": "BELUM LUNAS",
+                "April": "BELUM LUNAS", "Mei": "BELUM LUNAS", "Juni": "BELUM LUNAS"
             }
         }
     };
 
+    const PIN_BENDAHARA_VALID = "123456";
+    const NOMINAL_PER_BULAN = 150000;
     const daftarBulan = ["Juli", "Agustus", "September", "Oktober", "November", "Desember", "Januari", "Februari", "Maret", "April", "Mei", "Juni"];
-    let selectedBulan = new Set();
-    let santriAktif = database["20260000"];
 
-    function cekData() {
-        let val = document.getElementById("nis").value.trim();
-        if(database[val]) {
-            santriAktif = database[val];
-            document.getElementById("nama").innerText = santriAktif.nama;
-            document.getElementById("kelas").innerText = santriAktif.kelas;
-            selectedBulan.clear();
-            renderGridBulan();
-        } else { 
-            alert("Data santri tidak ditemukan!"); 
+    let santriCache = databaseSantri["20260000"];
+    let bulanTerpilihSet = new Set();
+
+    function cekDataSantri() {
+        var nisInput = document.getElementById("nis").value.trim();
+        if (databaseSantri[nisInput]) {
+            santriCache = databaseSantri[nisInput];
+            document.getElementById("txtNama").innerText = santriCache.nama;
+            document.getElementById("txtNis").innerText = santriCache.nis;
+            document.getElementById("txtKelas").innerText = santriCache.kelas;
+            document.getElementById("txtWali").innerText = santriCache.wali;
+            document.getElementById("txtTelp").innerText = santriCache.telp;
+            bulanTerpilihSet.clear();
+            renderBulanGrid();
+            resetFormInfo();
+        } else {
+            alert("Santri dengan NIS tersebut tidak ditemukan!");
         }
     }
 
-    function renderGridBulan() {
-        let grid = document.getElementById("bulanGrid");
-        if (!grid) return;
-        
-        grid.innerHTML = "";
+    function renderBulanGrid() {
+        var gridContainer = document.getElementById("bulanCheckboxes");
+        if (!gridContainer) return;
+        gridContainer.innerHTML = "";
 
-        daftarBulan.forEach(b => {
-            let isLunas = santriAktif.bayar[b] === "LUNAS";
-            let isSel = selectedBulan.has(b);
+        daftarBulan.forEach(bulan => {
+            var status = (santriCache.pembayaran[bulan] || "BELUM LUNAS").toUpperCase();
+            var isSelected = bulanTerpilihSet.has(bulan);
             
-            let div = document.createElement("div");
-            div.className = `pill ${isLunas ? 'lunas' : ''} ${isSel ? 'selected' : ''}`;
-            div.innerText = b;
+            var pill = document.createElement("div");
+            pill.className = "bulan-pill";
+            if (status === "LUNAS") pill.classList.add("lunas-pill");
+            if (isSelected) pill.classList.add("selected");
             
-            div.onclick = function() {
-                if (isLunas) {
-                    alert("Bulan " + b + " sudah lunas!");
-                    return;
-                }
-                if (isSel) {
-                    selectedBulan.delete(b);
-                } else {
-                    selectedBulan.add(b);
-                }
-                renderGridBulan();
+            pill.innerText = bulan;
+            pill.onclick = function() {
+                pilihBulanPill(bulan, status);
             };
-            
-            grid.appendChild(div);
+            gridContainer.appendChild(pill);
         });
-
-        let total = selectedBulan.size * 150000;
-        document.getElementById("total").innerText = "Rp " + total.toLocaleString("id-ID");
-        
-        let adaPilihan = selectedBulan.size > 0;
-        document.getElementById("btnOnline").disabled = !adaPilihan;
-        document.getElementById("btnTunai").disabled = !adaPilihan;
     }
 
-    function bayarTunai() {
-        let box = document.getElementById("pinBox");
-        if(box.style.display === "none" || box.style.display === "") {
-            box.style.display = "block";
-            document.getElementById("pin").focus();
+    function pilihBulanPill(bulanNama, statusBulan) {
+        var txtInfoPilihan = document.getElementById("txtInfoPilihanBulan");
+        var txtStatusBulanInfo = document.getElementById("txtStatusBulanInfo");
+
+        document.getElementById("txtLabelBulanIni").innerText = "Status (" + bulanNama + ")";
+        if (statusBulan === "LUNAS") {
+            txtStatusBulanInfo.innerText = "LUNAS";
+            txtStatusBulanInfo.style.color = "#00663b";
         } else {
-            let pinVal = document.getElementById("pin").value.trim();
-            if(pinVal !== "123456") {
-                alert("PIN Bendahara Salah!"); 
+            txtStatusBulanInfo.innerText = "BELUM LUNAS";
+            txtStatusBulanInfo.style.color = "#991b1b";
+        }
+
+        if (statusBulan === "LUNAS") {
+            alert("Bulan " + bulanNama + " sudah lunas!");
+            return;
+        }
+
+        if (bulanTerpilihSet.has(bulanNama)) {
+            bulanTerpilihSet.delete(bulanNama);
+        } else {
+            bulanTerpilihSet.add(bulanNama);
+        }
+
+        renderBulanGrid();
+        hitungTotalNominal();
+    }
+
+    function hitungTotalNominal() {
+        var jumlahPilih = bulanTerpilihSet.size;
+        var total = jumlahPilih * NOMINAL_PER_BULAN;
+        var txtInfoPilihan = document.getElementById("txtInfoPilihanBulan");
+
+        if (jumlahPilih > 0) {
+            txtInfoPilihan.innerText = Array.from(bulanTerpilihSet).join(", ");
+            txtInfoPilihan.style.color = "var(--primary)";
+        } else {
+            txtInfoPilihan.innerText = "Belum ada dipilih";
+            txtInfoPilihan.style.color = "var(--text-muted)";
+        }
+
+        document.getElementById("txtTotalTagihan").innerText = "Rp " + total.toLocaleString("id-ID");
+        document.getElementById("btnOnline").disabled = (jumlahPilih === 0);
+        document.getElementById("btnTunai").disabled = (jumlahPilih === 0);
+        if (jumlahPilih === 0) document.getElementById("pinContainer").style.display = "none";
+    }
+
+    function resetFormInfo() {
+        bulanTerpilihSet.clear();
+        document.getElementById("txtLabelBulanIni").innerText = "Status Pembayaran";
+        document.getElementById("txtStatusBulanInfo").innerText = "SILAHKAN PILIH BULAN";
+        document.getElementById("txtStatusBulanInfo").style.color = "#64748b";
+        document.getElementById("txtInfoPilihanBulan").innerText = "Belum ada dipilih";
+        document.getElementById("txtInfoPilihanBulan").style.color = "var(--text-muted)";
+        document.getElementById("txtTotalTagihan").innerText = "Rp 0";
+        document.getElementById("btnOnline").disabled = true;
+        document.getElementById("btnTunai").disabled = true;
+        document.getElementById("pinContainer").style.display = "none";
+    }
+
+    function handleBayarTunaiClick() {
+        var pinContainer = document.getElementById("pinContainer");
+        if (pinContainer.style.display === "none" || pinContainer.style.display === "") {
+            pinContainer.style.display = "block";
+            document.getElementById("kodeBendahara").focus();
+        } else {
+            prosesPembayaran("Tunai / Offline");
+        }
+    }
+
+    function prosesPembayaran(metode) {
+        if (metode === "Tunai / Offline") {
+            var inputPin = document.getElementById("kodeBendahara").value.trim();
+            if (inputPin !== PIN_BENDAHARA_VALID) {
+                alert("PIN Bendahara Salah! (Gunakan: 123456)");
                 return;
             }
-            bayar("Tunai / Offline");
         }
+
+        var listBulanDipilih = Array.from(bulanTerpilihSet);
+        listBulanDipilih.forEach(b => santriCache.pembayaran[b] = "LUNAS");
+
+        var totalBayar = listBulanDipilih.length * NOMINAL_PER_BULAN;
+        var tanggal = new Date().toLocaleDateString("id-ID", { day: 'numeric', month: 'long', year: 'numeric' });
+
+        let noWa = santriCache.telp.trim();
+        if (noWa.startsWith('0')) noWa = '62' + noWa.substring(1);
+
+        // Format Kuitansi WhatsApp Otomatis
+        let pesan = `*KUITANSI PEMBAYARAN SPP*
+*Pondok Pesantren Fathul Huda Al-Qarobiyah*
+---------------------------------------
+📅 *Tanggal:* ${tanggal}
+💳 *Metode:* ${metode}
+---------------------------------------
+👤 *Nama Santri:* ${santriCache.nama}
+🆔 *NIS:* ${santriCache.nis}
+🏫 *Kelas:* ${santriCache.kelas}
+👨‍👩‍👦 *Wali Santri:* ${santriCache.wali}
+---------------------------------------
+📌 *Untuk Pembayaran Bulan:* 
+*${listBulanDipilih.join(", ")}*
+💰 *Total Dibayar:* Rp ${totalBayar.toLocaleString("id-ID")}
+✅ *Status:* LUNAS
+---------------------------------------
+Terima kasih, pembayaran Anda telah tercatat sah di sistem database pesantren.`;
+
+        resetFormInfo();
+        renderBulanGrid();
+        document.getElementById("kodeBendahara").value = "";
+
+        window.location.href = `https://api.whatsapp.com/send?phone=${noWa}&text=${encodeURIComponent(pesan)}`;
     }
 
-    function bayar(metode) {
-        let bulans = Array.from(selectedBulan);
-        bulans.forEach(b => santriAktif.bayar[b] = "LUNAS");
-        
-        let totalBayar = bulans.length * 150000;
-        let text = `*KUITANSI PEMBAYARAN SPP*%0ANama: ${santriAktif.nama}%0ABulan: ${bulans.join(", ")}%0ATotal: Rp ${totalBayar.toLocaleString("id-ID")}%0AStatus: LUNAS (${metode})`;
-        
-        window.location.href = `https://api.whatsapp.com/send?phone=${santriAktif.telp}&text=${text}`;
-    }
-
-    // Pastikan fungsi render langsung dipanggil begitu halaman dimuat
     window.onload = function() {
-        renderGridBulan();
+        cekDataSantri();
     };
 </script>
 </body>
