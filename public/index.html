@@ -237,9 +237,9 @@
             margin-left: 4px;
         }
 
-        /* Kotak Menu Pilihan Bulan */
+        /* Kotak Menu Pilihan Bulan (Awalnya Disembunyikan) */
         .bulan-dropdown-content {
-            display: block; /* Langsung ditampilkan agar bulan selalu terlihat */
+            display: none; /* Disembunyikan sampai diklik */
             width: 100%;
             background: #f8fafc;
             border: 1.5px solid var(--border-color);
@@ -450,11 +450,12 @@
 
             <!-- Tata Letak Bersampingan (Pilih Bulan & Total Tagihan) -->
             <div class="form-row-side">
-                <!-- Info Status Pilihan Bulan -->
+                <!-- Info Status Pilihan Bulan (Bisa Diklik untuk Membuka Dropdown) -->
                 <div>
                     <label class="input-label">Bulan Dipilih</label>
-                    <div class="dropdown-toggle-box" style="cursor: default;">
-                        <span id="txtInfoPilihanBulan" style="color: var(--text-muted);">Belum ada dipilih</span>
+                    <div class="dropdown-toggle-box" onclick="toggleBulanDropdown()">
+                        <span id="txtInfoPilihanBulan" style="color: var(--text-muted);">Pilih bulan...</span>
+                        <i class="fa-solid fa-chevron-down" id="dropdownIcon"></i>
                     </div>
                 </div>
 
@@ -467,7 +468,7 @@
                 </div>
             </div>
 
-            <!-- Kotak Menu Pilihan Bulan (Grid Pill - Langsung Muncul) -->
+            <!-- Kotak Menu Pilihan Bulan (Grid Pill - Tersembunyi di Awal) -->
             <div class="bulan-dropdown-content" id="bulanDropdownContent">
                 <label class="input-label" style="margin-bottom: 8px;">Pilih Bulan Pembayaran:</label>
                 <div class="bulan-grid" id="bulanCheckboxes">
@@ -552,15 +553,32 @@
             statusInfo.innerText = "SILAHKAN PILIH BULAN";
             statusInfo.style.color = "var(--text-muted)";
 
-            document.getElementById("txtInfoPilihanBulan").innerText = "Belum ada dipilih";
+            document.getElementById("txtInfoPilihanBulan").innerText = "Pilih bulan...";
             document.getElementById("txtInfoPilihanBulan").style.color = "var(--text-muted)";
             document.getElementById("txtTotalTagihan").innerText = "Rp 0";
             
             document.getElementById("btnOnline").disabled = true;
             document.getElementById("btnTunai").disabled = true;
             document.getElementById("pinContainer").style.display = "none";
+            
+            // Sembunyikan dropdown kembali setelah cek data
+            document.getElementById("bulanDropdownContent").style.display = "none";
+            document.getElementById("dropdownIcon").style.transform = "rotate(0deg)";
         } else {
             alert("Santri dengan NIS " + nisInput + " tidak ditemukan!");
+        }
+    }
+
+    function toggleBulanDropdown() {
+        var dropdown = document.getElementById("bulanDropdownContent");
+        var icon = document.getElementById("dropdownIcon");
+        
+        if (dropdown.style.display === "block") {
+            dropdown.style.display = "none";
+            icon.style.transform = "rotate(0deg)";
+        } else {
+            dropdown.style.display = "block";
+            icon.style.transform = "rotate(180deg)";
         }
     }
 
@@ -592,7 +610,7 @@
         });
     }
 
-    function pilihBulanPill(bulanNama, statusBulan) {
+    function pilihBulanPill(bulanNam, statusBulan) {
         var txtInfoPilihan = document.getElementById("txtInfoPilihanBulan");
         
         updateStatusBulanDilihat(bulanNama, statusBulan);
@@ -613,7 +631,7 @@
 
         if (bulanTerpilihSet.has(bulanNama)) {
             bulanTerpilihSet.delete(bulanNama);
-        if (bulanTerpilihSet.size === 0) {
+            if (bulanTerpilihSet.size === 0) {
                 document.getElementById("txtLabelBulanIni").innerText = "Status Pembayaran SPP";
                 let statusInfo = document.getElementById("txtStatusBulanInfo");
                 statusInfo.innerText = "SILAHKAN PILIH BULAN";
@@ -651,7 +669,7 @@
             txtInfoPilihan.style.color = "var(--primary)";
         } else {
             if (!txtInfoPilihan.innerText.includes("(LUNAS)")) {
-                txtInfoPilihan.innerText = "Belum ada dipilih";
+                txtInfoPilihan.innerText = "Pilih bulan...";
                 txtInfoPilihan.style.color = "var(--text-muted)";
             }
         }
@@ -717,6 +735,10 @@
 
         hitungTotalNominal();
 
+        // Sembunyikan kembali dropdown setelah pembayaran berhasil
+        document.getElementById("bulanDropdownContent").style.display = "none";
+        document.getElementById("dropdownIcon").style.transform = "rotate(0deg)";
+
         var nama = santriCache.nama;
         var nis = santriCache.nis;
         var kelas = santriCache.kelas;
@@ -762,4 +784,4 @@ Terima kasih, pembayaran Anda telah tercatat sah di sistem database pesantren.`;
 </script>
 
 </body>
-</html> 
+</html>
