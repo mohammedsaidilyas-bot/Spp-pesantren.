@@ -75,6 +75,10 @@
                     <span class="text-slate-500">No. Telepon</span>
                     <span id="view-notel" class="font-bold text-slate-800">-</span>
                 </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Nominal SPP / Bulan</span>
+                    <span id="view-nominal-spp" class="font-bold text-emerald-700">Rp 0</span>
+                </div>
             </div>
 
             <!-- Bagian Pemilihan Bulan -->
@@ -167,6 +171,7 @@
 
             <div class="flex gap-2 pt-2 no-print">
                 <button onclick="cetakPDF()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-xl font-bold text-xs shadow">🖨️ Cetak / Unduh PDF</button>
+                <button onclick="bukaWhatsAppManual()" id="btn-wa-manual" class="hidden flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl font-bold text-xs shadow items-center justify-center gap-1">💬 Kirim ke WA</button>
                 <button onclick="tutupKuitansi()" class="flex-1 bg-emerald-800 hover:bg-emerald-900 text-white py-2.5 rounded-xl font-bold text-xs shadow">Tutup</button>
             </div>
         </div>
@@ -193,7 +198,8 @@
         const urlWebApps = "https://script.google.com/macros/s/AKfycbzzOR8F8WGAQ7eDAdY1dOr2TYROFktb7FAAeNRu4633c5iilWN7OSPReyZIfI3M6U54vA/exec";
         let santriAktif = null;
         let databaseSantri = [];
-        const NOMINAL_SPP = 50000;
+        let nominalSppAktif = 0;
+        let urlWaGlobal = "";
 
         async function cariSantri() {
             const nis = document.getElementById('input-nis').value.trim();
@@ -216,6 +222,7 @@
 
                 if (santri) {
                     santriAktif = santri;
+                    nominalSppAktif = Number(santri.nominalSpp) || 50000; // Mengambil nominal dari database Google Sheets
                     tampilkanDetailSantri(santri);
                 } else {
                     alert("NIS tidak ditemukan. Pastikan NIS benar!");
@@ -236,6 +243,7 @@
             document.getElementById('view-kamar').innerText = santri.kamar || '-';
             document.getElementById('view-wali').innerText = santri.namaWali || '-';
             document.getElementById('view-notel').innerText = santri.noWa || '-';
+            document.getElementById('view-nominal-spp').innerText = 'Rp ' + nominalSppAktif.toLocaleString('id-ID');
 
             const gridBulan = document.getElementById('grid-bulan');
             gridBulan.innerHTML = '';
@@ -259,7 +267,7 @@
 
         function updateTotal() {
             const checkboxes = document.querySelectorAll('.checkbox-bulan:checked');
-            const total = checkboxes.length * NOMINAL_SPP;
+            const total = checkboxes.length * nominalSppAktif;
             document.getElementById('view-total').innerText = 'Rp ' + total.toLocaleString('id-ID');
         }
 
@@ -292,6 +300,8 @@
             const now = new Date();
             const tglStr = now.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
             
+            const totalBayar = bulanList.length * nominalSppAktif;
+
             const dataKuitansi = {
                 tanggal: tglStr,
                 metode: metode,
@@ -301,7 +311,7 @@
                 wali: santriAktif.namaWali,
                 noWa: santriAktif.noWa,
                 bulan: bulanList.join(', '),
-                total: (bulanList.length * NOMINAL_SPP).toLocaleString('id-ID'),
+                total: totalBayar.toLocaleString('id-ID'),
                 status: metode.includes('Tunai') ? "LUNAS (TUNAI)" : "PENDING (MENUNGGU VERIFIKASI)"
             };
 
@@ -315,18 +325,7 @@
             document.getElementById('k-total').innerText = dataKuitansi.total;
             document.getElementById('k-status').innerText = dataKuitansi.status;
 
-            document.getElementById('modal-kuitansi').classList.remove('hidden');
-
-            if (metode.includes('Tunai')) {
-                kirimOtomatisWA(dataKuitansi);
-            }
-        }
-
-        function cetakPDF() {
-            window.print();
-        }
-
-        function kirimOtomatisWA(dataKuitansi) {
+            // Siapkan link WhatsApp
             let noHp = dataKuitansi.noWa || "";
             if (noHp.startsWith('08')) {
                 noHp = '62' + noHp.slice(1);
@@ -334,10 +333,25 @@
 
             const pesan = `*KUITANSI PEMBAYARAN SPP*%0A*PP Fathul Huda Al-Qorrobiyah*%0A---------------------------------------%0A📅 *Tanggal:* ${dataKuitansi.tanggal}%0A💳 *Metode:* ${dataKuitansi.metode}%0A---------------------------------------%0A👤 *Nama Santri:* ${dataKuitansi.nama}%0A🆔 *NIS:* ${dataKuitansi.nis}%0A🏫 *Kelas:* ${dataKuitansi.kelas}%0A👨‍👩‍👦 *Wali Santri:* ${dataKuitansi.wali}%0A---------------------------------------%0A📌 *Untuk Pembayaran Bulan:*%0A${dataKuitansi.bulan}%0A%0A💰 *Total Dibayar:* Rp ${dataKuitansi.total}%0A✅ *Status:* ${dataKuitansi.status}%0A---------------------------------------%0ATerima kasih, pembayaran Anda telah tercatat sah di sistem database pesantren.`;
 
-            const urlWA = noHp ? `https://wa.me/${noHp}?text=${pesan}` : `https://wa.me/?text=${pesan}`;
-            setTimeout(() => {
-                window.open(urlWA, '_blank');
-            }, 500);
+            urlWaGlobal = noHp ? `https://wa.me/${noHp}?text=${pesan}` : `https://wa.me/?text=${pesan}`;
+            
+            // Tampilkan tombol kirim WA manual agar tidak terblokir popup browser
+            document.getElementById('btn-wa-manual').classList.remove('hidden');
+            document.getElementById('modal-kuitansi').classList.remove('hidden');
+
+            if (metode.includes('Tunai')) {
+                window.open(urlWaGlobal, '_blank');
+            }
+        }
+
+        function bukaWhatsAppManual() {
+            if (urlWaGlobal) {
+                window.open(urlWaGlobal, '_blank');
+            }
+        }
+
+        function cetakPDF() {
+            window.print();
         }
 
         function tutupKuitansi() {
@@ -494,7 +508,7 @@
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                             <span class="truncate">${item.keteranganBukti || 'Bukti Transfer'}</span>
                         </div>
-                        <button onclick="approvePembayaran('${item.nis}', '${item.bulan}', '${item.nama}', '${item.kelas || '-'}', '${item.namaWali || '-'}', '${item.noWa || ''}')" class="bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl text-xs font-bold transition-all shadow-md active:scale-95">Setujui & Kirim ke WhatsApp</button>
+                        <button onclick="approvePembayaran('${item.nis}', '${item.bulan}', '${item.nama}', '${item.kelas || '-'}', '${item.namaWali || '-'}', '${item.noWa || ''}', ${item.nominalSpp || 50000})" class="bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl text-xs font-bold transition-all shadow-md active:scale-95">Setujui & Kirim ke WhatsApp</button>
                     `;
                     listContainer.appendChild(div);
                 });
@@ -507,7 +521,7 @@
             document.getElementById('modal-bendahara').classList.add('hidden');
         }
 
-        async function approvePembayaran(nis, bulan, nama, kelas, wali, noWa) {
+        async function approvePembayaran(nis, bulan, nama, kelas, wali, noWa, nominalSpp) {
             if (!confirm(`Setujui pembayaran ${bulan} untuk NIS ${nis}?`)) return;
 
             try {
@@ -528,7 +542,10 @@
                         noHp = '62' + noHp.slice(1);
                     }
 
-                    const pesan = `*KUITANSI PEMBAYARAN SPP*%0A*PP Fathul Huda Al-Qorrobiyah*%0A---------------------------------------%0A📅 *Tanggal:* ${tglStr}%0A💳 *Metode:* Transfer Online (Lunas)%0A---------------------------------------%0A👤 *Nama Santri:* ${nama}%0A🆔 *NIS:* ${nis}%0A🏫 *Kelas:* ${kelas}%0A👨‍👩‍👦 *Wali Santri:* ${wali}%0A---------------------------------------%0A📌 *Untuk Pembayaran Bulan:*%0A${bulan}%0A%0A💰 *Total Dibayar:* Rp ${(50000).toLocaleString('id-ID')}%0A✅ *Status:* LUNAS (DIVERIFIKASI BENDAHARA)%0A---------------------------------------%0ATerima kasih, pembayaran Anda telah tercatat sah di sistem database pesantren.`;
+                    const jumlahBulan = bulan.split(',').length;
+                    const totalDana = (jumlahBulan * (nominalSpp || 50000)).toLocaleString('id-ID');
+
+                    const pesan = `*KUITANSI PEMBAYARAN SPP*%0A*PP Fathul Huda Al-Qorrobiyah*%0A---------------------------------------%0A📅 *Tanggal:* ${tglStr}%0A💳 *Metode:* Transfer Online (Lunas)%0A---------------------------------------%0A👤 *Nama Santri:* ${nama}%0A🆔 *NIS:* ${nis}%0A🏫 *Kelas:* ${kelas}%0A👨‍👩‍👦 *Wali Santri:* ${wali}%0A---------------------------------------%0A📌 *Untuk Pembayaran Bulan:*%0A${bulan}%0A%0A💰 *Total Dibayar:* Rp ${totalDana}%0A✅ *Status:* LUNAS (DIVERIFIKASI BENDAHARA)%0A---------------------------------------%0ATerima kasih, pembayaran Anda telah tercatat sah di sistem database pesantren.`;
 
                     const urlWA = noHp ? `https://wa.me/${noHp}?text=${pesan}` : `https://wa.me/?text=${pesan}`;
                     window.open(urlWA, '_blank');
