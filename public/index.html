@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PPFHA - Portal Pembayaran SPP Pesantren</title>
+    <title>PP Fathul Huda Al-Qorrobiyah - Portal SPP</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
     </style>
 </head>
-<body class="bg-gradient-to-br from-emerald-900 to-slate-900 min-h-screen flex flex-col items-center justify-center p-4 text-slate-800">
+<body class="bg-emerald-950 min-h-screen flex flex-col items-center justify-center p-4 text-slate-800">
 
     <!-- Container Utama -->
     <div class="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden border border-emerald-100 my-auto">
@@ -19,78 +19,104 @@
         <div class="bg-emerald-800 p-6 text-white text-center relative overflow-hidden">
             <div class="absolute -right-6 -top-6 w-24 h-24 bg-emerald-700/50 rounded-full blur-xl"></div>
             
-            <!-- Logo Pondok Pesantren (Tanpa Background Putih & Lebih Besar) -->
+            <!-- Logo Pondok Pesantren -->
             <div class="w-20 h-20 mx-auto mb-3 flex items-center justify-center p-0.5">
                 <img src="https://lh3.googleusercontent.com/d/1nisPkmO93MQycG2iEWxMduwWb6ZOh0kA" alt="Logo PPFHA" class="w-full h-full object-contain drop-shadow-md" onerror="this.src='https://iili.io/3V0U3V7.png'">
             </div>
 
-            <h1 class="text-base font-bold tracking-wide">PP Fathul Huda Al-Qorrobiyah</h1>
+            <h1 class="text-base font-bold tracking-wide">PP. Fathul Huda Al-Qarobiyah</h1>
             <p class="text-[11px] text-emerald-200 mt-0.5 tracking-wider font-medium">PORTAL PEMBAYARAN SPP SANTRI</p>
         </div>
 
         <!-- Form Pencarian NIS -->
         <div class="p-6" id="section-login">
-            <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Nomor Induk Santri (NIS)</label>
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Nomor Induk Santri (NIS)</label>
             <div class="flex gap-2">
-                <input type="text" id="input-nis" placeholder="Contoh: 20260001" class="flex-1 bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 text-sm focus:outline-none focus:border-emerald-600 focus:bg-white font-medium transition-all">
-                <button onclick="cariSantri()" id="btn-cek" class="bg-emerald-700 hover:bg-emerald-800 text-white px-5 py-3.5 rounded-2xl text-sm font-semibold transition-all shadow-lg shadow-emerald-700/20 active:scale-95">Cek</button>
+                <input type="text" id="input-nis" placeholder="20260000" class="flex-1 bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 text-sm focus:outline-none focus:border-emerald-600 focus:bg-white font-medium transition-all">
+                <button onclick="cariSantri()" id="btn-cek" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3.5 rounded-2xl text-sm font-semibold transition-all shadow-md active:scale-95">Cek</button>
             </div>
             <div id="loading-status" class="hidden text-center py-6 text-xs text-slate-500 font-medium animate-pulse">Memuat data santri...</div>
         </div>
 
-        <!-- Detail & Tagihan Santri -->
-        <div id="section-detail" class="hidden p-6 pt-5 space-y-4">
-            <div class="bg-emerald-50/70 border border-emerald-100 rounded-2xl p-4 shadow-sm">
-                <h2 id="view-nama" class="font-bold text-emerald-900 text-base leading-snug"></h2>
-                <div class="grid grid-cols-2 gap-x-2 gap-y-1.5 mt-3 text-xs text-slate-600">
-                    <div class="bg-white/80 p-2 rounded-xl border border-emerald-100/50">NIS: <span id="view-nis" class="font-bold text-slate-800 block"></span></div>
-                    <div class="bg-white/80 p-2 rounded-xl border border-emerald-100/50">Kelas: <span id="view-kelas" class="font-bold text-slate-800 block"></span></div>
-                    <div class="bg-white/80 p-2 rounded-xl border border-emerald-100/50">Kamar: <span id="view-kamar" class="font-bold text-slate-800 block"></span></div>
-                    <div class="bg-white/80 p-2 rounded-xl border border-emerald-100/50">Wali: <span id="view-wali" class="font-bold text-slate-800 block truncate"></span></div>
-                </div>
-            </div>
-
+        <!-- Detail & Tagihan Santri (Model Sesuai Foto) -->
+        <div id="section-detail" class="hidden p-6 space-y-4">
+            
+            <!-- Nama Santri Besar -->
             <div>
-                <div class="flex justify-between items-center mb-2">
-                    <h3 class="text-xs font-bold text-slate-600 uppercase tracking-wider">Pilih Bulan Tagihan</h3>
-                    <span class="text-[10px] text-slate-400 font-medium">*Centang untuk bayar</span>
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Nama Santri</span>
+                <h2 id="view-nama" class="font-bold text-slate-900 text-lg leading-snug"></h2>
+            </div>
+
+            <!-- List Detail Rata Samping -->
+            <div class="border-t border-b border-slate-100 py-3 space-y-2 text-xs">
+                <div class="flex justify-between">
+                    <span class="text-slate-500">NIS</span>
+                    <span id="view-nis" class="font-bold text-slate-800"></span>
                 </div>
-                <div id="grid-bulan" class="grid grid-cols-3 gap-2 max-h-48 overflow-y-auto p-1.5 border border-slate-100 rounded-2xl bg-slate-50/50">
-                    <!-- Dinamis oleh JavaScript -->
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Kelas</span>
+                    <span id="view-kelas" class="font-bold text-slate-800"></span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Asrama</span>
+                    <span id="view-kamar" class="font-bold text-slate-800"></span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Wali Santri</span>
+                    <span id="view-wali" class="font-bold text-slate-800"></span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-500">No. Telepon</span>
+                    <span id="view-notel" class="font-bold text-slate-800">-</span>
                 </div>
             </div>
 
-            <!-- Tombol Aksi Pembayaran -->
-            <div class="space-y-2.5 pt-1">
-                <button onclick="bukaModalOnline()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3.5 rounded-2xl text-xs font-bold transition-all shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2 active:scale-95">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
-                    Bayar Online (Upload Bukti)
+            <!-- Bagian Pembayaran -->
+            <div class="space-y-3">
+                <div class="flex justify-between items-center text-xs">
+                    <span class="text-slate-500 font-medium">Status Pembayaran SPP</span>
+                    <span class="font-bold text-emerald-700">SILAHKAN PILIH BULAN</span>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Bulan Dipilih</span>
+                        <select id="select-bulan" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-700 font-medium focus:outline-none focus:border-emerald-600">
+                            <option value="">Pilih bulan...</option>
+                        </select>
+                    </div>
+                    <div>
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Total Tagihan</span>
+                        <div id="view-total" class="w-full bg-slate-100 border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-800 font-bold flex items-center">
+                            Rp 0
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tombol Aksi Berdampingan di Bawah -->
+            <div class="grid grid-cols-2 gap-3 pt-2">
+                <button onclick="bukaModalOnline()" class="bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl text-xs font-bold transition-all shadow-md flex items-center justify-center gap-1.5 active:scale-95">
+                    🌐 Online
                 </button>
-                <button onclick="prosesBayarTunai()" class="w-full bg-amber-600 hover:bg-amber-700 text-white py-3 rounded-2xl text-xs font-bold transition-all shadow-md shadow-amber-600/20 active:scale-95">
-                    Bayar Tunai ke Bendahara (Datang ke Kantor)
+                <button onclick="prosesBayarTunai()" class="bg-slate-700 hover:bg-slate-800 text-white py-3 rounded-xl text-xs font-bold transition-all shadow-md flex items-center justify-center gap-1.5 active:scale-95">
+                    💵 Tunai (PIN)
                 </button>
             </div>
 
-            <!-- Panel Bendahara di Dalam -->
-            <div class="bg-slate-900 rounded-2xl p-3.5 text-white text-xs flex justify-between items-center shadow-md border border-slate-800">
-                <div>
-                    <span class="font-bold block">Panel Bendahara</span>
-                    <span class="text-[10px] text-emerald-400">Verifikasi pembayaran masuk</span>
-                </div>
-                <button onclick="bukaPanelBendahara()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-2 rounded-xl font-bold transition-all shadow active:scale-95 text-[11px]">Buka</button>
-            </div>
-
-            <button onclick="resetPencarian()" class="w-full text-center text-xs text-slate-400 hover:text-slate-600 font-medium py-1">← Cari Santri Lain</button>
+            <button onclick="resetPencarian()" class="w-full text-center text-xs text-slate-400 hover:text-slate-600 font-medium pt-1">← Cari Santri Lain</button>
         </div>
     </div>
 
-    <!-- Copyright Footer -->
-    <div class="text-center text-[11px] text-emerald-200/60 mt-4">
-        © 2026 PP Fathul Huda Al-Qorrobiyah
+    <!-- Panel Verifikasi Bendahara (Minimalis & Elegan di Bawah) -->
+    <div class="w-full max-w-md mt-4 flex justify-center">
+        <button onclick="bukaPanelBendahara()" class="text-emerald-200/70 hover:text-white text-xs font-medium tracking-wide flex items-center gap-1.5 bg-emerald-900/40 hover:bg-emerald-900/70 px-4 py-2 rounded-full border border-emerald-700/30 transition-all backdrop-blur-sm">
+            <span>🔒 Panel Bendahara Pesantren</span>
+        </button>
     </div>
 
     <!-- Modal Upload Bukti Transfer -->
-    <div id="modal-online" class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fadeIn">
+    <div id="modal-online" class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-3xl p-6 w-full max-w-sm space-y-4 shadow-2xl border border-slate-100">
             <h3 class="font-bold text-slate-800 text-base">Unggah Bukti Transfer</h3>
             <p class="text-xs text-slate-500 leading-relaxed">Silakan transfer ke Rekening Pesantren, lalu unggah foto struk atau bukti transfer di bawah ini.</p>
@@ -101,7 +127,7 @@
 
             <div class="flex gap-2 pt-2">
                 <button onclick="tutupModalOnline()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-600 py-3 rounded-2xl text-xs font-bold transition-all">Batal</button>
-                <button onclick="kirimBuktiOnline()" id="btn-kirim-bukti" class="flex-1 bg-emerald-700 hover:bg-emerald-800 text-white py-3 rounded-2xl text-xs font-bold transition-all shadow-md shadow-emerald-700/20">Kirim Bukti</button>
+                <button onclick="kirimBuktiOnline()" id="btn-kirim-bukti" class="flex-1 bg-emerald-700 hover:bg-emerald-800 text-white py-3 rounded-2xl text-xs font-bold transition-all shadow-md">Kirim Bukti</button>
             </div>
         </div>
     </div>
@@ -159,6 +185,7 @@
         const urlWebApps = "https://script.google.com/macros/s/AKfycbzzOR8F8WGAQ7eDAdY1dOr2TYROFktb7FAAeNRu4633c5iilWN7OSPReyZIfI3M6U54vA/exec";
         let santriAktif = null;
         let databaseSantri = [];
+        const NOMINAL_SPP = 50000; // Ubah nominal SPP per bulan sesuai kebutuhan
 
         async function cariSantri() {
             const nis = document.getElementById('input-nis').value.trim();
@@ -197,27 +224,29 @@
 
             document.getElementById('view-nama').innerText = santri.nama;
             document.getElementById('view-nis').innerText = santri.nis;
-            document.getElementById('view-kelas').innerText = santri.kelas;
-            document.getElementById('view-kamar').innerText = santri.kamar;
-            document.getElementById('view-wali').innerText = santri.namaWali;
+            document.getElementById('view-kelas').innerText = santri.kelas || '-';
+            document.getElementById('view-kamar').innerText = santri.kamar || '-';
+            document.getElementById('view-wali').innerText = santri.namaWali || '-';
+            document.getElementById('view-notel').innerText = santri.noWa || '-';
 
-            const gridBulan = document.getElementById('grid-bulan');
-            gridBulan.innerHTML = '';
+            const selectBulan = document.getElementById('select-bulan');
+            selectBulan.innerHTML = '<option value="">Pilih bulan...</option>';
 
             for (const [bulan, status] of Object.entries(santri.pembayaran)) {
-                const isLunas = status.includes("LUNAS");
-                const isPending = status.includes("PENDING");
-
-                const div = document.createElement('div');
-                div.className = `p-2.5 rounded-2xl border text-xs flex flex-col justify-between transition-all ${isLunas ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : isPending ? 'bg-amber-50 border-amber-200 text-amber-800' : 'bg-white border-slate-200 text-slate-700 shadow-sm'}`;
-                
-                div.innerHTML = `
-                    <span class="font-bold text-[11px]">${bulan}</span>
-                    <span class="text-[9px] mt-1 font-bold tracking-wide">${status || 'BELUM'}</span>
-                    ${!isLunas && !isPending ? `<div class="mt-2 pt-2 border-t border-slate-100 flex items-center justify-between"><span class="text-[10px] text-slate-400">Bayar</span><input type="checkbox" value="${bulan}" class="checkbox-bulan accent-emerald-600 w-4 h-4 rounded cursor-pointer"></div>` : ''}
-                `;
-                gridBulan.appendChild(div);
+                if (!status || status.includes("BELUM") || status === "") {
+                    const opt = document.createElement('option');
+                    opt.value = bulan;
+                    opt.textContent = bulan;
+                    selectBulan.appendChild(opt);
+                }
             }
+
+            selectBulan.onchange = function() {
+                const val = selectBulan.value;
+                const total = val ? NOMINAL_SPP : 0;
+                document.getElementById('view-total').innerText = 'Rp ' + total.toLocaleString('id-ID');
+            };
+            document.getElementById('view-total').innerText = 'Rp 0';
         }
 
         function resetPencarian() {
@@ -228,14 +257,14 @@
         }
 
         function getBulanTerpilih() {
-            const checkboxes = document.querySelectorAll('.checkbox-bulan:checked');
-            return Array.from(checkboxes).map(cb => cb.value);
+            const val = document.getElementById('select-bulan').value;
+            return val ? [val] : [];
         }
 
         function bukaModalOnline() {
             const bulan = getBulanTerpilih();
             if (bulan.length === 0) {
-                alert("Pilih minimal satu bulan tagihan yang ingin dibayar!");
+                alert("Pilih bulan tagihan yang ingin dibayar terlebih dahulu!");
                 return;
             }
             document.getElementById('modal-online').classList.remove('hidden');
@@ -256,7 +285,7 @@
             document.getElementById('k-kelas').innerText = santriAktif.kelas;
             document.getElementById('k-wali').innerText = santriAktif.namaWali;
             document.getElementById('k-bulan').innerText = bulanList.join(', ');
-            document.getElementById('k-total').innerText = (bulanList.length * 50000).toLocaleString('id-ID');
+            document.getElementById('k-total').innerText = (bulanList.length * NOMINAL_SPP).toLocaleString('id-ID');
             document.getElementById('k-status').innerText = metode.includes('Tunai') ? "LUNAS (TUNAI)" : "PENDING (MENUNGGU VERIFIKASI)";
 
             document.getElementById('modal-kuitansi').classList.remove('hidden');
@@ -338,102 +367,7 @@
                     alert("Gagal mengunggah bukti: " + (result.message || 'Kesalahan server.'));
                 }
             } catch (err) {
-                alert("Terjadi kesalahan koneksi. Silakan coba lagi.");
-            } finally {
-                btnKirim.innerText = "Kirim Bukti";
-                btnKirim.disabled = false;
-            }
-        }
-
-        async function prosesBayarTunai() {
-            const bulan = getBulanTerpilih();
-            if (bulan.length === 0) {
-                alert("Pilih bulan tagihan terlebih dahulu!");
-                return;
-            }
-
-            if (!confirm("Konfirmasi pembayaran tunai untuk bulan yang dipilih?")) return;
-
-            try {
-                const res = await fetch(urlWebApps, {
-                    method: 'POST',
-                    redirect: 'follow',
-                    body: JSON.stringify({ action: 'bayarTunai', nis: santriAktif.nis, bulan: bulan })
-                });
-                const result = await res.json();
-                if (result.status === 'success') {
-                    tampilkanKuitansi("Tunai ke Bendahara", bulan);
-                }
-            } catch (err) {
-                alert("Gagal memproses pembayaran.");
-            }
-        }
-
-        async function bukaPanelBendahara() {
-            const pin = prompt("Masukkan PIN Bendahara:");
-            if (pin !== "123456") {
-                if (pin !== null) alert("PIN Salah!");
-                return;
-            }
-
-            document.getElementById('modal-bendahara').classList.remove('hidden');
-            const listContainer = document.getElementById('list-pending');
-            listContainer.innerHTML = '<p class="text-xs text-slate-400 text-center py-6 font-medium">Memuat data...</p>';
-
-            try {
-                const res = await fetch(`${urlWebApps}?action=getPending`, {
-                    method: 'GET',
-                    redirect: 'follow'
-                });
-                const pending = await res.json();
-
-                listContainer.innerHTML = '';
-                if (pending.length === 0) {
-                    listContainer.innerHTML = '<p class="text-xs text-slate-400 text-center py-6 font-medium">Tidak ada pembayaran pending.</p>';
-                    return;
-                }
-
-                pending.forEach(item => {
-                    const div = document.createElement('div');
-                    div.className = "bg-slate-50 border border-slate-200/80 rounded-2xl p-3.5 flex flex-col gap-2.5 shadow-sm";
-                    div.innerHTML = `
-                        <div class="flex justify-between items-center text-xs">
-                            <span class="font-bold text-slate-800">${item.nama} (${item.nis})</span>
-                            <span class="bg-amber-100 text-amber-800 px-2.5 py-1 rounded-full font-bold text-[10px]">${item.bulan}</span>
-                        </div>
-                        <div class="text-slate-600 font-medium text-xs bg-white p-2.5 rounded-xl border border-slate-200/60 flex items-center gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                            <span class="truncate">${item.keteranganBukti || 'Bukti Transfer'}</span>
-                        </div>
-                        <button onclick="approvePembayaran('${item.nis}', '${item.bulan}')" class="bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl text-xs font-bold transition-all shadow-md shadow-emerald-600/20 active:scale-95">Setujui & Lunasi</button>
-                    `;
-                    listContainer.appendChild(div);
-                });
-            } catch (err) {
-                listContainer.innerHTML = '<p class="text-xs text-red-500 text-center py-6 font-medium">Gagal memuat data pending.</p>';
-            }
-        }
-
-        function tutupPanelBendahara() {
-            document.getElementById('modal-bendahara').classList.add('hidden');
-        }
-
-        async function approvePembayaran(nis, bulan) {
-            if (!confirm(`Setujui pembayaran ${bulan} untuk NIS ${nis}?`)) return;
-
-            try {
-                const res = await fetch(urlWebApps, {
-                    method: 'POST',
-                    redirect: 'follow',
-                    body: JSON.stringify({ action: 'approve', nis: nis, bulan: bulan })
-                });
-                const result = await res.json();
-                if (result.status === 'success') {
-                    alert("Pembayaran disetujui!");
-                    bukaPanelBendahara();
-                }
-            } catch (err) {
-                alert("Gagal menyetujui pembayaran.");
+               alert("Gagal menyetujui pembayaran.");
             }
         }
     </script>
