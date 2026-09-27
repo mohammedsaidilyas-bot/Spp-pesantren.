@@ -207,7 +207,7 @@
 
     <!-- JavaScript Logika Portal -->
     <script>
-        const urlWebApps = "https://script.google.com/macros/s/AKfycbzzOR8F8WGAQ7eDAdY1dOr2TYROFktb7FAAeNRu4633c5iilWN7OSPReyZIfI3M6U54vA/exec";
+        const urlWebApps = "https://script.google.com/macros/s/AKfycbzXSerzZbcNn-1nVnH1Hg8TwvdhNGX2KML88IdF9RKLCpoLpzQ39G9K8TPJiqn5GZ10EQ/exec";
         let santriAktif = null;
         let databaseSantri = [];
         let nominalSppAktif = 0;
@@ -227,11 +227,9 @@
 
         muatDatabaseSantri();
 
-        // Fungsi pintar mendeteksi nominal SPP dari berbagai nama properti di database spreadsheet
         function ekstrakNominalSpp(santri) {
             let nominal = Number(santri.nominalSpp) || Number(santri.nominal) || Number(santri.spp) || Number(santri.biayaSpp) || Number(santri.tarif);
             if (!nominal || isNaN(nominal) || nominal <= 0) {
-                // Cari properti apa saja yang mengandung angka valid di dalam objek santri jika nama kolom tidak pasti
                 for (let key in santri) {
                     let val = Number(santri[key]);
                     if (val >= 10000 && val <= 5000000 && !key.toLowerCase().includes('nis') && !key.toLowerCase().includes('tahun')) {
@@ -240,7 +238,7 @@
                     }
                 }
             }
-            return (nominal && !isNaN(nominal) && nominal > 0) ? nominal : 50000; // Default aman Rp 50.000 jika kosong
+            return (nominal && !isNaN(nominal) && nominal > 0) ? nominal : 50000;
         }
 
         async function cariSantri() {
@@ -559,7 +557,6 @@
         async function approvePembayaran(nis, bulanInput) {
             if (!confirm(`Setujui pembayaran untuk NIS ${nis}?`)) return;
 
-            // Pastikan bulan diubah menjadi array string yang bersih (mendukung string ber Koma maupun Array langsung)
             let bulanArray = [];
             if (Array.isArray(bulanInput)) {
                 bulanArray = bulanInput;
@@ -568,7 +565,6 @@
             }
 
             try {
-                // Paksa kirim aksi ganda ke server agar status di sheet Santri langsung berubah jadi LUNAS
                 const res = await fetch(urlWebApps, {
                     method: 'POST',
                     redirect: 'follow',
@@ -588,7 +584,6 @@
                     nominalSpp: nominalSppAktif
                 };
 
-                // Pastikan nominal aktif terbaca benar saat cetak kuitansi
                 if (!nominalSppAktif || nominalSppAktif <= 0) {
                     nominalSppAktif = ekstrakNominalSpp(santriLengkap);
                 }
