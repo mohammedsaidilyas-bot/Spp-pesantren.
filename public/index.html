@@ -137,7 +137,7 @@
             margin-top: 14px;
             padding-top: 14px;
             border-top: 1px solid var(--border-color);
-            display: block;
+            display: none;
         }
 
         /* Desain Header Nama Santri */
@@ -410,7 +410,7 @@
     </div>
 
 <script>
-    // Database Simulasi Sementara Sesuai Permintaan Anda
+    // Database Simulasi Santri
     const databaseSantri = {
         "20260000": {
             nis: "20260000",
@@ -421,6 +421,27 @@
             pembayaran: {
                 "Juli": "BELUM LUNAS",
                 "Agustus": "BELUM LUNAS",
+                "September": "BELUM LUNAS",
+                "Oktober": "BELUM LUNAS",
+                "November": "BELUM LUNAS",
+                "Desember": "BELUM LUNAS",
+                "Januari": "BELUM LUNAS",
+                "Februari": "BELUM LUNAS",
+                "Maret": "BELUM LUNAS",
+                "April": "BELUM LUNAS",
+                "Mei": "BELUM LUNAS",
+                "Juni": "BELUM LUNAS"
+            }
+        },
+        "20260001": {
+            nis: "20260001",
+            nama: "Ahmad Fauzi",
+            kelas: "Ula",
+            wali: "Bapak H. Abdullah",
+            telp: "081234567890",
+            pembayaran: {
+                "Juli": "LUNAS",
+                "Agustus": "LUNAS",
                 "September": "BELUM LUNAS",
                 "Oktober": "BELUM LUNAS",
                 "November": "BELUM LUNAS",
@@ -583,24 +604,4 @@
         let noWa = telp.trim();
         if (noWa.startsWith('0')) {
             noWa = '62' + noWa.substring(1);
-        }
-
-        let pesan = `*KUITANSI PEMBAYARAN SPP*
-*Pondok Pesantren Fathul Huda Al-Qarobiyah*
----------------------------------------
-📅 *Tanggal:* ${tanggal}
-💳 *Metode:* ${metode}
----------------------------------------
-👤 *Nama Santri:* ${nama}
-🆔 *NIS:* ${nis}
-🏫 *Kelas:* ${kelas}
-👨‍👩‍👦 *Wali Santri:* ${wali}
----------------------------------------
-📌 *Untuk Pembayaran SPP Bulan:* *${bulan}*
-✅ *Status:* LUNAS
----------------------------------------
-Terima kasih, pembayaran Anda telah tercatat sah di sistem database pesantren.`;
-
-        let urlWa = `https://api.whatsapp.com/send?phone=${noWa}&text=${encodeURIComponent(pesan)}`;
         
-        document.getElementById("kode
