@@ -247,9 +247,9 @@
             const url = String(nilai || '').trim();
             if (!url) return '';
             const pola = [
-                /drive\\.google\\.com\\/file\\/d\\/([a-zA-Z0-9_-]+)/,
-                /drive\\.google\\.com\\/open\\?id=([a-zA-Z0-9_-]+)/,
-                /drive\\.google\\.com\\/uc\\?(?:[^#]*&)?id=([a-zA-Z0-9_-]+)/
+                /drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/,
+                /drive\.google\.com\/open\?id=([a-zA-Z0-9_-]+)/,
+                /drive\.google\.com\/uc\?(?:[^#]*&)?id=([a-zA-Z0-9_-]+)/
             ];
             for (const regex of pola) {
                 const cocok = url.match(regex);
