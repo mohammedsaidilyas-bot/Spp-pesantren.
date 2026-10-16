@@ -243,6 +243,12 @@
 
         // Ubah tautan berbagi Google Drive menjadi URL gambar langsung.
         // File ID berasal dari URL foto yang tersimpan pada data santri atau peta foto.
+        // Uji coba foto pertama: NIS 20260001 (Mohammad Jefry).
+        // Jika berhasil, foto santri lain dapat ditambahkan dengan pola yang sama.
+        const fotoPercobaanPerNIS = {
+            "20260001": "https://drive.google.com/uc?export=view&id=1RgAreqFmtJB6fx1AKGHcaN1xjhSkA18Q"
+        };
+
         function normalisasiUrlFoto(nilai) {
             const url = String(nilai || '').trim();
             if (!url) return '';
@@ -273,7 +279,7 @@
 
                 databaseSantri = dataSantri.map(santri => {
                     const nis = String(santri.nis || '').trim();
-                    const fotoAsal = santri.fotoUrl || santri.foto || santri.photoUrl || santri.urlFoto || santri.linkFoto || '';
+                    const fotoAsal = santri.fotoUrl || santri.foto || santri.photoUrl || santri.urlFoto || santri.linkFoto || fotoPercobaanPerNIS[nis] || '';
                     return { ...santri, fotoUrl: normalisasiUrlFoto(fotoAsal) };
                 });
             } catch (err) {
