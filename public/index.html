@@ -243,11 +243,37 @@
 
         async function muatDatabaseSantri() {
             try {
-                const response = await fetch(`${urlWebApps}?action=getSantri`, {
-                    method: 'GET',
-                    redirect: 'follow'
+                const [responseSantri, responseFoto] = await Promise.all([
+                    fetch(`${urlWebApps}?action=getSantri`, {
+                        method: 'GET',
+                        redirect: 'follow',
+                        cache: 'no-store'
+                    }),
+                    fetch(`${urlWebApps}?action=getFotoSantri`, {
+                        method: 'GET',
+                        redirect: 'follow',
+                        cache: 'no-store'
+                    }).catch(() => null)
+                ]);
+
+                const dataSantri = await responseSantri.json();
+                let petaFoto = {};
+                if (responseFoto && responseFoto.ok) {
+                    try {
+                        const dataFoto = await responseFoto.json();
+                        if (dataFoto && !Array.isArray(dataFoto) && typeof dataFoto === 'object') {
+                            petaFoto = dataFoto;
+                        }
+                    } catch (err) {
+                        console.warn("Daftar foto belum tersedia dari server:", err);
+                    }
+                }
+
+                databaseSantri = (Array.isArray(dataSantri) ? dataSantri : []).map(santri => {
+                    const nis = String(santri.nis || '').trim();
+                    const fotoUrl = santri.fotoUrl || santri.foto || santri.photoUrl || petaFoto[nis] || '';
+                    return { ...santri, fotoUrl };
                 });
-                databaseSantri = await response.json();
             } catch (err) {
                 console.error("Gagal memuat database santri:", err);
             }
