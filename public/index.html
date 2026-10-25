@@ -255,7 +255,8 @@
         // Uji coba foto pertama: NIS 20260001 (Mohammad Jefry).
         // Jika berhasil, foto santri lain dapat ditambahkan dengan pola yang sama.
         const fotoPercobaanPerNIS = {
-            "20260001": "https://lh3.googleusercontent.com/d/1RgAreqFmtJB6fx1AKGHcaN1xjhSkA18Q"
+            "20260001": "https://lh3.googleusercontent.com/d/1RgAreqFmtJB6fx1AKGHcaN1xjhSkA18Q",
+            "20260003": "https://lh3.googleusercontent.com/d/1w1Mfj9CYod4BEIqtYT6wKCamvFT05mM0"
         };
 
         function normalisasiUrlFoto(nilai) {
@@ -309,9 +310,9 @@
                     // Utamakan peta foto dari folder Drive karena URL pada data santri
                     // bisa kosong atau sudah tidak berlaku.
                     const fotoAsal = petaFoto[nis] ||
+                        fotoPercobaanPerNIS[nis] ||
                         santri.fotoUrl || santri.foto || santri.photoUrl ||
-                        santri.urlFoto || santri.linkFoto ||
-                        fotoPercobaanPerNIS[nis] || '';
+                        santri.urlFoto || santri.linkFoto || '';
                     return { ...santri, fotoUrl: normalisasiUrlFoto(fotoAsal) };
                 });
             } catch (err) {
