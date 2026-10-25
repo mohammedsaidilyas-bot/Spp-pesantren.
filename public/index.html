@@ -306,8 +306,11 @@
 
                 databaseSantri = dataSantri.map(santri => {
                     const nis = String(santri.nis || '').trim();
-                    const fotoAsal = santri.fotoUrl || santri.foto || santri.photoUrl ||
-                        santri.urlFoto || santri.linkFoto || petaFoto[nis] ||
+                    // Utamakan peta foto dari folder Drive karena URL pada data santri
+                    // bisa kosong atau sudah tidak berlaku.
+                    const fotoAsal = petaFoto[nis] ||
+                        santri.fotoUrl || santri.foto || santri.photoUrl ||
+                        santri.urlFoto || santri.linkFoto ||
                         fotoPercobaanPerNIS[nis] || '';
                     return { ...santri, fotoUrl: normalisasiUrlFoto(fotoAsal) };
                 });
@@ -429,6 +432,10 @@
                 fotoSantri.onload = () => {
                     fotoSantri.classList.remove('hidden');
                     avatarFallback.classList.add('hidden');
+                };
+                fotoSantri.onerror = () => {
+                    fotoSantri.classList.add('hidden');
+                    avatarFallback.classList.remove('hidden');
                 };
                 fotoSantri.src = fotoUrl;
             }
