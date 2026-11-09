@@ -27,6 +27,7 @@ function sppPutriSetupDatabase(){
   });
   const p=PropertiesService.getScriptProperties();
   if(!p.getProperty('SPP_PUTRI_BENDAHARA_PIN')) p.setProperty('SPP_PUTRI_BENDAHARA_PIN','999999');
+  if(!p.getProperty('SPP_PUTRI_PIN_TUNAI')) p.setProperty('SPP_PUTRI_PIN_TUNAI','123456');
   return report;
 }
 function sppPutriJson_(data){ return ContentService.createTextOutput(JSON.stringify(data)).setMimeType(ContentService.MimeType.JSON); }
@@ -89,8 +90,9 @@ function sppPutriPost_(body){
       pending.appendRow([Utilities.getUuid(),new Date(),nis,student.row[1],student.row[2],months.join(','),nominal*months.length,file.getUrl(),'PENDING']);
       return {status:'success',message:'Bukti transfer PUTRI diterima dan menunggu verifikasi.'};
     }
-    const expectedPin=PropertiesService.getScriptProperties().getProperty('SPP_PUTRI_BENDAHARA_PIN');
-    if(!expectedPin||String(body.pin||'')!==expectedPin) throw new Error('PIN bendahara PUTRI salah.');
+    const props=PropertiesService.getScriptProperties();
+    const expectedPin=props.getProperty(action==='bayarTunai'?'SPP_PUTRI_PIN_TUNAI':'SPP_PUTRI_BENDAHARA_PIN');
+    if(!expectedPin||String(body.pin||'')!==expectedPin) throw new Error('PIN pembayaran/bendahara PUTRI salah.');
     months.forEach(m=>{
       const cell=student.row[7+SPP_PUTRI_MONTHS.indexOf(m)];
       if(String(cell||'').toUpperCase().includes('LUNAS')) throw new Error(m+' sudah lunas. Transaksi dibatalkan.');
