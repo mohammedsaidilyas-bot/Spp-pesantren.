@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PP Fathul Huda Al-Qorrobiyah - Portal SPP Putri</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        @media print {
+            body * { visibility: hidden; }
+            #area-kuitansi, #area-kuitansi * { visibility: visible; }
+            #area-kuitansi { position: absolute; left: 0; top: 0; width: 100%; border: none; box-shadow: none; }
+            .no-print { display: none; }
+        }
+    </style>
+</head>
+<body class="bg-emerald-950 min-h-screen flex flex-col items-center justify-center p-4 text-slate-800">
+
+    <!-- Container Utama -->
+    <div class="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden border border-emerald-100 my-auto no-print">
+        
+        <!-- Header -->
+        <div class="bg-emerald-800 p-6 text-white text-center relative overflow-hidden">
+            <div class="absolute -right-6 -top-6 w-24 h-24 bg-emerald-700/50 rounded-full blur-xl"></div>
+            
+            <!-- Logo Pondok Pesantren -->
+            <div class="w-28 h-28 mx-auto mb-3 flex items-center justify-center p-0.5">
+                <img src="https://lh3.googleusercontent.com/d/1nisPkmO93MQycG2iEWxMduwWb6ZOh0kA" alt="Logo PPFHA" class="w-full h-full object-contain drop-shadow-md" onerror="this.src='https://iili.io/3V0U3V7.png'">
+            </div>
+
+            <h1 class="text-base font-bold tracking-wide">PP Fathul Huda Al-Qorrobiyah</h1>
+            <p class="text-[11px] text-emerald-200 mt-0.5 tracking-wider font-medium">PORTAL PEMBAYARAN SPP SANTRI</p>
+        </div>
+
+        <!-- Form Pencarian NIS -->
+        <div class="p-6" id="section-login">
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Nomor Induk Santri (NIS)</label>
+            <div class="flex gap-2">
+                <input type="text" id="input-nis" placeholder="20260000" class="min-w-0 flex-1 bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 text-sm focus:outline-none focus:border-emerald-600 focus:bg-white font-medium transition-all">
+                <button onclick="cariSantri()" id="btn-cek" class="bg-emerald-700 hover:bg-emerald-800 text-white px-6 py-3.5 rounded-2xl text-sm font-semibold transition-all shadow-md active:scale-95">Cek</button>
+                <button type="button" onclick="bukaScanNIS()" class="bg-emerald-900 hover:bg-emerald-800 text-white px-4 py-3.5 rounded-2xl text-sm font-semibold transition-all shadow-md">▦ Scan</button>
+            </div>
+            <div id="loading-status" class="hidden text-center py-6 text-xs text-slate-500 font-medium animate-pulse">Memuat data santri...</div>
+        </div>
+
+        <!-- Detail & Tagihan Santri -->
+        <div id="section-detail" class="hidden p-6 space-y-4">
+            
+            <!-- Profil santri dengan avatar sementara; tidak memerlukan foto atau perubahan database -->
+            <div class="flex items-center gap-4 rounded-2xl border border-emerald-100 bg-gradient-to-r from-emerald-50 to-white p-4">
+                <div class="relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full border-4 border-white bg-emerald-100 shadow-sm ring-1 ring-emerald-200" aria-label="Foto santri">
+                    <svg id="view-avatar-fallback" viewBox="0 0 64 64" class="h-14 w-14" role="img" aria-label="Avatar santri sementara">
+                        <circle cx="32" cy="22" r="13" fill="#0f766e"/>
+                        <path d="M10 58c1-13 10-21 22-21s21 8 22 21" fill="#0f766e"/>
+                        <path d="M19 17c2-10 23-13 27 1-7-3-15-3-27-1" fill="#064e3b"/>
+                    </svg>
+                    <img id="view-foto-santri" alt="Foto santri" class="absolute inset-0 hidden h-full w-full object-cover" referrerpolicy="no-referrer" onerror="this.classList.add('hidden');document.getElementById('view-avatar-fallback').classList.remove('hidden')">
+                </div>
+                <div class="min-w-0 flex-1">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Profil Santri</span>
+                    <h2 id="view-nama" class="mt-1 break-words text-lg font-bold leading-snug text-slate-900"></h2>
+                    <div class="mt-1 text-xs text-slate-500">Identitas santri terdaftar</div>
+                </div>
+            </div>
+
+            <!-- List Detail Rata Samping -->
+            <div class="border-t border-b border-slate-100 py-3 space-y-2 text-xs">
+                <div class="flex justify-between">
+                    <span class="text-slate-500">NIS</span>
+                    <span id="view-nis" class="font-bold text-slate-800"></span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Kelas</span>
+                    <span id="view-kelas" class="font-bold text-slate-800"></span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Asrama</span>
+                    <span id="view-kamar" class="font-bold text-slate-800"></span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Wali Santri</span>
+                    <span id="view-wali" class="font-bold text-slate-800"></span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-500">No. Telepon</span>
+                    <span id="view-notel" class="font-bold text-slate-800">-</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Nominal SPP / Bulan</span>
+                    <span id="view-nominal-spp" class="font-bold text-emerald-700">Rp 0</span>
+                </div>
+            </div>
+
+            <!-- Bagian Pemilihan Bulan -->
+            <div class="space-y-2">
+                <div class="flex justify-between items-center text-xs">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Pilih Bulan Tagihan (Bisa Lebih Dari Satu)</span>
+                </div>
+                <div id="grid-bulan" class="grid grid-cols-3 gap-2 max-h-40 overflow-y-auto p-2 border border-slate-200 rounded-2xl bg-slate-50/50">
+                    <!-- Dinamis oleh JavaScript -->
+                </div>
+            </div>
+
+            <!-- Total Tagihan -->
+            <div class="bg-emerald-50/60 border border-emerald-100 p-3 rounded-2xl flex justify-between items-center">
+                <span class="text-xs font-bold text-emerald-900">Total Tagihan Dipilih</span>
+                <span id="view-total" class="text-sm font-bold text-emerald-700">Rp 0</span>
+            </div>
+
+            <!-- Tombol Aksi Berdampingan di Bawah -->
+            <div class="grid grid-cols-2 gap-3 pt-1">
+                <button onclick="bukaModalOnline()" class="bg-emerald-700 hover:bg-emerald-800 text-white py-3 rounded-xl text-xs font-bold transition-all shadow-md flex items-center justify-center gap-1.5 active:scale-95">
+                    🌐 Bayar Online
+                </button>
+                <button onclick="prosesBayarTunai()" class="bg-emerald-800 hover:bg-emerald-900 text-white py-3 rounded-xl text-xs font-bold transition-all shadow-md flex items-center justify-center gap-1.5 active:scale-95">
+                    💵 Tunai (PIN)
+                </button>
+            </div>
+
+            <button onclick="resetPencarian()" class="w-full text-center text-xs text-slate-400 hover:text-slate-600 font-medium pt-1">← Cari Santri Lain</button>
+        </div>
+    </div>
+
+    <!-- Panel Verifikasi Bendahara -->
+    <div class="w-full max-w-md mt-4 flex justify-center no-print">
+        <button onclick="bukaPanelBendahara()" class="text-emerald-100 hover:text-white text-xs font-bold tracking-wide flex items-center gap-1.5 bg-emerald-900/70 hover:bg-emerald-900 px-4 py-2 rounded-full border border-emerald-300/50 transition-all backdrop-blur-sm cursor-pointer pointer-events-auto relative z-10">
+            <span>🔒 Panel Bendahara Pesantren</span>
+        </button>
+    </div>
+
+    <!-- Modal Upload Bukti Transfer & Info Rekening BCA -->
+    <div id="modal-online" class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4 z-50 no-print">
+        <div class="bg-white rounded-3xl p-6 w-full max-w-sm space-y-4 shadow-2xl border border-slate-100">
+            <h3 class="font-bold text-slate-800 text-base">Pembayaran Transfer Online</h3>
+            
+            <!-- Kotak Informasi Rekening BCA -->
+            <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-3.5 space-y-1 text-xs">
+                <p class="text-[10px] font-bold text-emerald-800 uppercase tracking-wider">Silakan Transfer ke Rekening:</p>
+                <p class="font-bold text-slate-800 text-sm">Bank BCA: <span class="text-emerald-700">1851474591</span></p>
+                <p class="font-semibold text-slate-600">Atas Nama: SA'ID</p>
+            </div>
+
+            <p class="text-xs text-slate-500 leading-relaxed">Setelah melakukan transfer, silakan unggah foto bukti transfer di bawah ini.</p>
+            
+            <div class="border-2 border-dashed border-slate-200 rounded-2xl p-4 text-center bg-slate-50 hover:bg-slate-100/50 transition-all">
+                <input type="file" id="file-bukti" accept="image/*" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 cursor-pointer">
+            </div>
+
+            <div class="flex gap-2 pt-2">
+                <button onclick="tutupModalOnline()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-600 py-3 rounded-2xl text-xs font-bold transition-all">Batal</button>
+                <button onclick="kirimBuktiOnline()" id="btn-kirim-bukti" class="flex-1 bg-emerald-700 hover:bg-emerald-800 text-white py-3 rounded-2xl text-xs font-bold transition-all shadow-md">Kirim Bukti</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Kuitansi -->
+    <div id="modal-kuitansi" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div id="area-kuitansi" class="bg-amber-50 rounded-3xl p-6 w-full max-w-sm space-y-3 shadow-2xl border-4 border-emerald-800 font-mono text-xs text-slate-900 relative">
+            <div class="text-center border-b-2 border-dashed border-emerald-800 pb-3">
+                <p class="font-bold text-sm tracking-wide text-emerald-950">KUITANSI PEMBAYARAN SPP</p>
+                <p class="font-bold text-[11px] text-emerald-800 mt-1">PP Fathul Huda Al-Qorrobiyah</p>
+            </div>
+            
+            <div class="space-y-1.5 text-[11px] py-1 border-b border-dashed border-slate-400 pb-2.5">
+                <div>📅 <strong>Tanggal:</strong> <span id="k-tgl"></span></div>
+                <div>💳 <strong>Metode:</strong> <span id="k-metode"></span></div>
+            </div>
+
+            <div class="space-y-1.5 text-[11px] py-1 border-b border-dashed border-slate-400 pb-2.5">
+                <div>👤 <strong>Nama Santri:</strong> <span id="k-nama"></span></div>
+                <div>🆔 <strong>NIS:</strong> <span id="k-nis"></span></div>
+                <div>🏫 <strong>Kelas:</strong> <span id="k-kelas"></span></div>
+                <div>👨‍👩‍👦 <strong>Wali Santri:</strong> <span id="k-wali"></span></div>
+                <div>📞 <strong>No. WhatsApp:</strong> <span id="k-notel"></span></div>
+            </div>
+
+            <div class="space-y-1 py-1 border-b border-dashed border-slate-400 pb-2.5">
+                <div>📌 <strong>Untuk Pembayaran Bulan:</strong></div>
+                <div id="k-bulan" class="font-bold text-emerald-900 pl-4"></div>
+            </div>
+
+            <div class="space-y-1 text-[11px] py-1">
+                <div>💰 <strong>Total Dibayar:</strong> Rp <span id="k-total"></span></div>
+                <div>✅ <strong>Status:</strong> <span id="k-status" class="font-bold text-emerald-700"></span></div>
+            </div>
+
+            <div class="text-[10px] text-slate-600 text-center pt-2 border-t-2 border-dashed border-emerald-800 leading-tight">
+                Terima kasih, pembayaran Anda telah tercatat sah di sistem database pesantren.
+            </div>
+
+            <!-- Tombol Kirim WA & Cetak PDF -->
+            <div class="flex flex-col gap-2 pt-2 no-print">
+                <button onclick="bukaWhatsAppManual()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl font-bold text-xs shadow flex items-center justify-center gap-1.5">💬 Kirim Kuitansi ke WhatsApp</button>
+                <div class="flex gap-2">
+                    <button onclick="cetakPDF()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-xl font-bold text-xs shadow">🖨️ Cetak PDF</button>
+                    <button onclick="tutupKuitansi()" class="flex-1 bg-slate-700 hover:bg-slate-800 text-white py-2.5 rounded-xl font-bold text-xs shadow">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal PIN pembayaran tunai -->
+    <div id="modal-pin-tunai" class="hidden fixed inset-0 z-[80] items-center justify-center bg-slate-950/75 p-4 backdrop-blur-md no-print" role="dialog" aria-modal="true" aria-labelledby="judul-pin-tunai">
+      <div class="relative w-full max-w-md overflow-hidden rounded-[2rem] border border-emerald-100 bg-white shadow-2xl">
+        <div class="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-emerald-50 to-white"></div>
+        <button type="button" onclick="tutupPinTunai()" aria-label="Tutup" class="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white text-xl font-bold text-slate-500 shadow-sm transition hover:bg-slate-100">×</button>
+        <div class="relative px-6 pb-6 pt-8 sm:px-8 sm:pb-8">
+          <div class="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full border-8 border-emerald-50 bg-emerald-100 text-emerald-800">
+            <svg viewBox="0 0 24 24" class="h-9 w-9" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/><circle cx="12" cy="15" r="1" fill="currentColor"/><path d="M12 16v2"/></svg>
+          </div>
+          <h3 id="judul-pin-tunai" class="text-center text-2xl font-extrabold tracking-tight text-emerald-950">Masukkan PIN Bendahara</h3>
+          <p class="mx-auto mt-2 max-w-xs text-center text-sm leading-relaxed text-slate-500">Gunakan PIN 6 digit untuk melanjutkan pembayaran tunai.</p>
+          <form id="form-pin-tunai" class="mt-6 space-y-4">
+            <input id="input-pin-tunai" type="password" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" maxlength="6" placeholder="••••••" aria-label="PIN Bendahara" class="w-full rounded-2xl border-2 border-emerald-100 bg-slate-50 px-4 py-4 text-center text-2xl font-extrabold tracking-[0.65em] text-emerald-900 outline-none transition placeholder:tracking-[0.45em] placeholder:text-slate-300 focus:border-emerald-600 focus:bg-white focus:ring-4 focus:ring-emerald-100"/>
+            <p id="pesan-pin-tunai" class="hidden rounded-xl bg-red-50 px-3 py-2 text-center text-sm font-semibold text-red-700">PIN belum benar. Silakan coba lagi.</p>
+            <button id="btn-lanjut-pin-tunai" type="submit" class="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-700 to-emerald-800 px-5 py-4 text-base font-extrabold text-white shadow-lg shadow-emerald-900/20 transition hover:from-emerald-800 hover:to-emerald-900 active:scale-[0.99]">
+              <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+              Lanjutkan Pembayaran
+            </button>
+            <button type="button" onclick="tutupPinTunai()" class="w-full rounded-xl py-2 text-sm font-bold text-slate-500 transition hover:bg-slate-50 hover:text-slate-700">Batal</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- PIN dan panel verifikasi bendahara -->
+    <div id="modal-pin-bendahara" class="hidden fixed inset-0 bg-slate-950/75 backdrop-blur-sm items-center justify-center p-4 z-[70] no-print"><div class="w-full max-w-sm rounded-3xl bg-white p-6 shadow-2xl">
+      <div class="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-2xl">🔐</div><h3 class="text-center text-xl font-extrabold text-slate-800">Akses Bendahara</h3><p class="mt-1 text-center text-sm text-slate-500">Masukkan sandi untuk memverifikasi pembayaran.</p>
+      <form id="form-pin-bendahara" class="mt-5 space-y-3"><input id="input-pin-bendahara" type="password" inputmode="numeric" autocomplete="current-password" maxlength="12" placeholder="Sandi bendahara" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-center text-lg tracking-[0.3em] outline-none focus:border-emerald-500" />
+      <p id="pesan-pin-bendahara" class="hidden text-center text-xs font-semibold text-red-600">Sandi belum benar.</p><div class="flex gap-2 pt-1"><button type="button" onclick="tutupPinBendahara()" class="flex-1 rounded-xl bg-slate-100 px-4 py-3 font-bold text-slate-600">Batal</button><button type="submit" class="flex-1 rounded-xl bg-emerald-700 px-4 py-3 font-bold text-white">Masuk</button></div></form></div></div>
+    <div id="modal-bendahara" class="hidden fixed inset-0 bg-slate-950/70 backdrop-blur-sm items-center justify-center p-3 sm:p-5 z-[60] no-print"><div class="w-full max-w-3xl max-h-[92vh] overflow-hidden rounded-3xl bg-slate-50 shadow-2xl">
+      <div class="flex items-center justify-between bg-emerald-800 px-5 py-4 text-white"><div><h3 class="text-lg font-extrabold">Verifikasi Pembayaran</h3><p class="mt-1 text-xs text-emerald-100">PP Fathul Huda Al-Qorrobiyah</p></div><button type="button" onclick="tutupPanelBendahara()" class="flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-xl font-bold">✕</button></div>
+      <div class="border-b border-slate-200 bg-white px-4 pt-3"><div class="flex gap-2"><button type="button" id="tab-menunggu" onclick="gantiTabVerifikasi('menunggu')" class="rounded-t-xl border-b-4 border-emerald-700 px-4 py-3 text-sm font-extrabold text-emerald-800">Menunggu (<span id="jumlah-menunggu">0</span>)</button><button type="button" id="tab-diverifikasi" onclick="gantiTabVerifikasi('diverifikasi')" class="rounded-t-xl border-b-4 border-transparent px-4 py-3 text-sm font-bold text-slate-500">Sudah Diverifikasi</button></div></div>
+      <div id="list-pending" class="max-h-[calc(92vh-145px)] space-y-3 overflow-y-auto p-4 sm:p-6"><p class="py-8 text-center text-sm text-slate-400">Memuat data pembayaran...</p></div></div></div>
+    <!-- JavaScript Logika Portal -->
+    <div id="modal-scan-nis" class="hidden fixed inset-0 z-[100] items-center justify-center bg-black/70 p-4" role="dialog" aria-modal="true" aria-label="Scan QR NIS">
+        <div class="w-full max-w-md rounded-3xl bg-white p-5 shadow-2xl">
+            <div class="flex items-center justify-between gap-3"><h2 class="text-lg font-extrabold text-emerald-950">Scan QR Kartu Santri</h2><button type="button" onclick="tutupScanNIS()" class="rounded-xl bg-slate-100 px-4 py-2 font-bold text-slate-700">Tutup</button></div>
+            <p class="mt-2 text-sm text-slate-500">Arahkan kamera ke QR pada Kartu Tanda Santri.</p>
+            <video id="video-scan-nis" class="mt-4 max-h-72 w-full rounded-2xl bg-slate-900 object-cover" autoplay playsinline muted></video>
+            <p id="status-scan-nis" class="mt-3 text-sm text-slate-600">Menyiapkan kamera…</p>
+        </div>
+    </div>
+    <script>
+        const urlWebApps = "ISI_URL_APPS_SCRIPT_SPP_PUTRI_DI_SINI";
+        let santriAktif = null;
+        let databaseSantri = [];
+        let nominalSppAktif = 0;
+        let urlWaGlobal = "";
+
+        // Ubah tautan berbagi Google Drive menjadi URL gambar langsung.
+        // File ID berasal dari URL foto yang tersimpan pada data santri atau peta foto.
+        // Uji coba foto pertama: NIS 20260001 (Mohammad Jefry).
+        // Jika berhasil, foto santri lain dapat ditambahkan dengan pola yang sama.
+        const fotoPercobaanPerNIS = {
+            "20260001": "https://lh3.googleusercontent.com/d/1RgAreqFmtJB6fx1AKGHcaN1xjhSkA18Q",
+            "20260002": "https://drive.google.com/thumbnail?id=1hv5m5Cptsd2S--MC1uuWHfmxHakZ0aN_&sz=w1000",
+            "20260003": "https://lh3.googleusercontent.com/d/1w1Mfj9CYod4BEIqtYT6wKCamvFT05mM0",
+            "20260004": "https://lh3.googleusercontent.com/d/1oYpADeXnCaPZyr3cXZNLcaTeC7CIuq1q",
+            "20260005": "https://lh3.googleusercontent.com/d/1De_Xjn7eaf4UQ7FXv4hTvpLXzR7CoaDn",
+            "20260006": "https://lh3.googleusercontent.com/d/1LJ0sXRMtspurL1TvNGAqJXKDiNXKavF5",
+            "20260007": "https://lh3.googleusercontent.com/d/1RdXo5Z1be601YAaeaO__IvaSxU2EowF",
+            "20260008": "https://lh3.googleusercontent.com/d/1Q31i35-EshE256foZjdEt1caDltkaQm0",
+            "20260009": "https://lh3.googleusercontent.com/d/1rw35kQc0CX7157D9sFQGzyyCZpqHkV6S",
+            "20260010": "https://lh3.googleusercontent.com/d/1H1z7IYogORAmniJ0jzMBqrJi5cQUit0K",
+            "20260011": "https://lh3.googleusercontent.com/d/1N4Vx58QedqU17wncffP6bUBOLs6RGgLW",
+            "20260012": "https://lh3.googleusercontent.com/d/12_OQMZuEyO0hpyHGaYZI_znUe8N2RYop",
+            "20260013": "https://lh3.googleusercontent.com/d/1bHR_AXd3MXQk5FFz45tkpCN2K0vATKsi",
+            "20260014": "https://lh3.googleusercontent.com/d/1JizsJnGBN6a69nIff1jciA9v5u6eZlUA"
+        };
+
+        function normalisasiUrlFoto(nilai) {
+            const url = String(nilai || '').trim();
+            if (!url) return '';
+            const pola = [
+                /drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/,
+                /drive\.google\.com\/open\?id=([a-zA-Z0-9_-]+)/,
+                /drive\.google\.com\/uc\?(?:[^#]*&)?id=([a-zA-Z0-9_-]+)/
+            ];
+            for (const regex of pola) {
+                const cocok = url.match(regex);
+                if (cocok) return 'https://drive.google.com/uc?export=view&id=' + cocok[1];
+            }
+            return url;
+        }
+
+        async function muatDatabaseSantri() {
+            try {
+                // Muat data santri seperti biasa.
+                const responseSantri = await fetch(`${urlWebApps}?action=getSantri`, {
+                    method: 'GET',
+                    redirect: 'follow',
+                    cache: 'no-store'
+                });
+                if (!responseSantri.ok) throw new Error('HTTP ' + responseSantri.status);
+                const dataSantri = await responseSantri.json();
+                if (!Array.isArray(dataSantri)) throw new Error('Format data santri bukan array');
+
+                // Ambil peta foto dari endpoint foto yang sudah tersedia di Apps Script.
+                // Jika endpoint foto gagal, pencarian dan data pembayaran tetap berjalan.
+                let petaFoto = {};
+                try {
+                    const responseFoto = await fetch(`${urlWebApps}?action=getFotoSantri`, {
+                        method: 'GET',
+                        redirect: 'follow',
+                        cache: 'no-store'
+                    });
+                    if (responseFoto.ok) {
+                        const hasilFoto = await responseFoto.json();
+                        if (hasilFoto && typeof hasilFoto === 'object' && !Array.isArray(hasilFoto)) {
+                            petaFoto = hasilFoto;
+                        }
+                    }
+                } catch (errFoto) {
+                    console.warn('Peta foto santri tidak dapat dimuat; memakai URL yang ada pada data santri.', errFoto);
+                }
+
+                databaseSantri = dataSantri.map(santri => {
+                    const nis = String(santri.nis || '').trim();
+                    // Utamakan peta foto dari folder Drive karena URL pada data santri
+                    // bisa kosong atau sudah tidak berlaku.
+                    // Untuk NIS 20260001-20260003, gunakan URL uji yang sudah diperiksa
+                    // sebelum peta foto dari endpoint, karena endpoint masih memberi URL bermasalah.
+                    const fotoAsal = ["20260001", "20260002", "20260003"].includes(nis)
+                        ? (fotoPercobaanPerNIS[nis] || petaFoto[nis] || santri.fotoUrl || santri.foto || santri.photoUrl || santri.urlFoto || santri.linkFoto || '')
+                        : (petaFoto[nis] || fotoPercobaanPerNIS[nis] || santri.fotoUrl || santri.foto || santri.photoUrl || santri.urlFoto || santri.linkFoto || '');
+                    return { ...santri, fotoUrl: normalisasiUrlFoto(fotoAsal) };
+                });
+            } catch (err) {
+                console.error("Gagal memuat database santri:", err);
+                throw err;
+            }
+        }
+        muatDatabaseSantri();
+
+        function ekstrakNominalSpp(santri) {
+            let nominal = Number(santri.nominalSpp) || Number(santri.nominal) || Number(santri.spp) || Number(santri.biayaSpp) || Number(santri.tarif);
+            if (!nominal || isNaN(nominal) || nominal <= 0) {
+                for (let key in santri) {
+                    let val = Number(santri[key]);
+                    if (val >= 10000 && val <= 5000000 && !key.toLowerCase().includes('nis') && !key.toLowerCase().includes('tahun')) {
+                        nominal = val;
+                        break;
+                    }
+                }
+            }
+            return (nominal && !isNaN(nominal) && nominal > 0) ? nominal : 50000;
+        }
+
+        let streamScanNIS = null;
+        let frameScanNIS = null;
+        let detectorScanNIS = null;
+        let scanAktifNIS = false;
+        async function bukaScanNIS() {
+            const modal=document.getElementById('modal-scan-nis');
+            const status=document.getElementById('status-scan-nis');
+            modal.classList.remove('hidden'); modal.classList.add('flex');
+            status.textContent='Menyiapkan kamera…';
+            if(!('BarcodeDetector' in window)) {
+                status.textContent='Pemindai QR tidak didukung browser ini. Silakan gunakan kolom NIS dan tombol Cek.';
+                return;
+            }
+            try {
+                detectorScanNIS=new BarcodeDetector({formats:['qr_code']});
+                streamScanNIS=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false});
+                const video=document.getElementById('video-scan-nis');
+                video.srcObject=streamScanNIS; await video.play();
+                scanAktifNIS=true; status.textContent='Kamera aktif. Arahkan ke QR KTS.';
+                bacaFrameScanNIS();
+            } catch(err) {
+                status.textContent='Kamera tidak dapat dibuka. Izinkan akses kamera pada browser atau gunakan kolom NIS.';
+            }
+        }
+        async function bacaFrameScanNIS() {
+            if(!scanAktifNIS)return;
+            const video=document.getElementById('video-scan-nis');
+            if(video && video.readyState>=2 && detectorScanNIS) {
+                try {
+                    const codes=await detectorScanNIS.detect(video);
+                    if(codes.length && codes[0].rawValue) {
+                        const raw=String(codes[0].rawValue).trim();
+                        const match=raw.match(/2026\d{4,}|\d{6,}/);
+                        if(match) {
+                            document.getElementById('input-nis').value=match[0];
+                            tutupScanNIS();
+                            cariSantri();
+                            return;
+                        }
+                        document.getElementById('status-scan-nis').textContent='QR terbaca, tetapi NIS tidak ditemukan di dalam QR. Isi NIS secara manual.';
+                    }
+                } catch(err) {}
+            }
+            frameScanNIS=requestAnimationFrame(bacaFrameScanNIS);
+        }
+        function tutupScanNIS() {
+            scanAktifNIS=false;
+            if(frameScanNIS) cancelAnimationFrame(frameScanNIS);
+            if(streamScanNIS) streamScanNIS.getTracks().forEach(track=>track.stop());
+            streamScanNIS=null;
+            const video=document.getElementById('video-scan-nis');
+            if(video)video.srcObject=null;
+            const modal=document.getElementById('modal-scan-nis');
+            modal.classList.add('hidden');modal.classList.remove('flex');
+        }
+        async function cariSantri() {
+            const nis = document.getElementById('input-nis').value.trim();
+            if (!nis) {
+                alert("Masukkan Nomor Induk Santri (NIS) terlebih dahulu!");
+                return;
+            }
+
+            document.getElementById('loading-status').classList.remove('hidden');
+            try {
+                await muatDatabaseSantri();
+                document.getElementById('loading-status').classList.add('hidden');
+                
+                const santri = databaseSantri.find(s => String(s.nis).trim() === String(nis).trim());
+
+                if (santri) {
+                    santriAktif = santri;
+                    nominalSppAktif = ekstrakNominalSpp(santri);
+                    tampilkanDetailSantri(santri);
+                } else {
+                    alert("NIS tidak ditemukan. Pastikan NIS benar!");
+                }
+            } catch (err) {
+                document.getElementById('loading-status').classList.add('hidden');
+                alert("Data santri gagal dimuat. Silakan coba lagi.");
+            }
+        }
+
+        function tampilkanDetailSantri(santri) {
+            document.getElementById('section-login').classList.add('hidden');
+            document.getElementById('section-detail').classList.remove('hidden');
+
+            document.getElementById('view-nama').innerText = santri.nama || '-';
+            const fotoSantri = document.getElementById('view-foto-santri');
+            const avatarFallback = document.getElementById('view-avatar-fallback');
+            const fotoUrl = String(santri.fotoUrl || santri.foto || santri.photoUrl || '').trim();
+            fotoSantri.classList.add('hidden');
+            avatarFallback.classList.remove('hidden');
+            fotoSantri.removeAttribute('src');
+            if (fotoUrl) {
+                fotoSantri.onload = () => {
+                    fotoSantri.classList.remove('hidden');
+                    avatarFallback.classList.add('hidden');
+                };
+                fotoSantri.onerror = () => {
+                    fotoSantri.classList.add('hidden');
+                    avatarFallback.classList.remove('hidden');
+                };
+                fotoSantri.src = fotoUrl;
+            }
+            document.getElementById('view-nis').innerText = santri.nis || '-';
+            document.getElementById('view-kelas').innerText = santri.kelas || '-';
+            document.getElementById('view-kamar').innerText = santri.kamar || '-';
+            document.getElementById('view-wali').innerText = santri.namaWali || '-';
+            document.getElementById('view-notel').innerText = santri.noWa || santri.noHp || '-';
+            document.getElementById('view-nominal-spp').innerText = 'Rp ' + nominalSppAktif.toLocaleString('id-ID');
+
+            const gridBulan = document.getElementById('grid-bulan');
+            gridBulan.innerHTML = '';
+
+            for (const [bulan, status] of Object.entries(santri.pembayaran || {})) {
+                const statusStr = String(status || "").toUpperCase();
+                const isLunas = statusStr.includes("LUNAS");
+                const isPending = statusStr.includes("PENDING");
+
+                const div = document.createElement('div');
+                div.className = `p-2 rounded-xl border text-xs flex flex-col justify-between ${isLunas ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : isPending ? 'bg-amber-50 border-amber-200 text-amber-800' : 'bg-white border-slate-200 text-slate-700'}`;
+                
+                div.innerHTML = `
+                    <span class="font-bold text-[11px]">${bulan}</span>
+                    <span class="text-[9px] mt-0.5 font-semibold">${status || 'BELUM'}</span>
+                    ${!isLunas && !isPending ? `<input type="checkbox" value="${bulan}" onchange="updateTotal()" class="checkbox-bulan mt-2 accent-emerald-600 w-4 h-4 cursor-pointer">` : ''}
+                `;
+                gridBulan.appendChild(div);
+            }
+            updateTotal();
+        }
+
+        function updateTotal() {
+            const checkboxes = document.querySelectorAll('.checkbox-bulan:checked');
+            const total = checkboxes.length * nominalSppAktif;
+            document.getElementById('view-total').innerText = 'Rp ' + total.toLocaleString('id-ID');
+        }
+
+        function resetPencarian() {
+            santriAktif = null;
+            document.getElementById('section-detail').classList.add('hidden');
+            document.getElementById('section-login').classList.remove('hidden');
+            document.getElementById('input-nis').value = '';
+        }
+
+        function getBulanTerpilih() {
+            const checkboxes = document.querySelectorAll('.checkbox-bulan:checked');
+            return Array.from(checkboxes).map(cb => cb.value);
+        }
+
+        function bukaModalOnline() {
+            const bulan = getBulanTerpilih();
+            if (bulan.length === 0) {
+                alert("Pilih minimal satu bulan tagihan yang ingin dibayar!");
+                return;
+            }
+            document.getElementById('modal-online').classList.remove('hidden');
+        }
+
+        function tutupModalOnline() {
+            document.getElementById('modal-online').classList.add('hidden');
+        }
+
+        function tampilkanKuitansi(metode, bulanList, santriObj) {
+            const now = new Date();
+            const tglStr = now.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+            
+            const totalBayar = bulanList.length * nominalSppAktif;
+            const nomorWaSantri = santriObj.noWa || santriObj.noHp || "-";
+
+            const dataKuitansi = {
+                tanggal: tglStr,
+                metode: metode,
+                nama: santriObj.nama || '-',
+                nis: santriObj.nis || '-',
+                kelas: santriObj.kelas || '-',
+                wali: santriObj.namaWali || '-',
+                noWa: nomorWaSantri,
+                bulan: bulanList.join(', '),
+                total: totalBayar.toLocaleString('id-ID'),
+                status: "LUNAS"
+            };
+
+            document.getElementById('k-tgl').innerText = dataKuitansi.tanggal;
+            document.getElementById('k-metode').innerText = dataKuitansi.metode;
+            document.getElementById('k-nama').innerText = dataKuitansi.nama;
+            document.getElementById('k-nis').innerText = dataKuitansi.nis;
+            document.getElementById('k-kelas').innerText = dataKuitansi.kelas;
+            document.getElementById('k-wali').innerText = dataKuitansi.wali;
+            document.getElementById('k-notel').innerText = dataKuitansi.noWa;
+            document.getElementById('k-bulan').innerText = dataKuitansi.bulan;
+            document.getElementById('k-total').innerText = dataKuitansi.total;
+            document.getElementById('k-status').innerText = dataKuitansi.status;
+
+            let noHp = nomorWaSantri;
+            if (noHp.startsWith('08')) {
+                noHp = '62' + noHp.slice(1);
+            }
+
+            const pesan = `*KUITANSI PEMBAYARAN SPP*%0A*PP Fathul Huda Al-Qorrobiyah*%0A---------------------------------------%0A📅 *Tanggal:* ${dataKuitansi.tanggal}%0A💳 *Metode:* ${dataKuitansi.metode}%0A---------------------------------------%0A👤 *Nama Santri:* ${dataKuitansi.nama}%0A🆔 *NIS:* ${dataKuitansi.nis}%0A🏫 *Kelas:* ${dataKuitansi.kelas}%0A👨‍👩‍👦 *Wali Santri:* ${dataKuitansi.wali}%0A📞 *No. WhatsApp:* ${dataKuitansi.noWa}%0A---------------------------------------%0A📌 *Untuk Pembayaran Bulan:*%0A${dataKuitansi.bulan}%0A%0A💰 *Total Dibayar:* Rp ${dataKuitansi.total}%0A✅ *Status:* LUNAS%0A---------------------------------------%0ATerima kasih, pembayaran Anda telah tercatat sah di sistem database pesantren.`;
+
+            urlWaGlobal = (noHp && noHp !== '-') ? `https://wa.me/${noHp}?text=${pesan}` : `https://wa.me/?text=${pesan}`;
+            
+            document.getElementById('modal-kuitansi').classList.remove('hidden');
+        }
+
+        function bukaWhatsAppManual() {
+            if (urlWaGlobal) {
+                window.open(urlWaGlobal, '_blank');
+            } else {
+                alert("Nomor WhatsApp tidak tersedia.");
+            }
+        }
+
+        function cetakPDF() {
+            window.print();
+        }
+
+        function tutupKuitansi() {
+            document.getElementById('modal-kuitansi').classList.add('hidden');
+            resetPencarian();
+        }
+
+        function compressImage(file, maxWidth = 1000, quality = 0.7) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = event => {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        let width = img.width;
+                        let height = img.height;
+
+                        if (width > maxWidth) {
+                            height = Math.round((height * maxWidth) / width);
+                            width = maxWidth;
+                        }
+
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+
+                        const dataUrl = canvas.toDataURL('image/jpeg', quality);
+                        resolve(dataUrl);
+                    };
+                    img.onerror = error => reject(error);
+                };
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        async function kirimBuktiOnline() {
+            const fileInput = document.getElementById('file-bukti');
+            if (fileInput.files.length === 0) {
+                alert("Pilih foto bukti transfer terlebih dahulu!");
+                return;
+            }
+
+            const bulanList = getBulanTerpilih();
+            const file = fileInput.files[0];
+            const btnKirim = document.getElementById('btn-kirim-bukti');
+            btnKirim.innerText = "Mengompres & Mengirim...";
+            btnKirim.disabled = true;
+
+            try {
+                const compressedDataUrl = await compressImage(file, 1000, 0.7);
+                const base64Data = compressedDataUrl.split(',')[1];
+
+                const payload = {
+                    action: 'uploadBukti',
+                    nis: santriAktif.nis,
+                    bulan: bulanList,
+                    fileName: file.name.replace(/\.[^/.]+$/, "") + ".jpg",
+                    mimeType: "image/jpeg",
+                    fileData: base64Data
+                };
+
+                const res = await fetch(urlWebApps, {
+                    method: 'POST',
+                    redirect: 'follow',
+                    body: JSON.stringify(payload)
+                });
+                
+                const result = await res.json();
+                if (result.status === 'success') {
+                    tutupModalOnline();
+                    alert("Bukti transfer berhasil dikirim! Menunggu verifikasi bendahara.");
+                    resetPencarian();
+                } else {
+                    alert("Gagal mengunggah bukti: " + (result.message || 'Kesalahan server.'));
+                }
+            } catch (err) {
+                alert("Terjadi kesalahan koneksi. Silakan coba lagi.");
+            } finally {
+                btnKirim.innerText = "Kirim Bukti";
+                btnKirim.disabled = false;
+            }
+        }
+
+        let bulanMenungguPINTunai = [];
+        function tutupPinTunai() {
+            const modal = document.getElementById('modal-pin-tunai');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.getElementById('input-pin-tunai').value = '';
+            document.getElementById('pesan-pin-tunai').classList.add('hidden');
+            bulanMenungguPINTunai = [];
+        }
+        function bukaPinTunai(bulan) {
+            bulanMenungguPINTunai = bulan.slice();
+            const modal = document.getElementById('modal-pin-tunai');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.getElementById('input-pin-tunai').value = '';
+            document.getElementById('pesan-pin-tunai').classList.add('hidden');
+            setTimeout(() => document.getElementById('input-pin-tunai').focus(), 100);
+        }
+        document.getElementById('input-pin-tunai').addEventListener('input', function() {
+            this.value = this.value.replace(/\D/g, '').slice(0, 6);
+            document.getElementById('pesan-pin-tunai').classList.add('hidden');
+        });
+        document.getElementById('form-pin-tunai').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const pin = document.getElementById('input-pin-tunai').value;
+            if (pin !== "123456") {
+                document.getElementById('pesan-pin-tunai').classList.remove('hidden');
+                document.getElementById('input-pin-tunai').select();
+                return;
+            }
+            const bulan = bulanMenungguPINTunai.slice();
+            tutupPinTunai();
+            lanjutBayarTunai(bulan);
+        });
+
+        async function prosesBayarTunai() {
+            const bulan = getBulanTerpilih();
+            if (bulan.length === 0) {
+                alert("Pilih minimal satu bulan tagihan terlebih dahulu!");
+                return;
+            }
+            bukaPinTunai(bulan);
+        }
+
+        async function lanjutBayarTunai(bulan) {
+            if (!bulan || bulan.length === 0) return;
+            try {
+                const res = await fetch(urlWebApps, {
+                    method: 'POST',
+                    redirect: 'follow',
+                    body: JSON.stringify({ action: 'bayarTunai', nis: santriAktif.nis, bulan: bulan })
+                });
+                const result = await res.json();
+                if (result.status === 'success') {
+                    tampilkanKuitansi("Tunai ke Bendahara (Lunas)", bulan, santriAktif);
+                } else {
+                    alert("Gagal memproses pembayaran ke server.");
+                }
+            } catch (err) {
+                alert("Terjadi kesalahan koneksi saat memproses pembayaran tunai.");
+            }
+        }
+
+        let dataPendingBendahara = [];
+        let dataDiverifikasiSesi = [];
+        let tabVerifikasiAktif = 'menunggu';
+        let itemSedangDiverifikasi = null;
+        function tutupPinBendahara(){const m=document.getElementById('modal-pin-bendahara');m.classList.add('hidden');m.classList.remove('flex');document.getElementById('input-pin-bendahara').value='';document.getElementById('pesan-pin-bendahara').classList.add('hidden');}
+        function bukaPanelBendahara(){const m=document.getElementById('modal-pin-bendahara');m.classList.remove('hidden');m.classList.add('flex');document.getElementById('input-pin-bendahara').focus();}
+        document.getElementById('form-pin-bendahara').addEventListener('submit',function(e){e.preventDefault();if(document.getElementById('input-pin-bendahara').value!=='999999'){document.getElementById('pesan-pin-bendahara').classList.remove('hidden');document.getElementById('input-pin-bendahara').select();return;}tutupPinBendahara();muatPanelVerifikasi();});
+        async function muatPanelVerifikasi(){const m=document.getElementById('modal-bendahara');m.classList.remove('hidden');m.classList.add('flex');const list=document.getElementById('list-pending');list.innerHTML='<p class="py-8 text-center text-sm text-slate-400">Memuat data pembayaran...</p>';gantiTabVerifikasi('menunggu');try{const res=await fetch(urlWebApps+'?action=getPending',{method:'GET',redirect:'follow',cache:'no-store'});if(!res.ok)throw new Error('HTTP '+res.status);const data=await res.json();if(!Array.isArray(data))throw new Error('Format data tidak sesuai');dataPendingBendahara=data;renderDaftarVerifikasi();}catch(err){list.innerHTML='<div class="rounded-2xl border border-red-100 bg-red-50 p-5 text-center text-sm font-semibold text-red-600">Gagal memuat pembayaran. Periksa koneksi lalu buka kembali panel.</div>';}}
+        function gantiTabVerifikasi(tab){tabVerifikasiAktif=tab;const a=document.getElementById('tab-menunggu'),b=document.getElementById('tab-diverifikasi');a.className=tab==='menunggu'?'rounded-t-xl border-b-4 border-emerald-700 px-4 py-3 text-sm font-extrabold text-emerald-800':'rounded-t-xl border-b-4 border-transparent px-4 py-3 text-sm font-bold text-slate-500';b.className=tab==='diverifikasi'?'rounded-t-xl border-b-4 border-emerald-700 px-4 py-3 text-sm font-extrabold text-emerald-800':'rounded-t-xl border-b-4 border-transparent px-4 py-3 text-sm font-bold text-slate-500';renderDaftarVerifikasi();}
+        function amanHTML(v){return String(v==null?'':v).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
+        function renderDaftarVerifikasi(){const list=document.getElementById('list-pending');document.getElementById('jumlah-menunggu').textContent=String(dataPendingBendahara.length);const items=tabVerifikasiAktif==='menunggu'?dataPendingBendahara:dataDiverifikasiSesi;if(!items.length){list.innerHTML=tabVerifikasiAktif==='menunggu'?'<div class="rounded-2xl border border-slate-200 bg-white p-8 text-center"><div class="text-3xl">📭</div><p class="mt-3 font-bold text-slate-700">Tidak ada pembayaran yang menunggu</p></div>':'<div class="rounded-2xl border border-slate-200 bg-white p-8 text-center"><div class="text-3xl">✅</div><p class="mt-3 font-bold text-slate-700">Belum ada verifikasi pada sesi ini</p><p class="mt-1 text-sm text-slate-400">Riwayat permanen belum tersedia dari layanan server saat ini.</p></div>';return;}list.innerHTML='';items.forEach((it,i)=>{const nama=amanHTML(it.nama||'Nama santri'),nis=amanHTML(it.nis||'-'),kelas=amanHTML(it.kelas||'-'),bulan=amanHTML(Array.isArray(it.bulan)?it.bulan.join(', '):(it.bulan||'-')),tanggal=amanHTML(it.tanggal||it.waktu||'-');const nominal=Number(String(it.nominal||it.jumlah||it.total||it.nominalBayar||'').replace(/[^0-9-]/g,''));const nominalText=nominal>0?'Rp '+nominal.toLocaleString('id-ID'):'Nominal mengikuti data pembayaran';const bukti=it.urlBukti||it.buktiUrl||it.fileUrl||it.url||((String(it.keteranganBukti||'').indexOf('https://')===0||String(it.keteranganBukti||'').indexOf('http://')===0)?it.keteranganBukti:'');const receipt=bukti&&/^https?:\/\//i.test(String(bukti))?'<a target="_blank" rel="noopener" href="'+amanHTML(bukti)+'" class="block rounded-xl border border-slate-200 bg-slate-100 p-2 text-center text-sm font-bold text-emerald-700">🧾 Lihat bukti transfer</a>':'<div class="flex min-h-16 items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-100 p-3 text-center text-sm text-slate-500">🧾 '+amanHTML(it.keteranganBukti||'Bukti transfer tercatat')+'</div>';const card=document.createElement('article');card.className='rounded-2xl border border-slate-200 bg-white p-4 shadow-sm';card.innerHTML='<div class="flex flex-col gap-4 sm:flex-row"><div class="min-w-0 flex-1"><div class="flex items-start gap-3"><div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-xl">👤</div><div class="min-w-0"><h4 class="break-words text-base font-extrabold text-slate-800">'+nama+'</h4><p class="mt-1 text-xs text-slate-500">NIS: '+nis+' • Kelas: '+kelas+'</p><p class="mt-1 text-xs text-slate-500">Periode: '+bulan+'</p><p class="mt-2 text-lg font-extrabold text-slate-900">'+amanHTML(nominalText)+'</p><p class="mt-1 text-xs text-slate-400">'+tanggal+'</p></div></div><div class="mt-3">'+receipt+'</div></div><div class="flex gap-2 sm:w-36 sm:flex-col sm:justify-end">'+(tabVerifikasiAktif==='menunggu'?'<button type="button" data-action="reject" data-index="'+i+'" class="min-h-11 flex-1 rounded-xl bg-rose-50 px-3 py-3 text-sm font-extrabold text-rose-700">Tolak</button><button type="button" data-action="approve" data-index="'+i+'" class="min-h-11 flex-1 rounded-xl bg-emerald-600 px-3 py-3 text-sm font-extrabold text-white shadow">Terima</button>':'<span class="rounded-xl bg-emerald-50 px-3 py-3 text-center text-sm font-bold text-emerald-700">✓ Diverifikasi</span>')+'</div></div>';list.appendChild(card);});}
+        document.getElementById('list-pending').addEventListener('click',function(e){const btn=e.target.closest('button[data-action]');if(!btn)return;const i=Number(btn.dataset.index);if(btn.dataset.action==='approve'){const it=(tabVerifikasiAktif==='menunggu'?dataPendingBendahara:dataDiverifikasiSesi)[i];if(it){itemSedangDiverifikasi=it;approvePembayaran(it.nis,it.bulan);}}else if(btn.dataset.action==='reject'){alert('Fitur Tolak belum tersedia pada layanan server saat ini. Tidak ada data yang diubah.');}});
+        function tutupPanelBendahara(){const m=document.getElementById('modal-bendahara');m.classList.add('hidden');m.classList.remove('flex');}
+        async function approvePembayaran(nis, bulanInput) {
+            if (!confirm(`Setujui pembayaran untuk NIS ${nis}?`)) return;
+
+            let bulanArray = [];
+            if (Array.isArray(bulanInput)) {
+                bulanArray = bulanInput;
+            } else {
+                bulanArray = String(bulanInput).split(',').map(b => b.trim()).filter(b => b.length > 0);
+            }
+
+            try {
+                const res = await fetch(urlWebApps, {
+                    method: 'POST',
+                    redirect: 'follow',
+                    body: JSON.stringify({ action: 'approve', nis: nis, bulan: bulanArray })
+                });
+                const result = await res.json();
+                if (result && (result.status === 'error' || result.success === false)) { alert(result.message || 'Pembayaran belum dapat disetujui.'); itemSedangDiverifikasi = null; return; }
+                if (itemSedangDiverifikasi) { dataDiverifikasiSesi.unshift(itemSedangDiverifikasi); dataPendingBendahara = dataPendingBendahara.filter(x => !(String(x.nis).trim() === String(nis).trim() && JSON.stringify(x.bulan) === JSON.stringify(itemSedangDiverifikasi.bulan))); itemSedangDiverifikasi = null; }
+
+                
+                tutupPanelBendahara();
+                
+                await muatDatabaseSantri();
+                const santriLengkap = databaseSantri.find(s => String(s.nis).trim() === String(nis).trim()) || santriAktif || {
+                    nis: nis,
+                    nama: "Santri",
+                    kelas: "-",
+                    namaWali: "-",
+                    noWa: "-",
+                    nominalSpp: nominalSppAktif
+                };
+
+                if (!nominalSppAktif || nominalSppAktif <= 0) {
+                    nominalSppAktif = ekstrakNominalSpp(santriLengkap);
+                }
+
+                tampilkanKuitansi("Transfer Online (Diverifikasi)", bulanArray, santriLengkap);
+            } catch (err) {
+                alert("Terjadi kesalahan koneksi saat menyetujui pembayaran.");
+            }
+        }
+    </script>
+</body>
+</html>
