@@ -701,7 +701,7 @@
                 const res = await fetch(urlWebApps, {
                     method: 'POST',
                     redirect: 'follow',
-                    body: JSON.stringify({ action: 'bayarTunai', nis: santriAktif.nis, bulan: bulan })
+                    body: JSON.stringify({ action: 'bayarTunai', nis: santriAktif.nis, bulan: bulan, pin: pinBendaharaPutriAktif })
                 });
                 const result = await res.json();
                 if (result.status === 'success') {
@@ -720,7 +720,7 @@
         let itemSedangDiverifikasi = null;
         function tutupPinBendahara(){const m=document.getElementById('modal-pin-bendahara');m.classList.add('hidden');m.classList.remove('flex');document.getElementById('input-pin-bendahara').value='';document.getElementById('pesan-pin-bendahara').classList.add('hidden');}
         function bukaPanelBendahara(){const m=document.getElementById('modal-pin-bendahara');m.classList.remove('hidden');m.classList.add('flex');document.getElementById('input-pin-bendahara').focus();}
-        document.getElementById('form-pin-bendahara').addEventListener('submit',function(e){e.preventDefault();if(document.getElementById('input-pin-bendahara').value!=='999999'){document.getElementById('pesan-pin-bendahara').classList.remove('hidden');document.getElementById('input-pin-bendahara').select();return;}tutupPinBendahara();muatPanelVerifikasi();});
+        let pinBendaharaPutriAktif=''; document.getElementById('form-pin-bendahara').addEventListener('submit',function(e){e.preventDefault();const pin=document.getElementById('input-pin-bendahara').value;if(pin!=='999999'){document.getElementById('pesan-pin-bendahara').classList.remove('hidden');document.getElementById('input-pin-bendahara').select();return;}pinBendaharaPutriAktif=pin;tutupPinBendahara();muatPanelVerifikasi();});
         async function muatPanelVerifikasi(){const m=document.getElementById('modal-bendahara');m.classList.remove('hidden');m.classList.add('flex');const list=document.getElementById('list-pending');list.innerHTML='<p class="py-8 text-center text-sm text-slate-400">Memuat data pembayaran...</p>';gantiTabVerifikasi('menunggu');try{const res=await fetch(urlWebApps+'?action=getPending',{method:'GET',redirect:'follow',cache:'no-store'});if(!res.ok)throw new Error('HTTP '+res.status);const data=await res.json();if(!Array.isArray(data))throw new Error('Format data tidak sesuai');dataPendingBendahara=data;renderDaftarVerifikasi();}catch(err){list.innerHTML='<div class="rounded-2xl border border-red-100 bg-red-50 p-5 text-center text-sm font-semibold text-red-600">Gagal memuat pembayaran. Periksa koneksi lalu buka kembali panel.</div>';}}
         function gantiTabVerifikasi(tab){tabVerifikasiAktif=tab;const a=document.getElementById('tab-menunggu'),b=document.getElementById('tab-diverifikasi');a.className=tab==='menunggu'?'rounded-t-xl border-b-4 border-emerald-700 px-4 py-3 text-sm font-extrabold text-emerald-800':'rounded-t-xl border-b-4 border-transparent px-4 py-3 text-sm font-bold text-slate-500';b.className=tab==='diverifikasi'?'rounded-t-xl border-b-4 border-emerald-700 px-4 py-3 text-sm font-extrabold text-emerald-800':'rounded-t-xl border-b-4 border-transparent px-4 py-3 text-sm font-bold text-slate-500';renderDaftarVerifikasi();}
         function amanHTML(v){return String(v==null?'':v).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
@@ -741,7 +741,7 @@
                 const res = await fetch(urlWebApps, {
                     method: 'POST',
                     redirect: 'follow',
-                    body: JSON.stringify({ action: 'approve', nis: nis, bulan: bulanArray })
+                    body: JSON.stringify({ action: 'approve', nis: nis, bulan: bulanArray, pin: pinBendaharaPutriAktif })
                 });
                 const result = await res.json();
                 if (result && (result.status === 'error' || result.success === false)) { alert(result.message || 'Pembayaran belum dapat disetujui.'); itemSedangDiverifikasi = null; return; }
