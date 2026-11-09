@@ -107,7 +107,7 @@ function sppPutriPost_(body){
     const expectedPin=props.getProperty(action==='bayarTunai'?'SPP_PUTRI_PIN_TUNAI':'SPP_PUTRI_BENDAHARA_PIN');
     if(!expectedPin||String(body.pin||'')!==expectedPin) throw new Error('PIN pembayaran/bendahara PUTRI salah.');
     months.forEach(m=>{
-      const cell=student.row[7+SPP_PUTRI_MONTHS.indexOf(m)];
+      const cell=student.row[3+SPP_PUTRI_MONTHS.indexOf(m)];
       if(String(cell||'').toUpperCase().includes('LUNAS')) throw new Error(m+' sudah lunas. Transaksi dibatalkan.');
     });
     if(action==='approve'){
