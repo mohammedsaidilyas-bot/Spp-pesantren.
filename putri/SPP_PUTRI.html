@@ -346,7 +346,7 @@
                     }
                 }
             }
-            return (nominal && !isNaN(nominal) && nominal > 0) ? nominal : 50000;
+            return (nominal && !isNaN(nominal) && nominal > 0) ? nominal : 0;
         }
 
         let streamScanNIS = null;
@@ -381,14 +381,18 @@
                     const codes=await detectorScanNIS.detect(video);
                     if(codes.length && codes[0].rawValue) {
                         const raw=String(codes[0].rawValue).trim();
-                        const match=raw.match(/2026\d{4,}|\d{6,}/);
-                        if(match) {
-                            document.getElementById('input-nis').value=match[0];
+                        let kandidat='';
+                        try { const obj=JSON.parse(raw); kandidat=String(obj.nis||obj.NIS||obj.nomorInduk||obj.nomor_induk||obj.studentId||'').trim(); } catch(e) {}
+                        if(!kandidat) { try { const parsed=new URL(raw); kandidat=String(parsed.searchParams.get('nis')||parsed.searchParams.get('NIS')||'').trim(); } catch(e) {} }
+                        if(!kandidat && /^\\d{4,20}$/.test(raw)) kandidat=raw;
+                        if(!kandidat) { const digits=raw.match(/(?:^|[^0-9])(\\d{4,20})(?:$|[^0-9])/); if(digits) kandidat=digits[1]; }
+                        if(kandidat && /^\\d{4,20}$/.test(kandidat)) {
+                            document.getElementById('input-nis').value=kandidat;
                             tutupScanNIS();
-                            cariSantri();
+                            await cariSantri();
                             return;
                         }
-                        document.getElementById('status-scan-nis').textContent='QR terbaca, tetapi NIS tidak ditemukan di dalam QR. Isi NIS secara manual.';
+                        document.getElementById('status-scan-nis').textContent='QR terbaca, tetapi format NIS tidak dikenali. Silakan masukkan NIS secara manual.';
                     }
                 } catch(err) {}
             }
@@ -421,6 +425,11 @@
                 if (santri) {
                     santriAktif = santri;
                     nominalSppAktif = ekstrakNominalSpp(santri);
+                    if (!nominalSppAktif) {
+                        santriAktif = null;
+                        alert("Tarif SPP PUTRI belum diatur pada backend. Hubungi pengelola sebelum melakukan pembayaran.");
+                        return;
+                    }
                     tampilkanDetailSantri(santri);
                 } else {
                     alert("NIS tidak ditemukan. Pastikan NIS benar!");
