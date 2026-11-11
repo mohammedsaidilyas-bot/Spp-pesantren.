@@ -337,16 +337,7 @@
 
         function ekstrakNominalSpp(santri) {
             let nominal = Number(santri.nominalSpp) || Number(santri.nominal) || Number(santri.spp) || Number(santri.biayaSpp) || Number(santri.tarif);
-            if (!nominal || isNaN(nominal) || nominal <= 0) {
-                for (let key in santri) {
-                    let val = Number(santri[key]);
-                    if (val >= 10000 && val <= 5000000 && !key.toLowerCase().includes('nis') && !key.toLowerCase().includes('tahun')) {
-                        nominal = val;
-                        break;
-                    }
-                }
-            }
-            return (nominal && !isNaN(nominal) && nominal > 0) ? nominal : 0;
+            return (nominal && Number.isFinite(nominal) && nominal > 0) ? nominal : 0;
         }
 
         let streamScanNIS = null;
