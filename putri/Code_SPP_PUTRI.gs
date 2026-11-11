@@ -46,7 +46,7 @@ function sppPutriStatusIndex_(){
  return {sheet:sh,map};
 }
 function sppPutriSantri_(){
- const master=sppPutriMasterRows_(),status=sppPutriStatusIndex_(),nominal=sppPutriNominal_();
+ const master=sppPutriMasterRows_(),status=sppPutriStatusIndex_(),nominal=sppPutriNominalDisplay_();
  const pending=sppPutriDataRows_('PendingSPP').filter(r=>String(r[8]).toUpperCase()==='PENDING');
  return master.map(r=>{
   const nis=String(r[0]).trim(),saved=status.map[nis],sr=saved?saved.row:[];
@@ -82,6 +82,10 @@ function sppPutriFindStudent_(nis){
  const status=sppPutriStatusIndex_();let entry=status.map[nis];
  if(!entry){status.sheet.appendRow([nis,row[1]||'',row[2]||'',...SPP_PUTRI_MONTHS.map(()=>'BELUM')]);entry={row:[nis,row[1]||'',row[2]||'',...SPP_PUTRI_MONTHS.map(()=>'BELUM')],rowNumber:status.sheet.getLastRow()};}
  return {sheet:status.sheet,row:entry.row,rowNumber:entry.rowNumber,master:row};
+}
+function sppPutriNominalDisplay_(){
+  const n=Number(PropertiesService.getScriptProperties().getProperty('SPP_PUTRI_NOMINAL'));
+  return Number.isSafeInteger(n)&&n>0?n:0;
 }
 function sppPutriNominal_(){
   const n=Number(PropertiesService.getScriptProperties().getProperty('SPP_PUTRI_NOMINAL'));
