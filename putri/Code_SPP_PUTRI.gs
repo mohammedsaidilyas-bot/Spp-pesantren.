@@ -46,11 +46,18 @@ function sppPutriStatusIndex_(){
  return {sheet:sh,map};
 }
 function sppPutriSantri_(){
- const master=sppPutriMasterRows_(),status=sppPutriStatusIndex_();
+ const master=sppPutriMasterRows_(),status=sppPutriStatusIndex_(),nominal=sppPutriNominal_();
+ const pending=sppPutriDataRows_('PendingSPP').filter(r=>String(r[8]).toUpperCase()==='PENDING');
  return master.map(r=>{
   const nis=String(r[0]).trim(),saved=status.map[nis],sr=saved?saved.row:[];
-  const pembayaran={};SPP_PUTRI_MONTHS.forEach((m,i)=>pembayaran[m]=sr[3+i]||'BELUM');
-  return {nis,nama:r[1]||'',kelas:r[2]||'',asrama:r[3]||'',wali:r[4]||'',noWaWali:r[5]||'',status:r[7]||'Aktif',pembayaran};
+  const pembayaran={};
+  SPP_PUTRI_MONTHS.forEach((m,i)=>pembayaran[m]=String(sr[3+i]||'BELUM'));
+  pending.filter(p=>String(p[2]).trim()===nis).forEach(p=>{
+    String(p[5]||'').split(',').map(x=>x.trim()).filter(Boolean).forEach(m=>{
+      if(SPP_PUTRI_MONTHS.includes(m)&&!String(pembayaran[m]).toUpperCase().includes('LUNAS')) pembayaran[m]='PENDING';
+    });
+  });
+  return {nis,nama:r[1]||'',kelas:r[2]||'',asrama:r[3]||'',wali:r[4]||'',namaWali:r[4]||'',noWaWali:r[5]||'',noWa:r[5]||'',status:r[7]||'Aktif',nominalSpp:nominal,pembayaran};
  });
 }
 function sppPutriGet_(action){
@@ -100,15 +107,24 @@ function sppPutriPost_(body){
       if(String(body.mimeType)!=='image/jpeg') throw new Error('Bukti pembayaran harus berupa JPEG.');
       const blob=Utilities.newBlob(Utilities.base64Decode(data),'image/jpeg','BUKTI-SPP-PUTRI-'+nis+'-'+Utilities.getUuid()+'.jpg');
       const file=DriveApp.getFolderById(folderId).createFile(blob);
+      const existingPending=pendingRows.slice(1).filter(r=>String(r[2]).trim()===nis&&String(r[8]).toUpperCase()==='PENDING');
+      const conflict=months.filter(m=>{
+        const paid=String(student.row[3+SPP_PUTRI_MONTHS.indexOf(m)]||'').toUpperCase().includes('LUNAS');
+        const queued=existingPending.some(r=>String(r[5]||'').split(',').map(x=>x.trim()).includes(m));
+        return paid||queued;
+      });
+      if(conflict.length) throw new Error('Bulan berikut sudah lunas atau sedang menunggu verifikasi: '+conflict.join(', '));
       pending.appendRow([Utilities.getUuid(),new Date(),nis,student.master[1],student.master[2],months.join(','),nominal*months.length,file.getUrl(),'PENDING']);
-      return {status:'success',message:'Bukti transfer PUTRI diterima dan menunggu verifikasi.'};
+      return {status:'success',message:'Bukti transfer PUTRI diterima dan menunggu verifikasi.',bulan:months,nominal:nominal*months.length};
     }
     const props=PropertiesService.getScriptProperties();
     const expectedPin=props.getProperty(action==='bayarTunai'?'SPP_PUTRI_PIN_TUNAI':'SPP_PUTRI_BENDAHARA_PIN');
     if(!expectedPin||String(body.pin||'')!==expectedPin) throw new Error('PIN pembayaran/bendahara PUTRI salah.');
+    const pendingRowsForStudent=pending.getDataRange().getDisplayValues().slice(1).filter(r=>String(r[2]).trim()===nis&&String(r[8]).toUpperCase()==='PENDING');
     months.forEach(m=>{
       const cell=student.row[3+SPP_PUTRI_MONTHS.indexOf(m)];
       if(String(cell||'').toUpperCase().includes('LUNAS')) throw new Error(m+' sudah lunas. Transaksi dibatalkan.');
+      if(action==='bayarTunai'&&pendingRowsForStudent.some(r=>String(r[5]||'').split(',').map(x=>x.trim()).includes(m))) throw new Error(m+' sedang menunggu verifikasi transfer. Selesaikan verifikasi terlebih dahulu.');
     });
     if(action==='approve'){
       const matches=pendingRows.map((r,i)=>({r,i})).filter(x=>x.i>0&&String(x.r[2]).trim()===nis&&String(x.r[8]).toUpperCase()==='PENDING'&&String(x.r[5]).split(',').map(v=>v.trim()).sort().join('|')===months.slice().sort().join('|'));
